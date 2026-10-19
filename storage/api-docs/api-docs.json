@@ -1,0 +1,36 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Elometrics API",
+        "description": "API para la gestión de entrenamientos de ajedrez.",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/up": {
+            "get": {
+                "tags": [
+                    "Estado"
+                ],
+                "summary": "Comprobar que la aplicación responde",
+                "operationId": "43c8db3f2b224e1366d703efbca684fd",
+                "responses": {
+                    "200": {
+                        "description": "La aplicación está operativa."
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "http://localhost:8000",
+                        "description": "Servidor local"
+                    }
+                ]
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Estado",
+            "description": "Estado"
+        }
+    ]
+}
