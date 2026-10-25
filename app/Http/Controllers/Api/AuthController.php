@@ -7,6 +7,7 @@ use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\LoginRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 
@@ -73,5 +74,12 @@ class AuthController extends Controller
                 'email' => $user->email,
             ],
         ], 200);
+    }
+
+    public function logout(Request $request): Response
+    {
+        $request->user()->token()->revoke();
+        
+        return response()->noContent();
     }
 }
