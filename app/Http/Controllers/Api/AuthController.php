@@ -170,6 +170,22 @@ class AuthController extends Controller
         ], 200);
     }
 
+    #[OA\Get(
+        path: '/users/me',
+        summary: 'Obtener los datos del usuario autenticado',
+        tags: ['Autenticación'],
+        security: [['bearerAuth' => []]],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Datos del usuario autenticado.'
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Token ausente, inválido o expirado.'
+            ),
+        ]
+    )]
     public function me(Request $request): JsonResponse
     {
         $user = $request->user();

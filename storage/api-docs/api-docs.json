@@ -131,6 +131,28 @@
                 }
             }
         },
+        "/users/me": {
+            "get": {
+                "tags": [
+                    "Autenticación"
+                ],
+                "summary": "Obtener los datos del usuario autenticado",
+                "operationId": "58eb90e2b3be3d0480871a7c39a1785f",
+                "responses": {
+                    "200": {
+                        "description": "Datos del usuario autenticado."
+                    },
+                    "401": {
+                        "description": "Token ausente, inválido o expirado."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/up": {
             "get": {
                 "tags": [
