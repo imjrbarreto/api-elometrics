@@ -75,6 +75,52 @@ class WorkspaceController extends Controller
         ], 201);
     }
 
+    
+    #[OA\Get(
+        path: '/workspaces/{workspace}',
+        summary: 'Obtener el detalle de un workspace',
+        tags: ['Workspaces'],
+        security: [
+            ['bearerAuth' => []]
+        ],
+        parameters: [
+            new OA\Parameter(
+                name: 'workspace',
+                in: 'path',
+                description: 'ID del workspace',
+                required: true,
+                schema: new OA\Schema(type: 'integer', example: 1)
+            )
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Detalle del workspace devuelto exitosamente.',
+                content: new OA\JsonContent(
+                    example: [
+                        'data' => [
+                            'id' => 1,
+                            'title' => 'Camino a FM',
+                            'status' => 'active',
+                        ]
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 403,
+                description: 'No tienes permisos para ver este workspace.'
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Workspace no encontrado.'
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'No autenticado.'
+            ),
+        ]
+    )]
+
     public function show(Workspace $workspace): JsonResponse
     {
         Gate::authorize('view', $workspace);
