@@ -10,9 +10,77 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
+use OpenApi\Attributes as OA;
 
 class AuthController extends Controller
 {
+    #[OA\Post(
+        path: '/register',
+        summary: 'Registrar un usuario y obtener un token',
+        tags: ['Autenticación'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: [
+                    'name',
+                    'email',
+                    'password',
+                    'password_confirmation',
+                ],
+                properties: [
+                    new OA\Property(
+                        property: 'name',
+                        type: 'string',
+                        maxLength: 255,
+                        example: 'Jaime Romero'
+                    ),
+                    new OA\Property(
+                        property: 'email',
+                        type: 'string',
+                        format: 'email',
+                        maxLength: 255,
+                        example: 'jaime@example.com'
+                    ),
+                    new OA\Property(
+                        property: 'password',
+                        type: 'string',
+                        format: 'password',
+                        minLength: 8,
+                        example: 'password123'
+                    ),
+                    new OA\Property(
+                        property: 'password_confirmation',
+                        type: 'string',
+                        format: 'password',
+                        example: 'password123'
+                    ),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 201,
+                description: 'Usuario creado. Devuelve sus datos públicos y un token de acceso.',
+                content: new OA\JsonContent(
+                    example: [
+                        'data' => [
+                            'id' => 1,
+                            'name' => 'Jaime Romero',
+                            'email' => 'jaime@example.com',
+                        ],
+                        'token' => [
+                            'token_type' => 'Bearer',
+                            'access_token' => 'TOKEN_DE_ACCESO',
+                        ],
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 422,
+                description: 'Datos de validación incorrectos.'
+            ),
+        ]
+    )]
     public function register(RegisterRequest $request): JsonResponse
     {
         $data = $request->validated();
@@ -79,7 +147,7 @@ class AuthController extends Controller
     public function logout(Request $request): Response
     {
         $request->user()->token()->revoke();
-        
+
         return response()->noContent();
     }
 }
