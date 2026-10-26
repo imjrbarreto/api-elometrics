@@ -104,6 +104,45 @@ class AuthController extends Controller
         ], 201);
     }
 
+    #[OA\Post(
+        path: '/login',
+        summary: 'Iniciar sesión y obtener un token',
+        tags: ['Autenticación'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['email', 'password'],
+                properties: [
+                    new OA\Property(
+                        property: 'email',
+                        type: 'string',
+                        format: 'email',
+                        example: 'jaime@example.com'
+                    ),
+                    new OA\Property(
+                        property: 'password',
+                        type: 'string',
+                        format: 'password',
+                        example: 'password123'
+                    ),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Credenciales correctas. Devuelve los datos del usuario y un token.'
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Credenciales incorrectas.'
+            ),
+            new OA\Response(
+                response: 422,
+                description: 'Datos de validación incorrectos.'
+            ),
+        ]
+    )]
     public function login(LoginRequest $request): JsonResponse
     {
         $data = $request->validated();

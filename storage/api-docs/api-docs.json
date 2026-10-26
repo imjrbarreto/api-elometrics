@@ -85,6 +85,52 @@
                 }
             }
         },
+        "/login": {
+            "post": {
+                "tags": [
+                    "Autenticación"
+                ],
+                "summary": "Iniciar sesión y obtener un token",
+                "operationId": "67d6d0fdd54fba132e1b6f55ca254183",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "jaime@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Credenciales correctas. Devuelve los datos del usuario y un token."
+                    },
+                    "401": {
+                        "description": "Credenciales incorrectas."
+                    },
+                    "422": {
+                        "description": "Datos de validación incorrectos."
+                    }
+                }
+            }
+        },
         "/up": {
             "get": {
                 "tags": [
