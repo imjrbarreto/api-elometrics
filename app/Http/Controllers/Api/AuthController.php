@@ -199,6 +199,22 @@ class AuthController extends Controller
         ], 200);
     }
 
+    #[OA\Post(
+        path: '/logout',
+        summary: 'Cerrar sesión revocando el token actual',
+        tags: ['Autenticación'],
+        security: [['bearerAuth' => []]],
+        responses: [
+            new OA\Response(
+                response: 204,
+                description: 'Token actual revocado. Respuesta sin contenido.'
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Token ausente, inválido o expirado.'
+            ),
+        ]
+    )]
     public function logout(Request $request): Response
     {
         $request->user()->token()->revoke();

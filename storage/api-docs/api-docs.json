@@ -153,6 +153,28 @@
                 ]
             }
         },
+        "/logout": {
+            "post": {
+                "tags": [
+                    "Autenticación"
+                ],
+                "summary": "Cerrar sesión revocando el token actual",
+                "operationId": "28d48c13fca984400ac8de99f54ee13a",
+                "responses": {
+                    "204": {
+                        "description": "Token actual revocado. Respuesta sin contenido."
+                    },
+                    "401": {
+                        "description": "Token ausente, inválido o expirado."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/up": {
             "get": {
                 "tags": [
