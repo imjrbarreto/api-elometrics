@@ -50,3 +50,7 @@ function something()
     // ..
 }
 
+function apiUrl(string $path): string
+{
+    return '/api/v1/' . ltrim($path, '/');
+}
