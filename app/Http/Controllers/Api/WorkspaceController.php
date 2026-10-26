@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreWorkspaceRequest;
+use App\Models\Workspace;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
@@ -12,7 +14,7 @@ use OpenApi\Attributes as OA;
 #[OA\Tag(name: 'Workspaces', description: 'Endpoints para la gestión de workspaces')]
 class WorkspaceController extends Controller
 {
-        #[OA\Post(
+    #[OA\Post(
         path: '/workspaces',
         summary: 'Crear un nuevo workspace',
         tags: ['Workspaces'],
@@ -71,5 +73,18 @@ class WorkspaceController extends Controller
                 'status' => $workspace->status,
             ]
         ], 201);
+    }
+
+    public function show(Workspace $workspace): JsonResponse
+    {
+        Gate::authorize('view', $workspace);
+
+        return response()->json([
+            'data' => [
+                'id' => $workspace->id,
+                'title' => $workspace->title,
+                'status' => $workspace->status,
+            ]
+        ]);
     }
 }
