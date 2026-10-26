@@ -207,7 +207,7 @@
     "tags": [
         {
             "name": "Autenticación",
-            "description": "Autenticación"
+            "description": "Endpoints para la gestión de usuarios y sesiones"
         },
         {
             "name": "Estado",
