@@ -75,7 +75,23 @@ class WorkspaceController extends Controller
         ], 201);
     }
 
-    
+    public function list(Request $request): JsonResponse
+    {
+        $workspaces = $request->user()->workspaces()->get();
+
+        $formattedWorkspaces = $workspaces->map(function ($workspaces) {
+            return [
+                'id' => $workspaces->id,
+                'title' => $workspaces->title,
+                'status' => $workspaces->status,
+            ];
+        })->toArray();
+
+        return response()->json([
+            'data' => $formattedWorkspaces,
+        ]);
+    }
+
     #[OA\Get(
         path: '/workspaces/{workspace}',
         summary: 'Obtener el detalle de un workspace',
@@ -120,7 +136,6 @@ class WorkspaceController extends Controller
             ),
         ]
     )]
-
     public function show(Workspace $workspace): JsonResponse
     {
         Gate::authorize('view', $workspace);
