@@ -175,6 +175,68 @@
                 ]
             }
         },
+        "/workspaces": {
+            "post": {
+                "tags": [
+                    "Workspaces"
+                ],
+                "summary": "Crear un nuevo workspace",
+                "operationId": "f939e1b7dc818f464683b44bb4ba1a16",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "title",
+                                    "status"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Workspace 1",
+                                        "maxLength": 255
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "example": "active"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Workspace creado exitosamente.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "data": {
+                                        "id": 1,
+                                        "name": "Workspace 1",
+                                        "email": "active"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Datos de validación incorrectos."
+                    },
+                    "401": {
+                        "description": "No autenticado."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/up": {
             "get": {
                 "tags": [
@@ -208,6 +270,10 @@
         {
             "name": "Autenticación",
             "description": "Endpoints para la gestión de usuarios y sesiones"
+        },
+        {
+            "name": "Workspaces",
+            "description": "Endpoints para la gestión de workspaces"
         },
         {
             "name": "Estado",
