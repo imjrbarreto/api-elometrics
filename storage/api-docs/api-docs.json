@@ -176,6 +176,45 @@
             }
         },
         "/workspaces": {
+            "get": {
+                "tags": [
+                    "Workspaces"
+                ],
+                "summary": "Listar los workspaces del usuario",
+                "operationId": "d79e45779b474bfc8b0f4a116fa3963e",
+                "responses": {
+                    "200": {
+                        "description": "Listado de workspaces devuelto con éxito.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "data": [
+                                        {
+                                            "id": 1,
+                                            "title": "Camino a FM",
+                                            "status": "active"
+                                        },
+                                        {
+                                            "id": 2,
+                                            "title": "Workspace Secundario",
+                                            "status": "inactive"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
             "post": {
                 "tags": [
                     "Workspaces"

@@ -75,6 +75,41 @@ class WorkspaceController extends Controller
         ], 201);
     }
 
+
+    #[OA\Get(
+        path: '/workspaces',
+        summary: 'Listar los workspaces del usuario',
+        tags: ['Workspaces'],
+        security: [
+            ['bearerAuth' => []]
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Listado de workspaces devuelto con éxito.',
+                content: new OA\JsonContent(
+                    example: [
+                        'data' => [
+                            [
+                                'id' => 1,
+                                'title' => 'Camino a FM',
+                                'status' => 'active',
+                            ],
+                            [
+                                'id' => 2,
+                                'title' => 'Workspace Secundario',
+                                'status' => 'inactive',
+                            ]
+                        ]
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'No autenticado.'
+            ),
+        ]
+    )]
     public function list(Request $request): JsonResponse
     {
         $workspaces = $request->user()->workspaces()->get();
