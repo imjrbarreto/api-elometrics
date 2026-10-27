@@ -76,7 +76,6 @@ class WorkspaceController extends Controller
         ], 201);
     }
 
-
     #[OA\Get(
         path: '/workspaces',
         summary: 'Listar los workspaces del usuario',
@@ -185,7 +184,6 @@ class WorkspaceController extends Controller
         ]);
     }
 
-
     #[OA\Patch(
         path: '/workspaces/{workspace}',
         summary: 'Actualizar un workspace',
@@ -258,5 +256,15 @@ class WorkspaceController extends Controller
                 'status' => $workspace->status,
             ]
         ], 200);
+    }
+
+
+    public function delete(Workspace $workspace): JsonResponse
+    {
+        Gate::authorize('delete', $workspace);
+
+        $workspace->delete();
+
+        return response()->json(null, 204);
     }
 }

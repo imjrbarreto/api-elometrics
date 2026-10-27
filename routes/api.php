@@ -17,8 +17,9 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api'
 
 Route::middleware('auth:api')->group(function () {
     Route::post('workspaces', [WorkspaceController::class, 'store']);
-    Route::get('workspaces/', [WorkspaceController::class, 'list']);
+    Route::get('workspaces', [WorkspaceController::class, 'list']);
     Route::get('workspaces/{workspace}', [WorkspaceController::class, 'show']);
     Route::patch('workspaces/{workspace}', [WorkspaceController::class, 'update']);
+    Route::delete('workspaces/{workspace}', [WorkspaceController::class, 'delete']);
 });
 
