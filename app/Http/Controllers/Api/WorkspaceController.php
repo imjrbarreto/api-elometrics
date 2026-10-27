@@ -258,6 +258,29 @@ class WorkspaceController extends Controller
         ], 200);
     }
 
+    #[OA\Delete(
+        path: '/workspaces/{workspace}',
+        summary: 'Eliminar un workspace',
+        tags: ['Workspaces'],
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(
+                name: 'workspace',
+                in: 'path',
+                description: 'ID del workspace a eliminar',
+                required: true,
+                schema: new OA\Schema(type: 'integer', example: 1)
+            )
+        ],
+        responses: [
+            new OA\Response(
+                response: 204,
+                description: 'Workspace eliminado exitosamente (No Content).'
+            ),
+            new OA\Response(response: 401, description: 'No autenticado.'),
+            new OA\Response(response: 404, description: 'Workspace no encontrado.')
+        ]
+    )]
 
     public function delete(Workspace $workspace): JsonResponse
     {

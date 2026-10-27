@@ -327,6 +327,41 @@
                     }
                 ]
             },
+            "delete": {
+                "tags": [
+                    "Workspaces"
+                ],
+                "summary": "Eliminar un workspace",
+                "operationId": "786ce8b767d24ad9eafccf984e883deb",
+                "parameters": [
+                    {
+                        "name": "workspace",
+                        "in": "path",
+                        "description": "ID del workspace a eliminar",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Workspace eliminado exitosamente (No Content)."
+                    },
+                    "401": {
+                        "description": "No autenticado."
+                    },
+                    "404": {
+                        "description": "Workspace no encontrado."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
             "patch": {
                 "tags": [
                     "Workspaces"
