@@ -185,7 +185,66 @@ class WorkspaceController extends Controller
         ]);
     }
 
-    
+
+    #[OA\Patch(
+        path: '/workspaces/{workspace}',
+        summary: 'Actualizar un workspace',
+        tags: ['Workspaces'],
+        security: [
+            ['bearerAuth' => []]
+        ],
+        parameters: [
+            new OA\Parameter(
+                name: 'workspace',
+                in: 'path',
+                description: 'ID del workspace',
+                required: true,
+                schema: new OA\Schema(type: 'integer', example: 1)
+            )
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['title', 'status'],
+                properties: [
+                    new OA\Property(
+                        property: 'title',
+                        type: 'string',
+                        maxLength: 255,
+                        example: 'Workspace 1'
+                    ),
+                    new OA\Property(
+                        property: 'status',
+                        type: 'string',
+                        example: 'active'
+                    ),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 201,
+                description: 'Workspace actualizado exitosamente.',
+                content: new OA\JsonContent(
+                    example: [
+                        'data' => [
+                            'id' => 1,
+                            'name' => 'Workspace actualizado',
+                            'email' => 'active',
+                        ],
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 422,
+                description: 'Datos de validación incorrectos.'
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'No autenticado.'
+            ),
+        ]
+    )]
     public function update(UpdateWorkspaceRequest $request, Workspace $workspace): JsonResponse
     {
         Gate::authorize('update', $workspace);
