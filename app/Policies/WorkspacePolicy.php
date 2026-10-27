@@ -37,7 +37,7 @@ class WorkspacePolicy
      */
     public function update(User $user, Workspace $workspace): bool
     {
-        return false;
+        return $user->id === $workspace->user_id;;
     }
 
     /**

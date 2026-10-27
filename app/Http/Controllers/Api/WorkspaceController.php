@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreWorkspaceRequest;
+use App\Http\Requests\UpdateWorkspaceRequest;
 use App\Models\Workspace;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Http\JsonResponse;
@@ -98,7 +99,7 @@ class WorkspaceController extends Controller
                             [
                                 'id' => 2,
                                 'title' => 'Workspace Secundario',
-                                'status' => 'inactive',
+                                'status' => 'paused',
                             ]
                         ]
                     ]
@@ -182,5 +183,21 @@ class WorkspaceController extends Controller
                 'status' => $workspace->status,
             ]
         ]);
+    }
+
+    
+    public function update(UpdateWorkspaceRequest $request, Workspace $workspace): JsonResponse
+    {
+        Gate::authorize('update', $workspace);
+
+        $workspace->update($request->validated());
+
+        return response()->json([
+            'data' => [
+                'id' => $workspace->id,
+                'title' => $workspace->title,
+                'status' => $workspace->status,
+            ]
+        ], 200);
     }
 }
