@@ -48,7 +48,7 @@ class WorkspaceController extends Controller
                         'data' => [
                             'id' => 1,
                             'name' => 'Workspace 1',
-                            'email' => 'active',
+                            'status' => 'active',
                         ],
                     ]
                 )
@@ -203,7 +203,6 @@ class WorkspaceController extends Controller
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ['title', 'status'],
                 properties: [
                     new OA\Property(
                         property: 'title',
@@ -221,26 +220,22 @@ class WorkspaceController extends Controller
         ),
         responses: [
             new OA\Response(
-                response: 201,
+                response: 200,
                 description: 'Workspace actualizado exitosamente.',
                 content: new OA\JsonContent(
                     example: [
                         'data' => [
                             'id' => 1,
                             'name' => 'Workspace actualizado',
-                            'email' => 'active',
+                            'status' => 'active',
                         ],
                     ]
                 )
             ),
-            new OA\Response(
-                response: 422,
-                description: 'Datos de validación incorrectos.'
-            ),
-            new OA\Response(
-                response: 401,
-                description: 'No autenticado.'
-            ),
+            new OA\Response(response: 422, description: 'Datos de validación incorrectos.'),
+            new OA\Response(response: 401,description: 'No autenticado.'),
+            new OA\Response(response: 403, description: 'No autorizado.'),
+            new OA\Response(response: 404, description: 'Workspace no encontrado.')
         ]
     )]
     public function update(UpdateWorkspaceRequest $request, Workspace $workspace): JsonResponse
@@ -275,13 +270,13 @@ class WorkspaceController extends Controller
         responses: [
             new OA\Response(
                 response: 204,
-                description: 'Workspace eliminado exitosamente (No Content).'
+                description: 'Workspace eliminado exitosamente.'
             ),
             new OA\Response(response: 401, description: 'No autenticado.'),
+            new OA\Response(response: 403, description: 'No autorizado.'),
             new OA\Response(response: 404, description: 'Workspace no encontrado.')
         ]
     )]
-
     public function delete(Workspace $workspace): JsonResponse
     {
         Gate::authorize('delete', $workspace);
