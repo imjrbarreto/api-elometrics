@@ -175,6 +175,266 @@
                 ]
             }
         },
+        "/workspaces": {
+            "get": {
+                "tags": [
+                    "Workspaces"
+                ],
+                "summary": "Listar los workspaces del usuario",
+                "operationId": "d79e45779b474bfc8b0f4a116fa3963e",
+                "responses": {
+                    "200": {
+                        "description": "Listado de workspaces devuelto con éxito.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "data": [
+                                        {
+                                            "id": 1,
+                                            "title": "Camino a FM",
+                                            "status": "active"
+                                        },
+                                        {
+                                            "id": 2,
+                                            "title": "Workspace Secundario",
+                                            "status": "paused"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Workspaces"
+                ],
+                "summary": "Crear un nuevo workspace",
+                "operationId": "f939e1b7dc818f464683b44bb4ba1a16",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "title",
+                                    "status"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Workspace 1",
+                                        "maxLength": 255
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "example": "active"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Workspace creado exitosamente.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "data": {
+                                        "id": 1,
+                                        "name": "Workspace 1",
+                                        "email": "active"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Datos de validación incorrectos."
+                    },
+                    "401": {
+                        "description": "No autenticado."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/workspaces/{workspace}": {
+            "get": {
+                "tags": [
+                    "Workspaces"
+                ],
+                "summary": "Obtener el detalle de un workspace",
+                "operationId": "bc39ae11b5640832c108d7858a1ea5ab",
+                "parameters": [
+                    {
+                        "name": "workspace",
+                        "in": "path",
+                        "description": "ID del workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalle del workspace devuelto exitosamente.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "data": {
+                                        "id": 1,
+                                        "title": "Camino a FM",
+                                        "status": "active"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "No tienes permisos para ver este workspace."
+                    },
+                    "404": {
+                        "description": "Workspace no encontrado."
+                    },
+                    "401": {
+                        "description": "No autenticado."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Workspaces"
+                ],
+                "summary": "Eliminar un workspace",
+                "operationId": "786ce8b767d24ad9eafccf984e883deb",
+                "parameters": [
+                    {
+                        "name": "workspace",
+                        "in": "path",
+                        "description": "ID del workspace a eliminar",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Workspace eliminado exitosamente (No Content)."
+                    },
+                    "401": {
+                        "description": "No autenticado."
+                    },
+                    "404": {
+                        "description": "Workspace no encontrado."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "patch": {
+                "tags": [
+                    "Workspaces"
+                ],
+                "summary": "Actualizar un workspace",
+                "operationId": "2178bdbad17e6e9f43c24b8e4ef4e391",
+                "parameters": [
+                    {
+                        "name": "workspace",
+                        "in": "path",
+                        "description": "ID del workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "title",
+                                    "status"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Workspace 1",
+                                        "maxLength": 255
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "example": "active"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Workspace actualizado exitosamente.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "data": {
+                                        "id": 1,
+                                        "name": "Workspace actualizado",
+                                        "email": "active"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Datos de validación incorrectos."
+                    },
+                    "401": {
+                        "description": "No autenticado."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/up": {
             "get": {
                 "tags": [
@@ -207,7 +467,11 @@
     "tags": [
         {
             "name": "Autenticación",
-            "description": "Autenticación"
+            "description": "Endpoints para la gestión de usuarios y sesiones"
+        },
+        {
+            "name": "Workspaces",
+            "description": "Endpoints para la gestión de workspaces"
         },
         {
             "name": "Estado",
