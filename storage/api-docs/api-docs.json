@@ -175,6 +175,80 @@
                 ]
             }
         },
+        "/training-sessions": {
+            "post": {
+                "tags": [
+                    "Training Sessions"
+                ],
+                "summary": "Crear una nueva sesion de entrenamiento",
+                "operationId": "a4bfe0648be836ea4d1463e2f755688b",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "title",
+                                    "category"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Finales de torres",
+                                        "maxLength": 255
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Actividad de la torre y ejercicios practicos.",
+                                        "maxLength": 255
+                                    },
+                                    "category": {
+                                        "type": "string",
+                                        "example": "endgame"
+                                    },
+                                    "resource": {
+                                        "type": "string",
+                                        "format": "uri",
+                                        "example": "https://ejemplo.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "TrainingSession creada exitosamente.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "data": {
+                                        "id": 1,
+                                        "title": "Finales de torres",
+                                        "description": "Actividad de la torre y ejercicios practicos.",
+                                        "category": "endgame",
+                                        "resource": "https://lichess.org/study/abcd1234"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Datos de validación incorrectos."
+                    },
+                    "401": {
+                        "description": "No autenticado."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/workspaces": {
             "get": {
                 "tags": [
@@ -256,7 +330,7 @@
                                     "data": {
                                         "id": 1,
                                         "name": "Workspace 1",
-                                        "email": "active"
+                                        "status": "active"
                                     }
                                 }
                             }
@@ -347,10 +421,13 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": "Workspace eliminado exitosamente (No Content)."
+                        "description": "Workspace eliminado exitosamente."
                     },
                     "401": {
                         "description": "No autenticado."
+                    },
+                    "403": {
+                        "description": "No autorizado."
                     },
                     "404": {
                         "description": "Workspace no encontrado."
@@ -385,10 +462,6 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "title",
-                                    "status"
-                                ],
                                 "properties": {
                                     "title": {
                                         "type": "string",
@@ -406,7 +479,7 @@
                     }
                 },
                 "responses": {
-                    "201": {
+                    "200": {
                         "description": "Workspace actualizado exitosamente.",
                         "content": {
                             "application/json": {
@@ -415,7 +488,7 @@
                                     "data": {
                                         "id": 1,
                                         "name": "Workspace actualizado",
-                                        "email": "active"
+                                        "status": "active"
                                     }
                                 }
                             }
@@ -426,6 +499,12 @@
                     },
                     "401": {
                         "description": "No autenticado."
+                    },
+                    "403": {
+                        "description": "No autorizado."
+                    },
+                    "404": {
+                        "description": "Workspace no encontrado."
                     }
                 },
                 "security": [
@@ -468,6 +547,10 @@
         {
             "name": "Autenticación",
             "description": "Endpoints para la gestión de usuarios y sesiones"
+        },
+        {
+            "name": "Training Sessions",
+            "description": "Endpoints para la gestión de sesiones de entrenamiento"
         },
         {
             "name": "Workspaces",
