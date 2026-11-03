@@ -45,7 +45,7 @@ class TrainingSessionPolicy
      */
     public function delete(User $user, TrainingSession $trainingSession): bool
     {
-        return false;
+        return $user->id === $trainingSession->user_id;
     }
 
     /**

@@ -29,4 +29,5 @@ Route::middleware('auth:api')->group(function () {
     Route::get('training-sessions', [TrainingSessionController::class, 'list']);
     Route::get('training-sessions/{training_session}', [TrainingSessionController::class, 'show']);
     Route::patch('training-sessions/{training_session}', [TrainingSessionController::class, 'update']);
+    Route::delete('training-sessions/{training_session}', [TrainingSessionController::class, 'delete']);
 });

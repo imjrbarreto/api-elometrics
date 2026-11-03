@@ -141,4 +141,13 @@ class TrainingSessionController extends Controller
             ]
         ], 200);
     }
+
+    public function delete(TrainingSession $trainingSession): JsonResponse
+    {
+        Gate::authorize('delete', $trainingSession);
+
+        $trainingSession->delete();
+
+        return response()->json(null, 204);
+    }
 }

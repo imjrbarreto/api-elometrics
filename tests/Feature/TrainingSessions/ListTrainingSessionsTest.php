@@ -7,12 +7,12 @@ use Laravel\Passport\Passport;
 
 uses(RefreshDatabase::class);
 
-// it('requires authentication to list training sessions', function () {
-//     /** @var \Tests\TestCase $this */
+it('requires authentication to list training sessions', function () {
+    /** @var \Tests\TestCase $this */
 
-//     $this->getJson(apiUrl('training-sessions'))
-//         ->assertUnauthorized();
-// });
+    $this->getJson(apiUrl('training-sessions'))
+        ->assertUnauthorized();
+});
 
 it('can list training sesison', function () {
     /** @var \Tests\TestCase $this */
