@@ -11,7 +11,7 @@ use OpenApi\Attributes as OA;
 #[OA\Tag(name: 'Training Sessions', description: 'Endpoints para la gestión de sesiones de entrenamiento')]
 class TrainingSessionController extends Controller
 {
-        #[OA\Post(
+    #[OA\Post(
         path: '/training-sessions',
         summary: 'Crear una nueva sesion de entrenamiento',
         tags: ['Training Sessions'],
@@ -86,5 +86,24 @@ class TrainingSessionController extends Controller
                 'resource' => $trainingSession->resource,
             ]
         ], 201);
+    }
+
+    public function list(Request $request): JsonResponse
+    {
+        $traininsSession = $request->user()->trainingSessions()->get();
+
+        $formattedTraining = $traininsSession->map(function ($traininsSession) {
+            return [
+                'id' => $traininsSession->id,
+                'title' => $traininsSession->title,
+                'description' => $traininsSession->description,
+                'category' => $traininsSession->category,
+                'resource' => $traininsSession->resource,
+            ];
+        })->toArray();
+
+        return response()->json([
+            'data' => $formattedTraining,
+        ]);
     }
 }

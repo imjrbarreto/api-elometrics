@@ -26,4 +26,5 @@ Route::middleware('auth:api')->group(function () {
 
 Route::middleware('auth:api')->group(function () {
     Route::post('training-sessions', [TrainingSessionController::class, 'store']);
+    Route::get('training-sessions', [TrainingSessionController::class, 'list']);
 });
