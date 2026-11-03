@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTrainingSessionRequest;
+use App\Models\TrainingSession;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use OpenApi\Attributes as OA;
 
 #[OA\Tag(name: 'Training Sessions', description: 'Endpoints para la gestión de sesiones de entrenamiento')]
@@ -90,20 +92,35 @@ class TrainingSessionController extends Controller
 
     public function list(Request $request): JsonResponse
     {
-        $traininsSession = $request->user()->trainingSessions()->get();
+        $trainingSession = $request->user()->trainingSessions()->get();
 
-        $formattedTraining = $traininsSession->map(function ($traininsSession) {
+        $formattedTraining = $trainingSession->map(function ($trainingSession) {
             return [
-                'id' => $traininsSession->id,
-                'title' => $traininsSession->title,
-                'description' => $traininsSession->description,
-                'category' => $traininsSession->category,
-                'resource' => $traininsSession->resource,
+                'id' => $trainingSession->id,
+                'title' => $trainingSession->title,
+                'description' => $trainingSession->description,
+                'category' => $trainingSession->category,
+                'resource' => $trainingSession->resource,
             ];
         })->toArray();
 
         return response()->json([
             'data' => $formattedTraining,
+        ]);
+    }
+
+    public function show(TrainingSession $trainingSession): JsonResponse
+    {
+        Gate::authorize('view', $trainingSession);
+
+        return response()->json([
+            'data' => [
+                'id' => $trainingSession->id,
+                'title' => $trainingSession->title,
+                'description' => $trainingSession->description,
+                'category' => $trainingSession->category,
+                'resource' => $trainingSession->resource,
+            ]
         ]);
     }
 }
