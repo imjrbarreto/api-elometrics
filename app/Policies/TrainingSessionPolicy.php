@@ -37,7 +37,7 @@ class TrainingSessionPolicy
      */
     public function update(User $user, TrainingSession $trainingSession): bool
     {
-        return false;
+        return $user->id === $trainingSession->user_id;
     }
 
     /**

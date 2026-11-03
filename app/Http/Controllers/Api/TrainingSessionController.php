@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTrainingSessionRequest;
+use App\Http\Requests\UpdateTrainingSessionRequest;
 use App\Models\TrainingSession;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -122,5 +123,22 @@ class TrainingSessionController extends Controller
                 'resource' => $trainingSession->resource,
             ]
         ]);
+    }
+
+    public function update(UpdateTrainingSessionRequest $request, TrainingSession $trainingSession): JsonResponse
+    {
+        Gate::authorize('update', $trainingSession);
+
+        $trainingSession->update($request->validated());
+
+        return response()->json([
+            'data' => [
+                'id' => $trainingSession->id,
+                'title' => $trainingSession->title,
+                'description' => $trainingSession->description,
+                'category' => $trainingSession->category,
+                'resource' => $trainingSession->resource,
+            ]
+        ], 200);
     }
 }
