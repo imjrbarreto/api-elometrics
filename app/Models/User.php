@@ -37,4 +37,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Workspace::class);
     }
+    
+    public function trainingSessions(): HasMany
+    {
+        return $this->hasMany(TrainingSession::class);
+    }
 }

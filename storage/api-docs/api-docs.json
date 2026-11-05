@@ -175,6 +175,302 @@
                 ]
             }
         },
+        "/training-sessions": {
+            "get": {
+                "tags": [
+                    "Training Sessions"
+                ],
+                "summary": "Listar las sesiones de entrenamiento del usuario",
+                "operationId": "1763d339b6576de0eb48347aad50a409",
+                "responses": {
+                    "200": {
+                        "description": "Listado de sesiones de entrenamiento devuelto con éxito.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "data": [
+                                        {
+                                            "id": 1,
+                                            "title": "Defensa Francesa",
+                                            "description": "Variante Clasica en la defensa francesa",
+                                            "category": "opening",
+                                            "resources": "http://example.com"
+                                        },
+                                        {
+                                            "id": 2,
+                                            "title": "Defensa Caro Kann",
+                                            "description": "Variante del avance en la defensa caro kann",
+                                            "category": "opening",
+                                            "resources": "http://example.com"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Training Sessions"
+                ],
+                "summary": "Crear una nueva sesion de entrenamiento",
+                "operationId": "a4bfe0648be836ea4d1463e2f755688b",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "title",
+                                    "category"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Finales de torres",
+                                        "maxLength": 255
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Actividad de la torre y ejercicios practicos.",
+                                        "maxLength": 255
+                                    },
+                                    "category": {
+                                        "type": "string",
+                                        "example": "endgame"
+                                    },
+                                    "resource": {
+                                        "type": "string",
+                                        "format": "uri",
+                                        "example": "https://ejemplo.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "TrainingSession creada exitosamente.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "data": {
+                                        "id": 1,
+                                        "title": "Finales de torres",
+                                        "description": "Actividad de la torre y ejercicios practicos.",
+                                        "category": "endgame",
+                                        "resource": "https://lichess.org/study/abcd1234"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Datos de validación incorrectos."
+                    },
+                    "401": {
+                        "description": "No autenticado."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/training-sessions/{training-session}": {
+            "get": {
+                "tags": [
+                    "Training Sessions"
+                ],
+                "summary": "Listar una sesion de entrenamiento",
+                "operationId": "60eb7abbdda49e483fcffcdb03b868ae",
+                "parameters": [
+                    {
+                        "name": "training-session",
+                        "in": "path",
+                        "description": "ID de la sesion de entrenamiento",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalle de la training session devuelta exitosamente.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "data": [
+                                        {
+                                            "id": 1,
+                                            "title": "Defensa Caro Kann",
+                                            "description": "Variante del avance en la defensa caro kann",
+                                            "category": "opening",
+                                            "resources": "http://example.com"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "No tienes permisos para ver esta sesion de entrenamiento."
+                    },
+                    "404": {
+                        "description": "sesion de entrenamiento no encontrada."
+                    },
+                    "401": {
+                        "description": "No autenticado."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Training Sessions"
+                ],
+                "summary": "Eliminar una sesion de entrenamiento",
+                "operationId": "65a903ab5d51e292718974df4210c9d4",
+                "parameters": [
+                    {
+                        "name": "trainingSession",
+                        "in": "path",
+                        "description": "ID de la trainingSession a eliminar",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "TrainingSession eliminada exitosamente."
+                    },
+                    "401": {
+                        "description": "No autenticado."
+                    },
+                    "403": {
+                        "description": "No autorizado."
+                    },
+                    "404": {
+                        "description": "TrainingSession no encontrado."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "patch": {
+                "tags": [
+                    "Training Sessions"
+                ],
+                "summary": "Actualizar una sesion de entrenamiento",
+                "operationId": "202f817da3451a06b189f16c5e4fe669",
+                "parameters": [
+                    {
+                        "name": "training-session",
+                        "in": "path",
+                        "description": "ID de la training-session",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Entrenamiento actualizado",
+                                        "maxLength": 255
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Cambios de aperturas",
+                                        "maxLength": 255
+                                    },
+                                    "category": {
+                                        "type": "string",
+                                        "example": "opening"
+                                    },
+                                    "resources": {
+                                        "type": "string",
+                                        "example": "http://example.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "TrainingSession actualizada exitosamente.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "data": {
+                                        "id": 1,
+                                        "name": "TrainingSession actualizado",
+                                        "description": "actualizado",
+                                        "category": "opening",
+                                        "resources": "http://example.com"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Datos de validación incorrectos."
+                    },
+                    "401": {
+                        "description": "No autenticado."
+                    },
+                    "403": {
+                        "description": "No autorizado."
+                    },
+                    "404": {
+                        "description": "Workspace no encontrado."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/workspaces": {
             "get": {
                 "tags": [
@@ -256,7 +552,7 @@
                                     "data": {
                                         "id": 1,
                                         "name": "Workspace 1",
-                                        "email": "active"
+                                        "status": "active"
                                     }
                                 }
                             }
@@ -347,10 +643,13 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": "Workspace eliminado exitosamente (No Content)."
+                        "description": "Workspace eliminado exitosamente."
                     },
                     "401": {
                         "description": "No autenticado."
+                    },
+                    "403": {
+                        "description": "No autorizado."
                     },
                     "404": {
                         "description": "Workspace no encontrado."
@@ -385,10 +684,6 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "title",
-                                    "status"
-                                ],
                                 "properties": {
                                     "title": {
                                         "type": "string",
@@ -406,7 +701,7 @@
                     }
                 },
                 "responses": {
-                    "201": {
+                    "200": {
                         "description": "Workspace actualizado exitosamente.",
                         "content": {
                             "application/json": {
@@ -415,7 +710,7 @@
                                     "data": {
                                         "id": 1,
                                         "name": "Workspace actualizado",
-                                        "email": "active"
+                                        "status": "active"
                                     }
                                 }
                             }
@@ -426,6 +721,12 @@
                     },
                     "401": {
                         "description": "No autenticado."
+                    },
+                    "403": {
+                        "description": "No autorizado."
+                    },
+                    "404": {
+                        "description": "Workspace no encontrado."
                     }
                 },
                 "security": [
@@ -468,6 +769,10 @@
         {
             "name": "Autenticación",
             "description": "Endpoints para la gestión de usuarios y sesiones"
+        },
+        {
+            "name": "Training Sessions",
+            "description": "Endpoints para la gestión de sesiones de entrenamiento"
         },
         {
             "name": "Workspaces",
