@@ -63,4 +63,8 @@ class WorkspacePolicy
     {
         return false;
     }
+
+    public function viewMembers(User $user, Workspace $workspace): bool {
+        return $workspace->hasMember($user);
+    }
 }
