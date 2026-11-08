@@ -10,14 +10,24 @@ class WorkspaceRoleSeeder extends Seeder
 {
     public function run(): void
     {
+        $this->call(WorkspacePermissionSeeder::class);
+
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
-        foreach (['owner', 'coach', 'student', 'viewer'] as $role) {
-            Role::firstOrCreate([
-                'name' => $role,
+        foreach (['owner', 'coach', 'student', 'viewer'] as $roleName) {
+            $role = Role::firstOrCreate([
+                'name' => $roleName,
                 'guard_name' => 'api',
                 'workspace_id' => null,
             ]);
+
+            if ($roleName === 'owner') {
+                $role->syncPermissions([
+                    'members.view',
+                    'members.add',
+                    'members.remove',
+                ]);
+            }
         }
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();
