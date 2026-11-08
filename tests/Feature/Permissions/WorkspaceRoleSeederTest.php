@@ -31,3 +31,26 @@ it('assigns member management permissions to the owner role', function () {
     expect($permissions)
         ->not->toContain('training-sessions.respond');
 });
+
+it('assigns viewing and responding permissions to the student role', function () {
+    /** @var \Tests\TestCase $this */
+
+    $this->seed(WorkspaceRoleSeeder::class);
+
+    $studentRole = Role::query()
+        ->where('name', 'student')
+        ->where('guard_name', 'api')
+        ->whereNull('workspace_id')
+        ->firstOrFail();
+
+    $permissions = $studentRole->permissions()
+        ->pluck('name')
+        ->all();
+
+    expect($permissions)
+        ->toHaveCount(2)
+        ->toContain(
+            'members.view',
+            'training-sessions.respond',
+        );
+});

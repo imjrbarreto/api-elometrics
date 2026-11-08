@@ -28,6 +28,13 @@ class WorkspaceRoleSeeder extends Seeder
                     'members.remove',
                 ]);
             }
+
+            if ($roleName === 'student') {
+                $role->syncPermissions([
+                    'members.view',
+                    'training-sessions.respond',
+                ]);
+            }
         }
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();
