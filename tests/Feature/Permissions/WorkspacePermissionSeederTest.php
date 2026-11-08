@@ -3,10 +3,10 @@
 use Database\Seeders\WorkspacePermissionSeeder;
 
 it('creates the workspace permissions for the api guard', function () {
-    // Actuar: ejecutar el seeder.
+    /** @var \Tests\TestCase $this */
+
     $this->seed(WorkspacePermissionSeeder::class);
 
-    // Comprobar: los cuatro permisos existen.
     foreach ([
         'members.view',
         'members.add',
@@ -21,6 +21,8 @@ it('creates the workspace permissions for the api guard', function () {
 });
 
 it('does not duplicate permissions when executed again', function () {
+    /** @var \Tests\TestCase $this */
+
     $this->seed(WorkspacePermissionSeeder::class);
 
     $existingPermissions = \Spatie\Permission\Models\Permission::query()
