@@ -3,6 +3,8 @@
 use App\Models\TrainingSession;
 use App\Models\Workspace;
 use Laravel\Passport\Passport;
+use App\Models\User;
+use App\Support\WorkspaceRoles;
 
 it('allows the owner to attach an own session to the workspace', function () {
     /** @var \Tests\TestCase $this */
@@ -176,5 +178,98 @@ it('allows a coach to attach an own session to the workspace', function () {
     $this->assertDatabaseHas('training_session_workspace', [
         'workspace_id' => $workspace->id,
         'training_session_id' => $session->id,
+    ]);
+});
+
+it('does not reuse a coach role from another workspace when linking sessions', function () {
+    /** @var \Tests\TestCase $this */
+
+    [, $workspace] = emWorkspace();
+
+    $actor = emMember($workspace, 'viewer');
+
+    [, $otherWorkspace] = emWorkspace();
+
+    $otherWorkspace->members()->attach($actor->id);
+
+    WorkspaceRoles::within(
+        $otherWorkspace,
+        $actor,
+        fn (User $member) => $member->syncRoles(['coach'])
+    );
+
+    $session = TrainingSession::factory()->create([
+        'user_id' => $actor->id,
+    ]);
+
+    Passport::actingAs($actor);
+
+    $this->postJson(
+        apiUrl("workspaces/{$workspace->id}/training-sessions"),
+        [
+            'training_session_id' => $session->id,
+        ]
+    )->assertForbidden();
+
+    $this->assertDatabaseMissing('training_session_workspace', [
+        'workspace_id' => $workspace->id,
+        'training_session_id' => $session->id,
+    ]);
+});
+
+it('rejects an invalid training session identifier', function (array $data) {
+    /** @var \Tests\TestCase $this */
+
+    [$owner, $workspace] = emWorkspace();
+
+    Passport::actingAs($owner);
+
+    $this->postJson(
+        apiUrl("workspaces/{$workspace->id}/training-sessions"),
+        $data
+    )
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('training_session_id');
+
+    // Ninguna petición inválida debe crear vinculaciones.
+    $this->assertDatabaseCount('training_session_workspace', 0);
+})->with([
+    'missing identifier' => [
+        [],
+    ],
+
+    'invalid identifier' => [
+        ['training_session_id' => 'invalid'],
+    ],
+
+    'nonexistent session' => [
+        ['training_session_id' => 999],
+    ],
+]);
+
+it('requires authentication to attach a training session', function () {
+    /** @var \Tests\TestCase $this */
+
+    [$owner, $workspace] = emWorkspace();
+
+    $session = TrainingSession::factory()->create([
+        'user_id' => $owner->id,
+    ]);
+
+    $this->postJson(
+        apiUrl("workspaces/{$workspace->id}/training-sessions"),
+        [
+            'training_session_id' => $session->id,
+        ]
+    )->assertUnauthorized();
+
+    $this->assertDatabaseMissing('training_session_workspace', [
+        'workspace_id' => $workspace->id,
+        'training_session_id' => $session->id,
+    ]);
+
+    $this->assertDatabaseHas('training_sessions', [
+        'id' => $session->id,
+        'user_id' => $owner->id,
     ]);
 });
