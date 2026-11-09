@@ -2,10 +2,7 @@
 
 use App\Models\User;
 use App\Models\Workspace;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Passport\Passport;
-
-uses(RefreshDatabase::class);
 
 it('can delete a workspace', function () {
     /** @var \Tests\TestCase $this */

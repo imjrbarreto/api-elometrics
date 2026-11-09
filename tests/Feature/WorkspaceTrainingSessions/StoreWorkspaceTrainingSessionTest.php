@@ -231,7 +231,6 @@ it('rejects an invalid training session identifier', function (array $data) {
         ->assertUnprocessable()
         ->assertJsonValidationErrors('training_session_id');
 
-    // Ninguna petición inválida debe crear vinculaciones.
     $this->assertDatabaseCount('training_session_workspace', 0);
 })->with([
     'missing identifier' => [

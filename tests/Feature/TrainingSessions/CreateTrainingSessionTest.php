@@ -1,10 +1,7 @@
 <?php
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Passport\Passport;
-
-uses(RefreshDatabase::class);
 
 it('can create training session', function () {
     /** @var \Tests\TestCase $this */

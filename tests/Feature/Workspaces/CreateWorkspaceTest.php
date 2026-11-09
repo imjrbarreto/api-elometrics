@@ -1,10 +1,7 @@
 <?php
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Passport\Passport;
-
-uses(RefreshDatabase::class);
 
 it('can create a workspace', function () {
     /** @var \Tests\TestCase $this */
