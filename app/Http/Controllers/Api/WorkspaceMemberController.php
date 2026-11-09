@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Requests\StoreWorkspaceMemberRequest;
 use App\Support\WorkspaceRoles;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -50,7 +51,7 @@ class WorkspaceMemberController extends Controller
                     'email' => 'El usuario ya pertenece al workspace.',
                 ]);
             }
-            
+
             $workspace->members()->attach($member->id);
 
             WorkspaceRoles::within(
@@ -68,5 +69,24 @@ class WorkspaceMemberController extends Controller
                 'role' => $workspace->roleOf($member),
             ],
         ], 201);
+    }
+
+    public function destroy(Workspace $workspace, User $user): Response
+    {
+        Gate::authorize('removeMember', [$workspace, $user]);
+
+        abort_unless($workspace->hasMember($user), 404);
+
+        DB::transaction(function () use ($workspace, $user) {
+            WorkspaceRoles::within(
+                $workspace,
+                $user,
+                fn (User $member) => $member->syncRoles([])
+            );
+
+            $workspace->members()->detach($user->id);
+        });
+
+        return response()->noContent();
     }
 }

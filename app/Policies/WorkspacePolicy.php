@@ -104,4 +104,31 @@ class WorkspacePolicy
             )
         );
     }
+
+    public function removeMember(User $user, Workspace $workspace, User $member): bool {
+        if ($workspace->isOwnedBy($member)) {
+            return false;
+        }
+
+        if (! $workspace->hasMember($user)) {
+            return false;
+        }
+
+        if ($user->is($member)) {
+            return true;
+        }
+
+        if ($workspace->isOwnedBy($user)) {
+            return true;
+        }
+
+        return WorkspaceRoles::within(
+            $workspace,
+            $user,
+            fn (User $actor): bool => $actor->hasPermissionTo(
+                'members.remove',
+                'api'
+            )
+        );
+    }
 }
