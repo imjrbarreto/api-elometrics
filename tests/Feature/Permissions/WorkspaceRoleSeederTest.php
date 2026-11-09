@@ -54,3 +54,23 @@ it('assigns viewing and responding permissions to the student role', function ()
             'training-sessions.respond',
         );
 });
+
+it('assigns only member viewing permission to the viewer role', function () {
+    /** @var \Tests\TestCase $this */
+
+    $this->seed(WorkspaceRoleSeeder::class);
+
+    $viewerRole = Role::query()
+        ->where('name', 'viewer')
+        ->where('guard_name', 'api')
+        ->whereNull('workspace_id')
+        ->firstOrFail();
+
+    $permissions = $viewerRole->permissions()
+        ->pluck('name')
+        ->all();
+
+    expect($permissions)
+        ->toHaveCount(1)
+        ->toContain('members.view');
+});

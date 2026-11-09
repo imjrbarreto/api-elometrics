@@ -35,6 +35,12 @@ class WorkspaceRoleSeeder extends Seeder
                     'training-sessions.respond',
                 ]);
             }
+
+            if ($roleName === 'viewer') {
+                $role->syncPermissions([
+                    'members.view',
+                ]);
+            }
         }
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();
