@@ -45,19 +45,25 @@ it('forbids a coach from another workspace from listing members', function () {
     )->assertForbidden();
 });
 
-it('allows a viewer to list workspace members', function () {
+it('allows members with viewing permission to list workspace members', function (string $role) {
     /** @var \Tests\TestCase $this */
 
     [, $workspace] = emWorkspace();
 
-    $viewer = emMember($workspace, 'viewer');
+    $member = emMember($workspace, $role);
 
-    Passport::actingAs($viewer);
+    Passport::actingAs($member);
 
     $this->getJson(
         apiUrl("workspaces/{$workspace->id}/members")
-    )->assertOk();
-});
+    )
+        ->assertOk()
+        ->assertJsonCount(2, 'data')
+        ->assertJsonFragment([
+            'id' => $member->id,
+            'role' => $role,
+        ]);
+})->with(['student', 'viewer', 'coach']);
 
 it('forbids a member without permission from listing members', function () {
     /** @var \Tests\TestCase $this */
@@ -84,4 +90,40 @@ it('forbids a member without permission from listing members', function () {
     $this->getJson(
         apiUrl("workspaces/{$workspace->id}/members")
     )->assertForbidden();
+});
+
+it('requires authentication to list workspace members', function () {
+    /** @var \Tests\TestCase $this */
+
+    [, $workspace] = emWorkspace();
+
+    $this->getJson(
+        apiUrl("workspaces/{$workspace->id}/members")
+    )->assertUnauthorized();
+});
+
+it('does not include members from another workspace', function () {
+    /** @var \Tests\TestCase $this */
+
+    [$owner, $workspace] = emWorkspace();
+
+    $student = emMember($workspace, 'student');
+
+    [$otherOwner, $otherWorkspace] = emWorkspace();
+
+    $otherStudent = emMember($otherWorkspace, 'student');
+
+    Passport::actingAs($owner);
+
+    $response = $this->getJson(
+        apiUrl("workspaces/{$workspace->id}/members")
+    );
+
+    $response
+        ->assertOk()
+        ->assertJsonCount(2, 'data');
+
+    expect(array_column($response->json('data'), 'id'))
+        ->toContain($owner->id, $student->id)
+        ->not->toContain($otherOwner->id, $otherStudent->id);
 });
