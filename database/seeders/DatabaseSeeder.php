@@ -12,15 +12,19 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-        $this->call(
+        $this->call([
+            WorkspacePermissionSeeder::class,
+            WorkspaceRoleSeeder::class,
             UserSeeder::class,
             WorkspaceSeeder::class,
+        ]
+            
         );
 
-        Artisan::call('passport:client', [
-            '--personal' => true,
-            '--name' => 'Laravel Personal Access Client',
-            '--no-interaction' => true,
-        ]);
+        // Artisan::call('passport:client', [
+        //     '--personal' => true,
+        //     '--name' => 'Laravel Personal Access Client',
+        //     '--no-interaction' => true,
+        // ]);
     }
 }
