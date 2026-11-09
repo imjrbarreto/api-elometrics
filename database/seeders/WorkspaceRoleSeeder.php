@@ -41,6 +41,14 @@ class WorkspaceRoleSeeder extends Seeder
                     'members.view',
                 ]);
             }
+
+            if ($roleName === 'coach') {
+                $role->syncPermissions([
+                    'members.view',
+                    'members.add',
+                    'members.remove',
+                ]);
+            }
         }
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();
