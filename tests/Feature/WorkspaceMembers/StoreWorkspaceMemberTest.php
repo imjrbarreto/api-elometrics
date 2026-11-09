@@ -37,3 +37,31 @@ it('allows the owner to add a student to the workspace', function () {
 
     expect($workspace->roleOf($student))->toBe('student');
 });
+
+it('rejects an existing member without changing their role', function () {
+    /** @var \Tests\TestCase $this */
+
+    [$owner, $workspace] = emWorkspace();
+
+    $member = emMember($workspace, 'viewer');
+
+    Passport::actingAs($owner);
+
+    $this->postJson(
+        apiUrl("workspaces/{$workspace->id}/members"),
+        [
+            'email' => $member->email,
+            'role' => 'student',
+        ]
+    )
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('email');
+
+    expect(
+        $workspace->members()
+            ->whereKey($member->id)
+            ->count()
+    )->toBe(1);
+
+    expect($workspace->roleOf($member))->toBe('viewer');
+});

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Gate;
 use App\Http\Requests\StoreWorkspaceMemberRequest;
 use App\Support\WorkspaceRoles;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class WorkspaceMemberController extends Controller
 {
@@ -44,6 +45,12 @@ class WorkspaceMemberController extends Controller
             ->firstOrFail();
 
         DB::transaction(function () use ($workspace, $member, $data) {
+            if ($workspace->hasMember($member)) {
+                throw ValidationException::withMessages([
+                    'email' => 'El usuario ya pertenece al workspace.',
+                ]);
+            }
+            
             $workspace->members()->attach($member->id);
 
             WorkspaceRoles::within(
