@@ -1,25 +1,22 @@
 <?php
 
-use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Passport\Passport;
+use Spatie\Permission\Models\Role;
 
-uses(RefreshDatabase::class);
-
-it('lists the owner and members of this workspace', function () {
+it('allows the owner to list workspace members', function () {
     /** @var \Tests\TestCase $this */
 
     [$owner, $workspace] = emWorkspace();
 
     $student = emMember($workspace, 'student');
 
-    [, $otherWorkspace] = emWorkspace();
+    Passport::actingAs($owner);
 
-    emMember($otherWorkspace, 'viewer');
+    $response = $this->getJson(
+        apiUrl("workspaces/{$workspace->id}/members")
+    );
 
-    Passport::actingAs($student);
-
-    $this->getJson(apiUrl("workspaces/{$workspace->id}/members"))
+    $response
         ->assertOk()
         ->assertJsonCount(2, 'data')
         ->assertJsonFragment([
@@ -32,22 +29,59 @@ it('lists the owner and members of this workspace', function () {
         ]);
 });
 
-it('forbids outsiders from listing members', function () {
+it('forbids a coach from another workspace from listing members', function () {
     /** @var \Tests\TestCase $this */
 
     [, $workspace] = emWorkspace();
 
-    Passport::actingAs(User::factory()->create());
+    [, $otherWorkspace] = emWorkspace();
 
-    $this->getJson(apiUrl("workspaces/{$workspace->id}/members"))
-        ->assertForbidden();
+    $coach = emMember($otherWorkspace, 'coach');
+
+    Passport::actingAs($coach);
+
+    $this->getJson(
+        apiUrl("workspaces/{$workspace->id}/members")
+    )->assertForbidden();
 });
 
-it('requires authentication', function () {
+it('allows a viewer to list workspace members', function () {
     /** @var \Tests\TestCase $this */
 
     [, $workspace] = emWorkspace();
 
-    $this->getJson(apiUrl("workspaces/{$workspace->id}/members"))
-        ->assertUnauthorized();
+    $viewer = emMember($workspace, 'viewer');
+
+    Passport::actingAs($viewer);
+
+    $this->getJson(
+        apiUrl("workspaces/{$workspace->id}/members")
+    )->assertOk();
+});
+
+it('forbids a member without permission from listing members', function () {
+    /** @var \Tests\TestCase $this */
+
+    [, $workspace] = emWorkspace();
+
+    $viewer = emMember($workspace, 'viewer');
+
+    $viewerRole = Role::query()
+        ->where('name', 'viewer')
+        ->where('guard_name', 'api')
+        ->whereNull('workspace_id')
+        ->firstOrFail();
+
+    $viewerRole->revokePermissionTo('members.view');
+
+    $this->assertDatabaseHas('user_workspace', [
+        'workspace_id' => $workspace->id,
+        'user_id' => $viewer->id,
+    ]);
+
+    Passport::actingAs($viewer);
+
+    $this->getJson(
+        apiUrl("workspaces/{$workspace->id}/members")
+    )->assertForbidden();
 });

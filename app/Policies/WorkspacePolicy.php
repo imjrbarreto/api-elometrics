@@ -5,6 +5,7 @@ namespace App\Policies;
 use App\Models\User;
 use App\Models\Workspace;
 use Illuminate\Auth\Access\Response;
+use App\Support\WorkspaceRoles;
 
 class WorkspacePolicy
 {
@@ -64,7 +65,23 @@ class WorkspacePolicy
         return false;
     }
 
-    public function viewMembers(User $user, Workspace $workspace): bool {
-        return $workspace->hasMember($user);
+    public function viewMembers(User $user, Workspace $workspace): bool 
+    {
+        if ($workspace->isOwnedBy($user)) {
+            return true;
+        }
+
+        if (!$workspace->hasMember($user)) {
+            return false;
+        }
+
+        return WorkspaceRoles::within(
+            $workspace,
+            $user,
+            fn (User $member): bool => $member->hasPermissionTo(
+                'members.view',
+                'api'
+            )
+        );
     }
 }
