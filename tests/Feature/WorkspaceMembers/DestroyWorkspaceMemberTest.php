@@ -233,3 +233,49 @@ it('does not reuse removal permissions from another workspace', function () {
     expect($workspace->roleOf($actor))->toBe('viewer');
     expect($otherWorkspace->roleOf($actor))->toBe('coach');
 });
+
+it('returns not found when the target is not a workspace member', function () {
+    /** @var \Tests\TestCase $this */
+
+    [$owner, $workspace] = emWorkspace();
+
+    $outsider = User::factory()->create();
+
+    Passport::actingAs($owner);
+
+    $this->deleteJson(
+        apiUrl("workspaces/{$workspace->id}/members/{$outsider->id}")
+    )->assertNotFound();
+
+    $this->assertDatabaseHas('users', [
+        'id' => $outsider->id,
+    ]);
+
+    $this->assertDatabaseMissing('user_workspace', [
+        'workspace_id' => $workspace->id,
+        'user_id' => $outsider->id,
+    ]);
+});
+
+it('requires authentication to remove a workspace member', function () {
+    /** @var \Tests\TestCase $this */
+
+    [, $workspace] = emWorkspace();
+
+    $student = emMember($workspace, 'student');
+
+    $this->deleteJson(
+        apiUrl("workspaces/{$workspace->id}/members/{$student->id}")
+    )->assertUnauthorized();
+
+    $this->assertDatabaseHas('user_workspace', [
+        'workspace_id' => $workspace->id,
+        'user_id' => $student->id,
+    ]);
+
+    expect($workspace->roleOf($student))->toBe('student');
+
+    $this->assertDatabaseHas('users', [
+        'id' => $student->id,
+    ]);
+});
