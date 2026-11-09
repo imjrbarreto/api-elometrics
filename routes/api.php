@@ -36,4 +36,5 @@ Route::middleware('auth:api')->group(function () {
 
 Route::middleware('auth:api')->group(function () {
     Route::get('workspaces/{workspace}/members', [WorkspaceMemberController::class, 'index']);
+    Route::post('workspaces/{workspace}/members', [WorkspaceMemberController::class, 'store']);
 });

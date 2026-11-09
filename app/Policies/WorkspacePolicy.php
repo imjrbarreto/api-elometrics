@@ -84,4 +84,24 @@ class WorkspacePolicy
             )
         );
     }
+
+    public function addMember(User $user,Workspace $workspace): bool 
+    {
+        if ($workspace->isOwnedBy($user)) {
+            return true;
+        }
+
+        if (! $workspace->hasMember($user)) {
+            return false;
+        }
+
+        return WorkspaceRoles::within(
+            $workspace,
+            $user,
+            fn (User $member): bool => $member->hasPermissionTo(
+                'members.add',
+                'api'
+            )
+        );
+    }
 }

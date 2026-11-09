@@ -7,6 +7,9 @@ use App\Models\User;
 use App\Models\Workspace;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Gate;
+use App\Http\Requests\StoreWorkspaceMemberRequest;
+use App\Support\WorkspaceRoles;
+use Illuminate\Support\Facades\DB;
 
 class WorkspaceMemberController extends Controller
 {
@@ -31,5 +34,32 @@ class WorkspaceMemberController extends Controller
                 'role' => $workspace->roleOf($member),
             ])->all(),
         ]);
+    }
+
+    public function store(StoreWorkspaceMemberRequest $request, Workspace $workspace): JsonResponse 
+    {
+        $data = $request->validated();
+
+        $member = User::where('email', $data['email'])
+            ->firstOrFail();
+
+        DB::transaction(function () use ($workspace, $member, $data) {
+            $workspace->members()->attach($member->id);
+
+            WorkspaceRoles::within(
+                $workspace,
+                $member,
+                fn (User $user) => $user->syncRoles([$data['role']])
+            );
+        });
+
+        return response()->json([
+            'data' => [
+                'id' => $member->id,
+                'name' => $member->name,
+                'email' => $member->email,
+                'role' => $workspace->roleOf($member),
+            ],
+        ], 201);
     }
 }
