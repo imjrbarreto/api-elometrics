@@ -149,3 +149,92 @@ it('forbids a coach from another workspace from adding members', function () {
         'user_id' => $newMember->id,
     ]);
 });
+
+it('rejects an invalid member email', function (array $data) {
+    /** @var \Tests\TestCase $this */
+
+    $this->seed(WorkspaceRoleSeeder::class);
+
+    [$owner, $workspace] = emWorkspace();
+
+    Passport::actingAs($owner);
+
+    $this->postJson(
+        apiUrl("workspaces/{$workspace->id}/members"),
+        $data
+    )
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('email');
+
+    expect($workspace->members()->count())->toBe(0);
+})->with([
+    'missing email' => [
+        ['role' => 'student'],
+    ],
+
+    'invalid email format' => [
+        [
+            'email' => 'esto-no-es-un-email',
+            'role' => 'student',
+        ],
+    ],
+
+    'unregistered email' => [
+        [
+            'email' => 'no-registrado@example.com',
+            'role' => 'student',
+        ],
+    ],
+]);
+
+it('rejects an invalid member role', function (array $roleData) {
+    /** @var \Tests\TestCase $this */
+
+    $this->seed(WorkspaceRoleSeeder::class);
+
+    [$owner, $workspace] = emWorkspace();
+
+    $newMember = User::factory()->create();
+
+    Passport::actingAs($owner);
+
+    $this->postJson(
+        apiUrl("workspaces/{$workspace->id}/members"),
+        [
+            'email' => $newMember->email,
+            ...$roleData,
+        ]
+    )
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('role');
+
+    $this->assertDatabaseMissing('user_workspace', [
+        'workspace_id' => $workspace->id,
+        'user_id' => $newMember->id,
+    ]);
+})->with([
+    'missing role' => [[]],
+    'unknown role' => [['role' => 'admin']],
+    'owner role' => [['role' => 'owner']],
+]);
+
+it('requires authentication to add a workspace member', function () {
+    /** @var \Tests\TestCase $this */
+
+    [, $workspace] = emWorkspace();
+
+    $newMember = User::factory()->create();
+
+    $this->postJson(
+        apiUrl("workspaces/{$workspace->id}/members"),
+        [
+            'email' => $newMember->email,
+            'role' => 'student',
+        ]
+    )->assertUnauthorized();
+
+    $this->assertDatabaseMissing('user_workspace', [
+        'workspace_id' => $workspace->id,
+        'user_id' => $newMember->id,
+    ]);
+});
