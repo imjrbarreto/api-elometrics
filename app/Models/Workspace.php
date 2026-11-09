@@ -54,4 +54,10 @@ class Workspace extends Model
             fn (User $member) => $member->getRoleNames()->first()
         );
     }
+
+    public function trainingSessions(): BelongsToMany
+    {
+        return $this->belongsToMany(TrainingSession::class)
+            ->withTimestamps();
+    }
 }

@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\User;
 use App\Models\Workspace;
+use App\Models\TrainingSession;
 use Illuminate\Auth\Access\Response;
 use App\Support\WorkspaceRoles;
 
@@ -130,5 +131,10 @@ class WorkspacePolicy
                 'api'
             )
         );
+    }
+
+    public function attachTrainingSession(User $user, Workspace $workspace, TrainingSession $session): bool {
+        return $workspace->isOwnedBy($user)
+            && (int) $session->user_id === (int) $user->id;
     }
 }
