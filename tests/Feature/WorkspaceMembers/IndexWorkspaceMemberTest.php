@@ -12,21 +12,23 @@ it('allows the owner to list workspace members', function () {
 
     Passport::actingAs($owner);
 
-    $response = $this->getJson(
+    $this->getJson(
         apiUrl("workspaces/{$workspace->id}/members")
-    );
-
-    $response
+    )
         ->assertOk()
         ->assertJsonCount(2, 'data')
         ->assertJsonFragment([
             'id' => $owner->id,
+            'email' => $owner->email,
             'role' => 'owner',
         ])
         ->assertJsonFragment([
             'id' => $student->id,
+            'email' => $student->email,
             'role' => 'student',
-        ]);
+        ])
+        ->assertJsonMissingPath('data.0.username')
+        ->assertJsonMissingPath('data.1.username');
 });
 
 it('forbids a coach from another workspace from listing members', function () {

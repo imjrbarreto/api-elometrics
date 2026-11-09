@@ -32,7 +32,7 @@ class WorkspaceMemberController extends Controller
             'data' => $members->map(fn (User $member) => [
                 'id' => $member->id,
                 'name' => $member->name,
-                'username' => $member->username,
+                'email' => $member->email,
                 'role' => $workspace->roleOf($member),
             ])->all(),
         ]);
