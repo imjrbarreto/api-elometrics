@@ -133,8 +133,15 @@ class WorkspacePolicy
         );
     }
 
-    public function attachTrainingSession(User $user, Workspace $workspace, TrainingSession $session): bool {
-        return $workspace->isOwnedBy($user)
+public function attachTrainingSession(User $user, Workspace $workspace, TrainingSession $session): bool 
+    {
+        $canAttach = in_array(
+            $workspace->roleOf($user),
+            ['owner', 'coach'],
+            true
+        );
+
+        return $canAttach
             && (int) $session->user_id === (int) $user->id;
     }
 }
