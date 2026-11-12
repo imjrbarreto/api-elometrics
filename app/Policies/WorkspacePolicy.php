@@ -111,7 +111,7 @@ class WorkspacePolicy
             return false;
         }
 
-        if (! $workspace->hasMember($user)) {
+        if (!$workspace->hasMember($user)) {
             return false;
         }
 
@@ -133,7 +133,7 @@ class WorkspacePolicy
         );
     }
 
-public function attachTrainingSession(User $user, Workspace $workspace, TrainingSession $session): bool 
+    public function attachTrainingSession(User $user, Workspace $workspace, TrainingSession $session): bool 
     {
         $canAttach = in_array(
             $workspace->roleOf($user),
@@ -141,7 +141,11 @@ public function attachTrainingSession(User $user, Workspace $workspace, Training
             true
         );
 
-        return $canAttach
-            && (int) $session->user_id === (int) $user->id;
+        return $canAttach && (int) $session->user_id === (int) $user->id;
+    }
+    
+    public function viewTrainingSessions(User $user,Workspace $workspace): bool
+    {
+        return $workspace->hasMember($user);
     }
 }

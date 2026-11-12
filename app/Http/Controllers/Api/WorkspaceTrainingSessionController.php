@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AttachTrainingSessionRequest;
+use App\Http\Resources\TrainingSessionResource;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use App\Models\TrainingSession;
 use App\Models\Workspace;
 use Illuminate\Http\Response;
@@ -14,6 +16,17 @@ use OpenApi\Attributes as OA;
 #[OA\Tag(name: 'Workspaces Training Sessions', description: 'Endpoints para la gestion de workspace-training-session')]
 class WorkspaceTrainingSessionController extends Controller
 {
+
+    public function index(Workspace $workspace): AnonymousResourceCollection
+    {
+        Gate::authorize('viewTrainingSessions', $workspace);
+
+        $sessions = $workspace->trainingSessions()
+            ->orderByDesc('training_sessions.id')
+            ->get();
+
+        return TrainingSessionResource::collection($sessions);
+    }
 
     #[OA\Post(
         path: '/workspaces/{workspace}/training-sessions',
