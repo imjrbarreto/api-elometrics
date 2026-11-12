@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\TrainingSession;
+use App\Models\Workspace;
+use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AttachTrainingSessionRequest;
 use App\Http\Resources\TrainingSessionResource;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use App\Models\TrainingSession;
-use App\Models\Workspace;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Gate;
 use OpenApi\Attributes as OA;
 
@@ -94,6 +94,24 @@ class WorkspaceTrainingSessionController extends Controller
 
         $workspace->trainingSessions()
             ->syncWithoutDetaching([$session->id]);
+
+        return response()->noContent();
+    }
+
+    public function destroy(Workspace $workspace, TrainingSession $training_session): Response 
+    {
+        Gate::authorize('detachTrainingSession', $workspace);
+
+        // Comprobar que está vinculada a este workspace.
+        $isLinked = $workspace->trainingSessions()
+            ->whereKey($training_session->id)
+            ->exists();
+
+        abort_unless($isLinked, 404);
+
+        // Eliminar únicamente la vinculación.
+        $workspace->trainingSessions()
+            ->detach($training_session->id);
 
         return response()->noContent();
     }
