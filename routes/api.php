@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\WorkspaceController;
 use App\Http\Controllers\Api\TrainingSessionController;
 use App\Http\Controllers\Api\WorkspaceMemberController;
+use App\Http\Controllers\Api\WorkspaceTrainingSessionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -38,4 +39,10 @@ Route::middleware('auth:api')->group(function () {
     Route::get('workspaces/{workspace}/members', [WorkspaceMemberController::class, 'index']);
     Route::post('workspaces/{workspace}/members', [WorkspaceMemberController::class, 'store']);
     Route::delete('workspaces/{workspace}/members/{user}', [WorkspaceMemberController::class, 'destroy']);
+});
+
+Route::middleware('auth:api')->group(function () {
+    Route::post('workspaces/{workspace}/training-sessions', [WorkspaceTrainingSessionController::class, 'store']);
+    Route::get('workspaces/{workspace}/training-sessions', [WorkspaceTrainingSessionController::class, 'index']);
+    Route::delete('workspaces/{workspace}/training-sessions/{training_session}', [WorkspaceTrainingSessionController::class, 'destroy']);
 });

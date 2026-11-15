@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\User;
 use App\Models\Workspace;
+use App\Models\TrainingSession;
 use Illuminate\Auth\Access\Response;
 use App\Support\WorkspaceRoles;
 
@@ -110,7 +111,7 @@ class WorkspacePolicy
             return false;
         }
 
-        if (! $workspace->hasMember($user)) {
+        if (!$workspace->hasMember($user)) {
             return false;
         }
 
@@ -129,6 +130,31 @@ class WorkspacePolicy
                 'members.remove',
                 'api'
             )
+        );
+    }
+
+    public function attachTrainingSession(User $user, Workspace $workspace, TrainingSession $session): bool 
+    {
+        $canAttach = in_array(
+            $workspace->roleOf($user),
+            ['owner', 'coach'],
+            true
+        );
+
+        return $canAttach && (int) $session->user_id === (int) $user->id;
+    }
+    
+    public function viewTrainingSessions(User $user,Workspace $workspace): bool
+    {
+        return $workspace->hasMember($user);
+    }
+
+    public function detachTrainingSession(User $user, Workspace $workspace): bool
+    {
+        return in_array(
+            $workspace->roleOf($user),
+            ['owner', 'coach'],
+            true
         );
     }
 }

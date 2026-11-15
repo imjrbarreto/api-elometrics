@@ -8,11 +8,8 @@ use Closure;
 
 class WorkspaceRoles
 {
-    public static function within(
-        Workspace $workspace,
-        User $user,
-        Closure $callback
-    ): mixed {
+    public static function within(Workspace $workspace, User $user, Closure $callback): mixed 
+    {
         $previousTeamId = getPermissionsTeamId();
 
         setPermissionsTeamId($workspace->id);

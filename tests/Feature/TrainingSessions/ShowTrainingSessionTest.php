@@ -2,10 +2,7 @@
 
 use App\Models\TrainingSession;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Passport\Passport;
-
-uses(RefreshDatabase::class);
 
 it('can show a training session', function () {
     /** @var \Tests\TestCase $this */

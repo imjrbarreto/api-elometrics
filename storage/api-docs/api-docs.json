@@ -736,6 +736,293 @@
                 ]
             }
         },
+        "/workspaces/{workspace}/members": {
+            "get": {
+                "tags": [
+                    "Workspace Members"
+                ],
+                "summary": "Listar miembros de un espacio de trabajo",
+                "operationId": "398f77fb57d66db62bbc8fd6148ba3f8",
+                "parameters": [
+                    {
+                        "name": "workspace",
+                        "in": "path",
+                        "description": "ID del espacio de trabajo (Workspace)",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de miembros obtenida exitosamente.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "required": [
+                                                    "id",
+                                                    "name",
+                                                    "email",
+                                                    "role"
+                                                ],
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "Juan Pérez"
+                                                    },
+                                                    "email": {
+                                                        "type": "string",
+                                                        "format": "email",
+                                                        "example": "juan@example.com"
+                                                    },
+                                                    "role": {
+                                                        "type": "string",
+                                                        "example": "admin"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado."
+                    },
+                    "403": {
+                        "description": "No autorizado. El usuario no tiene permisos para ver los miembros de este workspace."
+                    },
+                    "404": {
+                        "description": "Workspace no encontrado."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Workspace Members"
+                ],
+                "summary": "Agregar un miembro a un espacio de trabajo",
+                "operationId": "4516451af34a2277113561e5cd413dd4",
+                "parameters": [
+                    {
+                        "name": "workspace",
+                        "in": "path",
+                        "description": "ID del espacio de trabajo (Workspace)",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "role"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "colaborador@example.com"
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "example": "editor"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Miembro agregado exitosamente.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Carlos Gómez"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email",
+                                                    "example": "colaborador@example.com"
+                                                },
+                                                "role": {
+                                                    "type": "string",
+                                                    "example": "editor"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado."
+                    },
+                    "404": {
+                        "description": "Workspace o Usuario (por email) no encontrado."
+                    },
+                    "422": {
+                        "description": "Datos de validación incorrectos (por ejemplo, si el usuario ya pertenece al workspace)."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/workspaces/{workspace}/members/{user}": {
+            "delete": {
+                "tags": [
+                    "Workspace Members"
+                ],
+                "summary": "Remover un miembro de un espacio de trabajo",
+                "operationId": "fb1ed430ebe8cf12c9159da0fac7a14b",
+                "parameters": [
+                    {
+                        "name": "workspace",
+                        "in": "path",
+                        "description": "ID del espacio de trabajo (Workspace)",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "description": "ID del usuario a remover del workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 2
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Miembro removido con éxito, sin contenido de retorno."
+                    },
+                    "401": {
+                        "description": "No autenticado."
+                    },
+                    "403": {
+                        "description": "No autorizado. El usuario actual no tiene permisos para remover a este miembro."
+                    },
+                    "404": {
+                        "description": "Workspace, Usuario no encontrado, o el usuario especificado no pertenece a este workspace."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/workspaces/{workspace}/training-sessions": {
+            "post": {
+                "tags": [
+                    "Workspaces Training Sessions"
+                ],
+                "summary": "Asociar una sesión de entrenamiento a un espacio de trabajo",
+                "operationId": "e308489349a5f1774afee97f3d26a133",
+                "parameters": [
+                    {
+                        "name": "workspace",
+                        "in": "path",
+                        "description": "ID del espacio de trabajo (Workspace)",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "training_session_id"
+                                ],
+                                "properties": {
+                                    "training_session_id": {
+                                        "description": "ID de la sesión de entrenamiento a asociar",
+                                        "type": "integer",
+                                        "example": 5
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Asociación realizada con éxito, sin contenido de retorno."
+                    },
+                    "401": {
+                        "description": "No autenticado."
+                    },
+                    "403": {
+                        "description": "No autorizado. El usuario no tiene permisos para realizar esta acción."
+                    },
+                    "404": {
+                        "description": "Workspace o Training Session no encontrados."
+                    },
+                    "422": {
+                        "description": "Datos de validación incorrectos."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/up": {
             "get": {
                 "tags": [
@@ -777,6 +1064,14 @@
         {
             "name": "Workspaces",
             "description": "Endpoints para la gestión de workspaces"
+        },
+        {
+            "name": "Workspaces Training Sessions",
+            "description": "Endpoints para la gestion de workspace-training-session"
+        },
+        {
+            "name": "Workspace Members",
+            "description": "Workspace Members"
         },
         {
             "name": "Estado",
