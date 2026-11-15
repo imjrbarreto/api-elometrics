@@ -157,4 +157,20 @@ class WorkspacePolicy
             true
         );
     }
+
+    public function respondToTrainingSession(User $user, Workspace $workspace): bool 
+    {
+        if (! $workspace->hasMember($user)) {
+            return false;
+        }
+
+        return WorkspaceRoles::within(
+            $workspace,
+            $user,
+            fn (User $member): bool => $member->hasPermissionTo(
+                'training-sessions.respond',
+                'api'
+            )
+        );
+    }
 }
