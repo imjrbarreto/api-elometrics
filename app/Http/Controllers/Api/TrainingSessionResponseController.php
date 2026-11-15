@@ -8,6 +8,7 @@ use App\Models\TrainingSession;
 use App\Models\TrainingSessionResponse;
 use App\Models\Workspace;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\ValidationException;
 
 class TrainingSessionResponseController extends Controller
 {
@@ -20,6 +21,18 @@ class TrainingSessionResponseController extends Controller
         abort_unless($isLinked, 404);
 
         $data = $request->validated();
+
+        $alreadyResponded = TrainingSessionResponse::query()
+            ->where('workspace_id', $workspace->id)
+            ->where('training_session_id', $training_session->id)
+            ->where('user_id', $request->user()->id)
+            ->exists();
+
+        if ($alreadyResponded) {
+            throw ValidationException::withMessages([
+                'content' => 'Ya has respondido a esta sesión en este workspace.',
+            ]);
+        }
 
         $response = TrainingSessionResponse::create([
             'workspace_id' => $workspace->id,
