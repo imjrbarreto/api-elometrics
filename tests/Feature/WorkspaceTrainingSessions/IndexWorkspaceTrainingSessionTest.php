@@ -8,14 +8,12 @@ it('allows the owner to list linked training sessions', function () {
 
     [$owner, $workspace] = emWorkspace();
 
-    // Sesión vinculada al workspace.
     $linkedSession = TrainingSession::factory()->create([
         'user_id' => $owner->id,
     ]);
 
     $workspace->trainingSessions()->attach($linkedSession->id);
 
-    // Otra sesión del mismo creador, pero sin vincular.
     TrainingSession::factory()->create([
         'user_id' => $owner->id,
     ]);
@@ -64,7 +62,6 @@ it('forbids a coach from another workspace from listing sessions', function () {
 
     $workspace->trainingSessions()->attach($session->id);
 
-    // El usuario pertenece únicamente al otro workspace.
     [, $otherWorkspace] = emWorkspace();
 
     $coach = emMember($otherWorkspace, 'coach');
@@ -81,7 +78,6 @@ it('returns an empty collection when no sessions are linked', function () {
 
     [$owner, $workspace] = emWorkspace();
 
-    // El owner tiene una sesión, pero no está vinculada.
     TrainingSession::factory()->create([
         'user_id' => $owner->id,
     ]);
