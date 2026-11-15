@@ -11,8 +11,7 @@ use App\Http\Resources\TrainingSessionResource;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Gate;
 use OpenApi\Attributes as OA;
-
-#[OA\Tag(name: 'Workspace Training Sessions', description: 'Gestión de las sesiones vinculadas a un workspace')]
+#[OA\Tag(name: 'Workspace Training Sessions', description: 'Consulta y gestión de vínculos entre workspaces y sesiones de entrenamiento reutilizables')]
 class WorkspaceTrainingSessionController extends Controller
 {
 
