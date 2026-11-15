@@ -471,6 +471,116 @@
                 ]
             }
         },
+        "/workspaces/{workspace}/training-sessions/{training_session}/responses": {
+            "post": {
+                "tags": [
+                    "Training Session Responses"
+                ],
+                "summary": "Responder a una sesión vinculada",
+                "description": "Requiere el permiso training-sessions.respond en el workspace. Cada estudiante puede enviar una única respuesta por sesión y workspace. El autor se obtiene del usuario autenticado.",
+                "operationId": "a3397b3f9a081454c3542a5aad6ea971",
+                "parameters": [
+                    {
+                        "name": "workspace",
+                        "in": "path",
+                        "description": "ID del workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "training_session",
+                        "in": "path",
+                        "description": "ID de una sesión vinculada al workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 3
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "content"
+                                ],
+                                "properties": {
+                                    "content": {
+                                        "type": "string",
+                                        "example": "Mi variante principal es 1.Cf5.",
+                                        "maxLength": 10000,
+                                        "minLength": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Respuesta creada correctamente.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "workspace_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "training_session_id": {
+                                                    "type": "integer",
+                                                    "example": 3
+                                                },
+                                                "user_id": {
+                                                    "description": "ID del estudiante autenticado",
+                                                    "type": "integer",
+                                                    "example": 8
+                                                },
+                                                "content": {
+                                                    "type": "string",
+                                                    "example": "Mi variante principal es 1.Cf5."
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Usuario no autenticado."
+                    },
+                    "403": {
+                        "description": "El usuario no pertenece al workspace o no tiene el permiso para responder."
+                    },
+                    "404": {
+                        "description": "Workspace o sesión no encontrados, o la sesión no está vinculada al workspace."
+                    },
+                    "422": {
+                        "description": "Contenido ausente o inválido, o el estudiante ya respondió a esta sesión en este workspace."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/workspaces": {
             "get": {
                 "tags": [
@@ -961,17 +1071,103 @@
             }
         },
         "/workspaces/{workspace}/training-sessions": {
+            "get": {
+                "tags": [
+                    "Workspace Training Sessions"
+                ],
+                "summary": "Listar las sesiones vinculadas a un workspace",
+                "description": "Disponible para owner, coach, student y viewer del workspace. Devuelve una lista vacía si no existen sesiones vinculadas.",
+                "operationId": "b4a5cb0ff6bcc3fb5b4f780a1d82494e",
+                "parameters": [
+                    {
+                        "name": "workspace",
+                        "in": "path",
+                        "description": "ID del workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listado de sesiones vinculadas.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 3
+                                                    },
+                                                    "user_id": {
+                                                        "description": "ID del creador de la sesión",
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "title": {
+                                                        "type": "string",
+                                                        "example": "Finales de torres"
+                                                    },
+                                                    "description": {
+                                                        "type": "string",
+                                                        "example": "Actividad de la torre y del rey.",
+                                                        "nullable": true
+                                                    },
+                                                    "category": {
+                                                        "type": "string",
+                                                        "example": "endgame",
+                                                        "nullable": true
+                                                    },
+                                                    "resource": {
+                                                        "type": "string",
+                                                        "format": "uri",
+                                                        "example": "https://lichess.org/study",
+                                                        "nullable": true
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Usuario no autenticado."
+                    },
+                    "403": {
+                        "description": "El usuario no pertenece al workspace."
+                    },
+                    "404": {
+                        "description": "Workspace no encontrado."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
             "post": {
                 "tags": [
-                    "Workspaces Training Sessions"
+                    "Workspace Training Sessions"
                 ],
-                "summary": "Asociar una sesión de entrenamiento a un espacio de trabajo",
+                "summary": "Vincular una sesión existente a un workspace",
+                "description": "Permite al owner o coach vincular una sesión creada por él. Repetir la vinculación no crea duplicados.",
                 "operationId": "e308489349a5f1774afee97f3d26a133",
                 "parameters": [
                     {
                         "name": "workspace",
                         "in": "path",
-                        "description": "ID del espacio de trabajo (Workspace)",
+                        "description": "ID del workspace",
                         "required": true,
                         "schema": {
                             "type": "integer",
@@ -989,9 +1185,9 @@
                                 ],
                                 "properties": {
                                     "training_session_id": {
-                                        "description": "ID de la sesión de entrenamiento a asociar",
+                                        "description": "ID de una sesión existente creada por el usuario autenticado",
                                         "type": "integer",
-                                        "example": 5
+                                        "example": 3
                                     }
                                 },
                                 "type": "object"
@@ -1001,19 +1197,70 @@
                 },
                 "responses": {
                     "204": {
-                        "description": "Asociación realizada con éxito, sin contenido de retorno."
+                        "description": "Sesión vinculada correctamente o vinculación ya existente."
                     },
                     "401": {
-                        "description": "No autenticado."
+                        "description": "Usuario no autenticado."
                     },
                     "403": {
-                        "description": "No autorizado. El usuario no tiene permisos para realizar esta acción."
+                        "description": "El usuario no es owner o coach del workspace, o no es el creador de la sesión."
                     },
                     "404": {
-                        "description": "Workspace o Training Session no encontrados."
+                        "description": "Workspace no encontrado."
                     },
                     "422": {
-                        "description": "Datos de validación incorrectos."
+                        "description": "El identificador de sesión falta, no es válido o no corresponde a una sesión existente."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/workspaces/{workspace}/training-sessions/{training_session}": {
+            "delete": {
+                "tags": [
+                    "Workspace Training Sessions"
+                ],
+                "summary": "Desvincular una sesión de un workspace",
+                "description": "Disponible para owner y coach. Elimina únicamente la vinculación: conserva la sesión original y sus vínculos con otros workspaces.",
+                "operationId": "6e3625f1e15240edeafa3600f4f8d8fa",
+                "parameters": [
+                    {
+                        "name": "workspace",
+                        "in": "path",
+                        "description": "ID del workspace",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "training_session",
+                        "in": "path",
+                        "description": "ID de la sesión que se quiere desvincular",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 3
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Sesión desvinculada correctamente."
+                    },
+                    "401": {
+                        "description": "Usuario no autenticado."
+                    },
+                    "403": {
+                        "description": "El usuario no es owner o coach del workspace."
+                    },
+                    "404": {
+                        "description": "Workspace o sesión no encontrados, o la sesión no está vinculada al workspace indicado."
                     }
                 },
                 "security": [
@@ -1062,12 +1309,16 @@
             "description": "Endpoints para la gestión de sesiones de entrenamiento"
         },
         {
+            "name": "Training Session Responses",
+            "description": "Respuestas de estudiantes a sesiones vinculadas a workspaces"
+        },
+        {
             "name": "Workspaces",
             "description": "Endpoints para la gestión de workspaces"
         },
         {
-            "name": "Workspaces Training Sessions",
-            "description": "Endpoints para la gestion de workspace-training-session"
+            "name": "Workspace Training Sessions",
+            "description": "Gestión de las sesiones vinculadas a un workspace"
         },
         {
             "name": "Workspace Members",
