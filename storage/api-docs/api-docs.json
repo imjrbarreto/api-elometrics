@@ -1270,6 +1270,63 @@
                 ]
             }
         },
+        "/workspaces/{workspace}/training-sessions/{training_session}/export": {
+            "get": {
+                "tags": [
+                    "Workspace Training Sessions"
+                ],
+                "summary": "Descargar una sesión vinculada como PDF",
+                "description": "Disponible para todos los miembros del workspace.",
+                "operationId": "5dfeb823d2fa18253c08c7375f6909aa",
+                "parameters": [
+                    {
+                        "name": "workspace",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "training_session",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 3
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "PDF de la sesión seleccionada.",
+                        "content": {
+                            "application/pdf": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Usuario no autenticado."
+                    },
+                    "403": {
+                        "description": "El usuario no pertenece al workspace."
+                    },
+                    "404": {
+                        "description": "Workspace o sesión inexistentes, o sesión no vinculada."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/up": {
             "get": {
                 "tags": [
@@ -1318,7 +1375,7 @@
         },
         {
             "name": "Workspace Training Sessions",
-            "description": "Gestión de las sesiones vinculadas a un workspace"
+            "description": "Consulta y gestión de vínculos entre workspaces y sesiones de entrenamiento reutilizables"
         },
         {
             "name": "Workspace Members",
