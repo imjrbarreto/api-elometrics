@@ -6,12 +6,10 @@ use App\Http\Controllers\Api\TrainingSessionController;
 use App\Http\Controllers\Api\TrainingSessionResponseController;
 use App\Http\Controllers\Api\WorkspaceMemberController;
 use App\Http\Controllers\Api\WorkspaceTrainingSessionController;
+use App\Http\Controllers\Api\WorkspaceTrainingSessionExportController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:api');
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -46,6 +44,6 @@ Route::middleware('auth:api')->group(function () {
     Route::post('workspaces/{workspace}/training-sessions', [WorkspaceTrainingSessionController::class, 'store']);
     Route::get('workspaces/{workspace}/training-sessions', [WorkspaceTrainingSessionController::class, 'index']);
     Route::delete('workspaces/{workspace}/training-sessions/{training_session}', [WorkspaceTrainingSessionController::class, 'destroy']);
-    Route::post('workspaces/{workspace}/training-sessions/{training_session}/responses', [TrainingSessionResponseController::class, 'store']
-);
+    Route::post('workspaces/{workspace}/training-sessions/{training_session}/responses', [TrainingSessionResponseController::class, 'store']);
+    Route::get('workspaces/{workspace}/training-sessions/{training_session}/export', WorkspaceTrainingSessionExportController::class);
 });

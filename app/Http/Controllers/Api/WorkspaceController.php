@@ -112,18 +112,24 @@ class WorkspaceController extends Controller
     )]
     public function list(Request $request): JsonResponse
     {
-        $workspaces = $request->user()->workspaces()->get();
+        $userId = $request->user()->id;
 
-        $formattedWorkspaces = $workspaces->map(function ($workspaces) {
-            return [
-                'id' => $workspaces->id,
-                'title' => $workspaces->title,
-                'status' => $workspaces->status,
-            ];
-        })->toArray();
+        $workspaces = Workspace::query()
+            ->where(function ($query) use ($userId) {
+                $query->where('user_id', $userId)
+                    ->orWhereHas('members', function ($members) use ($userId) {
+                        $members->where('users.id', $userId);
+                    });
+            })
+            ->orderBy('id')
+            ->get();
 
         return response()->json([
-            'data' => $formattedWorkspaces,
+            'data' => $workspaces->map(fn (Workspace $workspace) => [
+                'id' => $workspace->id,
+                'title' => $workspace->title,
+                'status' => $workspace->status,
+            ])->all(),
         ]);
     }
 

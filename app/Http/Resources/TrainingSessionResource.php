@@ -15,7 +15,7 @@ class TrainingSessionResource extends JsonResource
             'title' => $this->title,
             'description' => $this->description,
             'category' => $this->category,
-            'resource' => $this->resource,
+            'resource' => $this->resource->getAttribute('resource'),
         ];
     }
 }

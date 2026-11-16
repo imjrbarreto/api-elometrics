@@ -100,3 +100,24 @@ it('requires authentication to list linked training sessions', function () {
         apiUrl("workspaces/{$workspace->id}/training-sessions")
     )->assertUnauthorized();
 });
+
+it('returns the session resource as a link', function () {
+    /** @var \Tests\TestCase $this */
+
+    [$owner, $workspace] = emWorkspace();
+
+    $session = \App\Models\TrainingSession::factory()->create([
+        'user_id' => $owner->id,
+        'resource' => 'https://lichess.org/study',
+    ]);
+
+    $workspace->trainingSessions()->attach($session->id);
+
+    \Laravel\Passport\Passport::actingAs($owner);
+
+    $this->getJson(
+        apiUrl("workspaces/{$workspace->id}/training-sessions")
+    )
+        ->assertOk()
+        ->assertJsonPath('data.0.resource', 'https://lichess.org/study');
+});

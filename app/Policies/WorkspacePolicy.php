@@ -173,4 +173,9 @@ class WorkspacePolicy
             )
         );
     }
+
+    public function exportTrainingSession(User $user, Workspace $workspace): bool 
+    {
+        return $workspace->hasMember($user);
+    }
 }
