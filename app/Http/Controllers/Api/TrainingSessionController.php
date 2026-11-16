@@ -44,7 +44,7 @@ class TrainingSessionController extends Controller
                     new OA\Property(
                         property: 'resource',
                         type: 'string',
-                        format: 'uri',
+                        maxLength: 255,
                         example: 'https://ejemplo.com'
                     ),
                 ]
@@ -212,24 +212,26 @@ class TrainingSessionController extends Controller
     }
 
     #[OA\Patch(
-        path: '/training-sessions/{training-session}',
-        summary: 'Actualizar una sesion de entrenamiento',
+        path: '/training-sessions/{training_session}',
+        summary: 'Actualizar una sesión de entrenamiento',
         tags: ['Training Sessions'],
-        security: [
-            ['bearerAuth' => []]
-        ],
+        security: [['bearerAuth' => []]],
         parameters: [
             new OA\Parameter(
-                name: 'training-session',
+                name: 'training_session',
                 in: 'path',
-                description: 'ID de la training-session',
+                description: 'ID de la sesión',
                 required: true,
-                schema: new OA\Schema(type: 'integer', example: 1)
-            )
+                schema: new OA\Schema(
+                    type: 'integer',
+                    example: 1
+                )
+            ),
         ],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
+                required: ['title', 'category'],
                 properties: [
                     new OA\Property(
                         property: 'title',
@@ -241,7 +243,7 @@ class TrainingSessionController extends Controller
                         property: 'description',
                         type: 'string',
                         maxLength: 255,
-                        example: 'Cambios de aperturas'
+                        example: 'Preparación de aperturas'
                     ),
                     new OA\Property(
                         property: 'category',
@@ -249,9 +251,10 @@ class TrainingSessionController extends Controller
                         example: 'opening'
                     ),
                     new OA\Property(
-                        property: 'resources',
+                        property: 'resource',
                         type: 'string',
-                        example: 'http://example.com'
+                        maxLength: 255,
+                        example: 'https://lichess.org/study'
                     ),
                 ]
             )
@@ -259,23 +262,35 @@ class TrainingSessionController extends Controller
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'TrainingSession actualizada exitosamente.',
+                description: 'Sesión actualizada.',
                 content: new OA\JsonContent(
                     example: [
                         'data' => [
                             'id' => 1,
-                            'name' => 'TrainingSession actualizado',
-                            'description' => 'actualizado',
+                            'title' => 'Entrenamiento actualizado',
+                            'description' => 'Preparación de aperturas',
                             'category' => 'opening',
-                            'resources' => 'http://example.com',
+                            'resource' => 'https://lichess.org/study',
                         ],
                     ]
                 )
             ),
-            new OA\Response(response: 422, description: 'Datos de validación incorrectos.'),
-            new OA\Response(response: 401,description: 'No autenticado.'),
-            new OA\Response(response: 403, description: 'No autorizado.'),
-            new OA\Response(response: 404, description: 'Workspace no encontrado.')
+            new OA\Response(
+                response: 422,
+                description: 'Datos de validación incorrectos.'
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'No autenticado.'
+            ),
+            new OA\Response(
+                response: 403,
+                description: 'No autorizado.'
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Sesión no encontrada.'
+            ),
         ]
     )]
     public function update(UpdateTrainingSessionRequest $request, TrainingSession $trainingSession): JsonResponse

@@ -120,7 +120,8 @@ class WorkspaceMemberController extends Controller
                     new OA\Property(
                         property: 'role',
                         type: 'string',
-                        example: 'editor'
+                        enum: ['coach', 'student', 'viewer'],
+                        example: 'student'
                     ),
                 ]
             )
@@ -138,7 +139,7 @@ class WorkspaceMemberController extends Controller
                                 new OA\Property(property: 'id', type: 'integer', example: 2),
                                 new OA\Property(property: 'name', type: 'string', example: 'Carlos Gómez'),
                                 new OA\Property(property: 'email', type: 'string', format: 'email', example: 'colaborador@example.com'),
-                                new OA\Property(property: 'role', type: 'string', example: 'editor'),
+                                new OA\Property(property: 'role', type: 'string', enum: ['coach', 'student', 'viewer'], example: 'student'),
                             ]
                         )
                     ]
@@ -149,12 +150,16 @@ class WorkspaceMemberController extends Controller
                 description: 'No autenticado.'
             ),
             new OA\Response(
+                response: 403,
+                description: 'No tienes permiso para añadir miembros.'
+            ),
+            new OA\Response(
                 response: 404,
-                description: 'Workspace o Usuario (por email) no encontrado.'
+                description: 'Workspace no encontrado.'
             ),
             new OA\Response(
                 response: 422,
-                description: 'Datos de validación incorrectos (por ejemplo, si el usuario ya pertenece al workspace).'
+                description: 'Datos inválidos, email inexistente o miembro duplicado.'
             ),
         ]
     )]
@@ -231,7 +236,6 @@ class WorkspaceMemberController extends Controller
             )
         ]
     )]
-
     public function destroy(Workspace $workspace, User $user): Response
     {
         Gate::authorize('removeMember', [$workspace, $user]);

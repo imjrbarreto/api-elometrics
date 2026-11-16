@@ -120,10 +120,76 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Credenciales correctas. Devuelve los datos del usuario y un token."
+                        "description": "Sesión iniciada.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data",
+                                        "token"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "required": [
+                                                "id",
+                                                "name",
+                                                "email"
+                                            ],
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Jaime Romero"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email",
+                                                    "example": "jaime@example.com"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "token": {
+                                            "required": [
+                                                "token_type",
+                                                "access_token"
+                                            ],
+                                            "properties": {
+                                                "token_type": {
+                                                    "type": "string",
+                                                    "example": "Bearer"
+                                                },
+                                                "access_token": {
+                                                    "type": "string",
+                                                    "example": "TOKEN_DE_ACCESO"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
-                        "description": "Credenciales incorrectas."
+                        "description": "Credenciales incorrectas.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Credenciales incorrectas."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "422": {
                         "description": "Datos de validación incorrectos."
@@ -140,7 +206,42 @@
                 "operationId": "58eb90e2b3be3d0480871a7c39a1785f",
                 "responses": {
                     "200": {
-                        "description": "Datos del usuario autenticado."
+                        "description": "Datos del usuario autenticado.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "required": [
+                                                "id",
+                                                "name",
+                                                "email"
+                                            ],
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Jaime Romero"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email",
+                                                    "example": "jaime@example.com"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
                         "description": "Token ausente, inválido o expirado."
@@ -251,8 +352,8 @@
                                     },
                                     "resource": {
                                         "type": "string",
-                                        "format": "uri",
-                                        "example": "https://ejemplo.com"
+                                        "example": "https://ejemplo.com",
+                                        "maxLength": 255
                                     }
                                 },
                                 "type": "object"
@@ -384,18 +485,20 @@
                         "bearerAuth": []
                     }
                 ]
-            },
+            }
+        },
+        "/training-sessions/{training_session}": {
             "patch": {
                 "tags": [
                     "Training Sessions"
                 ],
-                "summary": "Actualizar una sesion de entrenamiento",
-                "operationId": "202f817da3451a06b189f16c5e4fe669",
+                "summary": "Actualizar una sesión de entrenamiento",
+                "operationId": "e90b4beef458bb61294c396c4ba92d2b",
                 "parameters": [
                     {
-                        "name": "training-session",
+                        "name": "training_session",
                         "in": "path",
-                        "description": "ID de la training-session",
+                        "description": "ID de la sesión",
                         "required": true,
                         "schema": {
                             "type": "integer",
@@ -408,6 +511,10 @@
                     "content": {
                         "application/json": {
                             "schema": {
+                                "required": [
+                                    "title",
+                                    "category"
+                                ],
                                 "properties": {
                                     "title": {
                                         "type": "string",
@@ -416,16 +523,17 @@
                                     },
                                     "description": {
                                         "type": "string",
-                                        "example": "Cambios de aperturas",
+                                        "example": "Preparación de aperturas",
                                         "maxLength": 255
                                     },
                                     "category": {
                                         "type": "string",
                                         "example": "opening"
                                     },
-                                    "resources": {
+                                    "resource": {
                                         "type": "string",
-                                        "example": "http://example.com"
+                                        "example": "https://lichess.org/study",
+                                        "maxLength": 255
                                     }
                                 },
                                 "type": "object"
@@ -435,17 +543,17 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "TrainingSession actualizada exitosamente.",
+                        "description": "Sesión actualizada.",
                         "content": {
                             "application/json": {
                                 "schema": {},
                                 "example": {
                                     "data": {
                                         "id": 1,
-                                        "name": "TrainingSession actualizado",
-                                        "description": "actualizado",
+                                        "title": "Entrenamiento actualizado",
+                                        "description": "Preparación de aperturas",
                                         "category": "opening",
-                                        "resources": "http://example.com"
+                                        "resource": "https://lichess.org/study"
                                     }
                                 }
                             }
@@ -461,7 +569,7 @@
                         "description": "No autorizado."
                     },
                     "404": {
-                        "description": "Workspace no encontrado."
+                        "description": "Sesión no encontrada."
                     }
                 },
                 "security": [
@@ -661,7 +769,7 @@
                                 "example": {
                                     "data": {
                                         "id": 1,
-                                        "name": "Workspace 1",
+                                        "title": "Workspace 1",
                                         "status": "active"
                                     }
                                 }
@@ -819,7 +927,7 @@
                                 "example": {
                                     "data": {
                                         "id": 1,
-                                        "name": "Workspace actualizado",
+                                        "title": "Workspace actualizado",
                                         "status": "active"
                                     }
                                 }
@@ -960,7 +1068,12 @@
                                     },
                                     "role": {
                                         "type": "string",
-                                        "example": "editor"
+                                        "example": "student",
+                                        "enum": [
+                                            "coach",
+                                            "student",
+                                            "viewer"
+                                        ]
                                     }
                                 },
                                 "type": "object"
@@ -992,7 +1105,12 @@
                                                 },
                                                 "role": {
                                                     "type": "string",
-                                                    "example": "editor"
+                                                    "example": "student",
+                                                    "enum": [
+                                                        "coach",
+                                                        "student",
+                                                        "viewer"
+                                                    ]
                                                 }
                                             },
                                             "type": "object"
@@ -1006,11 +1124,14 @@
                     "401": {
                         "description": "No autenticado."
                     },
+                    "403": {
+                        "description": "No tienes permiso para añadir miembros."
+                    },
                     "404": {
-                        "description": "Workspace o Usuario (por email) no encontrado."
+                        "description": "Workspace no encontrado."
                     },
                     "422": {
-                        "description": "Datos de validación incorrectos (por ejemplo, si el usuario ya pertenece al workspace)."
+                        "description": "Datos inválidos, email inexistente o miembro duplicado."
                     }
                 },
                 "security": [

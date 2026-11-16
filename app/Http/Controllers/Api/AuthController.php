@@ -132,11 +132,67 @@ class AuthController extends Controller
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'Credenciales correctas. Devuelve los datos del usuario y un token.'
+                description: 'Sesión iniciada.',
+                content: new OA\JsonContent(
+                    type: 'object',
+                    required: ['data', 'token'],
+                    properties: [
+                        new OA\Property(
+                            property: 'data',
+                            type: 'object',
+                            required: ['id', 'name', 'email'],
+                            properties: [
+                                new OA\Property(
+                                    property: 'id',
+                                    type: 'integer',
+                                    example: 1
+                                ),
+                                new OA\Property(
+                                    property: 'name',
+                                    type: 'string',
+                                    example: 'Jaime Romero'
+                                ),
+                                new OA\Property(
+                                    property: 'email',
+                                    type: 'string',
+                                    format: 'email',
+                                    example: 'jaime@example.com'
+                                ),
+                            ]
+                        ),
+                        new OA\Property(
+                            property: 'token',
+                            type: 'object',
+                            required: ['token_type', 'access_token'],
+                            properties: [
+                                new OA\Property(
+                                    property: 'token_type',
+                                    type: 'string',
+                                    example: 'Bearer'
+                                ),
+                                new OA\Property(
+                                    property: 'access_token',
+                                    type: 'string',
+                                    example: 'TOKEN_DE_ACCESO'
+                                ),
+                            ]
+                        ),
+                    ]
+                )
             ),
             new OA\Response(
                 response: 401,
-                description: 'Credenciales incorrectas.'
+                description: 'Credenciales incorrectas.',
+                content: new OA\JsonContent(
+                    type: 'object',
+                    properties: [
+                        new OA\Property(
+                            property: 'message',
+                            type: 'string',
+                            example: 'Credenciales incorrectas.'
+                        ),
+                    ]
+                )
             ),
             new OA\Response(
                 response: 422,
@@ -179,7 +235,36 @@ class AuthController extends Controller
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'Datos del usuario autenticado.'
+                description: 'Datos del usuario autenticado.',
+                content: new OA\JsonContent(
+                    type: 'object',
+                    required: ['data'],
+                    properties: [
+                        new OA\Property(
+                            property: 'data',
+                            type: 'object',
+                            required: ['id', 'name', 'email'],
+                            properties: [
+                                new OA\Property(
+                                    property: 'id',
+                                    type: 'integer',
+                                    example: 1
+                                ),
+                                new OA\Property(
+                                    property: 'name',
+                                    type: 'string',
+                                    example: 'Jaime Romero'
+                                ),
+                                new OA\Property(
+                                    property: 'email',
+                                    type: 'string',
+                                    format: 'email',
+                                    example: 'jaime@example.com'
+                                ),
+                            ]
+                        ),
+                    ]
+                )
             ),
             new OA\Response(
                 response: 401,

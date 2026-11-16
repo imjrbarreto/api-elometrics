@@ -47,7 +47,7 @@ class WorkspaceController extends Controller
                     example: [
                         'data' => [
                             'id' => 1,
-                            'name' => 'Workspace 1',
+                            'title' => 'Workspace 1',
                             'status' => 'active',
                         ],
                     ]
@@ -232,7 +232,7 @@ class WorkspaceController extends Controller
                     example: [
                         'data' => [
                             'id' => 1,
-                            'name' => 'Workspace actualizado',
+                            'title' => 'Workspace actualizado',
                             'status' => 'active',
                         ],
                     ]
