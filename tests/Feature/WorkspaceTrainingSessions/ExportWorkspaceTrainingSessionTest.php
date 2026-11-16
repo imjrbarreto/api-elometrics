@@ -107,3 +107,21 @@ it('returns not found when the session is linked only to another workspace', fun
         )
     )->assertNotFound();
 });
+
+it('requires authentication to export a linked training session', function () {
+    /** @var \Tests\TestCase $this */
+
+    [$owner, $workspace] = emWorkspace();
+
+    $session = TrainingSession::factory()->create([
+        'user_id' => $owner->id,
+    ]);
+
+    $workspace->trainingSessions()->attach($session->id);
+
+    $this->getJson(
+        apiUrl(
+            "workspaces/{$workspace->id}/training-sessions/{$session->id}/export"
+        )
+    )->assertUnauthorized();
+});
