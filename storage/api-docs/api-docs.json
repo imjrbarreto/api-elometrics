@@ -1005,7 +1005,13 @@
                                                     },
                                                     "role": {
                                                         "type": "string",
-                                                        "example": "admin"
+                                                        "example": "owner",
+                                                        "enum": [
+                                                            "owner",
+                                                            "coach",
+                                                            "student",
+                                                            "viewer"
+                                                        ]
                                                     }
                                                 },
                                                 "type": "object"

@@ -48,7 +48,7 @@ class WorkspaceMemberController extends Controller
                                     new OA\Property(property: 'id', type: 'integer', example: 1),
                                     new OA\Property(property: 'name', type: 'string', example: 'Juan Pérez'),
                                     new OA\Property(property: 'email', type: 'string', format: 'email', example: 'juan@example.com'),
-                                    new OA\Property(property: 'role', type: 'string', example: 'admin')
+                                    new OA\Property(property: 'role', type: 'string', enum: ['owner', 'coach', 'student', 'viewer'], example: 'owner')
                                 ]
                             )
                         )
