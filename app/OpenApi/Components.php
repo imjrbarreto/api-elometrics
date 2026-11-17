@@ -154,6 +154,30 @@ final class AuthTokenSchema {}
 )]
 final class AuthResponseSchema {}
 
+// Body de POST /register (refleja las reglas de RegisterRequest)
+#[OA\Schema(
+    schema: 'RegisterInput',
+    required: ['name', 'email', 'password', 'password_confirmation'],
+    properties: [
+        new OA\Property(property: 'name', type: 'string', maxLength: 255, example: 'Lucía Fernández'),
+        new OA\Property(property: 'email', type: 'string', format: 'email', maxLength: 255, example: 'lucia@example.com'),
+        new OA\Property(property: 'password', type: 'string', format: 'password', minLength: 8, example: 'password123'),
+        new OA\Property(property: 'password_confirmation', type: 'string', format: 'password', example: 'password123'),
+    ],
+)]
+final class RegisterInputSchema {}
+
+// Body de POST /login (refleja las reglas de LoginRequest)
+#[OA\Schema(
+    schema: 'LoginInput',
+    required: ['email', 'password'],
+    properties: [
+        new OA\Property(property: 'email', type: 'string', format: 'email', example: 'lucia@example.com'),
+        new OA\Property(property: 'password', type: 'string', format: 'password', example: 'password123'),
+    ],
+)]
+final class LoginInputSchema {}
+
 #[OA\Schema(
     schema: 'UserResource',
     required: ['data'],
