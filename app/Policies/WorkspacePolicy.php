@@ -20,7 +20,7 @@ class WorkspacePolicy
 
     public function view(User $user, Workspace $workspace): bool
     {
-        return $workspace->isOwnedBy($user) || $workspace->hasMember($user);
+        return $workspace->hasMember($user);
     }
 
     /**

@@ -18,43 +18,13 @@
                     "Autenticación"
                 ],
                 "summary": "Registrar un usuario y obtener un token",
-                "operationId": "5d4fa5d5607ed675ba93907e1fc94534",
+                "operationId": "register",
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "name",
-                                    "email",
-                                    "password",
-                                    "password_confirmation"
-                                ],
-                                "properties": {
-                                    "name": {
-                                        "type": "string",
-                                        "example": "Jaime Romero",
-                                        "maxLength": 255
-                                    },
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email",
-                                        "example": "jaime@example.com",
-                                        "maxLength": 255
-                                    },
-                                    "password": {
-                                        "type": "string",
-                                        "format": "password",
-                                        "example": "password123",
-                                        "minLength": 8
-                                    },
-                                    "password_confirmation": {
-                                        "type": "string",
-                                        "format": "password",
-                                        "example": "password123"
-                                    }
-                                },
-                                "type": "object"
+                                "$ref": "#/components/schemas/RegisterInput"
                             }
                         }
                     }
@@ -64,23 +34,14 @@
                         "description": "Usuario creado. Devuelve sus datos públicos y un token de acceso.",
                         "content": {
                             "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "data": {
-                                        "id": 1,
-                                        "name": "Jaime Romero",
-                                        "email": "jaime@example.com"
-                                    },
-                                    "token": {
-                                        "token_type": "Bearer",
-                                        "access_token": "TOKEN_DE_ACCESO"
-                                    }
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthResponse"
                                 }
                             }
                         }
                     },
                     "422": {
-                        "description": "Datos de validación incorrectos."
+                        "$ref": "#/components/responses/ValidationFailed"
                     }
                 }
             }
@@ -91,29 +52,13 @@
                     "Autenticación"
                 ],
                 "summary": "Iniciar sesión y obtener un token",
-                "operationId": "67d6d0fdd54fba132e1b6f55ca254183",
+                "operationId": "login",
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "email",
-                                    "password"
-                                ],
-                                "properties": {
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email",
-                                        "example": "jaime@example.com"
-                                    },
-                                    "password": {
-                                        "type": "string",
-                                        "format": "password",
-                                        "example": "password123"
-                                    }
-                                },
-                                "type": "object"
+                                "$ref": "#/components/schemas/LoginInput"
                             }
                         }
                     }
@@ -124,53 +69,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "required": [
-                                        "data",
-                                        "token"
-                                    ],
-                                    "properties": {
-                                        "data": {
-                                            "required": [
-                                                "id",
-                                                "name",
-                                                "email"
-                                            ],
-                                            "properties": {
-                                                "id": {
-                                                    "type": "integer",
-                                                    "example": 1
-                                                },
-                                                "name": {
-                                                    "type": "string",
-                                                    "example": "Jaime Romero"
-                                                },
-                                                "email": {
-                                                    "type": "string",
-                                                    "format": "email",
-                                                    "example": "jaime@example.com"
-                                                }
-                                            },
-                                            "type": "object"
-                                        },
-                                        "token": {
-                                            "required": [
-                                                "token_type",
-                                                "access_token"
-                                            ],
-                                            "properties": {
-                                                "token_type": {
-                                                    "type": "string",
-                                                    "example": "Bearer"
-                                                },
-                                                "access_token": {
-                                                    "type": "string",
-                                                    "example": "TOKEN_DE_ACCESO"
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/AuthResponse"
                                 }
                             }
                         }
@@ -180,19 +79,13 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Credenciales incorrectas."
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/Message"
                                 }
                             }
                         }
                     },
                     "422": {
-                        "description": "Datos de validación incorrectos."
+                        "$ref": "#/components/responses/ValidationFailed"
                     }
                 }
             }
@@ -203,48 +96,20 @@
                     "Autenticación"
                 ],
                 "summary": "Obtener los datos del usuario autenticado",
-                "operationId": "58eb90e2b3be3d0480871a7c39a1785f",
+                "operationId": "getCurrentUser",
                 "responses": {
                     "200": {
                         "description": "Datos del usuario autenticado.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "required": [
-                                        "data"
-                                    ],
-                                    "properties": {
-                                        "data": {
-                                            "required": [
-                                                "id",
-                                                "name",
-                                                "email"
-                                            ],
-                                            "properties": {
-                                                "id": {
-                                                    "type": "integer",
-                                                    "example": 1
-                                                },
-                                                "name": {
-                                                    "type": "string",
-                                                    "example": "Jaime Romero"
-                                                },
-                                                "email": {
-                                                    "type": "string",
-                                                    "format": "email",
-                                                    "example": "jaime@example.com"
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/UserResource"
                                 }
                             }
                         }
                     },
                     "401": {
-                        "description": "Token ausente, inválido o expirado."
+                        "$ref": "#/components/responses/Unauthenticated"
                     }
                 },
                 "security": [
@@ -260,13 +125,13 @@
                     "Autenticación"
                 ],
                 "summary": "Cerrar sesión revocando el token actual",
-                "operationId": "28d48c13fca984400ac8de99f54ee13a",
+                "operationId": "logout",
                 "responses": {
                     "204": {
                         "description": "Token actual revocado. Respuesta sin contenido."
                     },
                     "401": {
-                        "description": "Token ausente, inválido o expirado."
+                        "$ref": "#/components/responses/Unauthenticated"
                     }
                 },
                 "security": [
@@ -282,36 +147,20 @@
                     "Training Sessions"
                 ],
                 "summary": "Listar las sesiones de entrenamiento del usuario",
-                "operationId": "1763d339b6576de0eb48347aad50a409",
+                "operationId": "listTrainingSessions",
                 "responses": {
                     "200": {
                         "description": "Listado de sesiones de entrenamiento devuelto con éxito.",
                         "content": {
                             "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "data": [
-                                        {
-                                            "id": 1,
-                                            "title": "Defensa Francesa",
-                                            "description": "Variante Clasica en la defensa francesa",
-                                            "category": "opening",
-                                            "resources": "http://example.com"
-                                        },
-                                        {
-                                            "id": 2,
-                                            "title": "Defensa Caro Kann",
-                                            "description": "Variante del avance en la defensa caro kann",
-                                            "category": "opening",
-                                            "resources": "http://example.com"
-                                        }
-                                    ]
+                                "schema": {
+                                    "$ref": "#/components/schemas/TrainingSessionList"
                                 }
                             }
                         }
                     },
                     "401": {
-                        "description": "No autenticado."
+                        "$ref": "#/components/responses/Unauthenticated"
                     }
                 },
                 "security": [
@@ -324,66 +173,34 @@
                 "tags": [
                     "Training Sessions"
                 ],
-                "summary": "Crear una nueva sesion de entrenamiento",
-                "operationId": "a4bfe0648be836ea4d1463e2f755688b",
+                "summary": "Crear una nueva sesión de entrenamiento",
+                "operationId": "createTrainingSession",
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "title",
-                                    "category"
-                                ],
-                                "properties": {
-                                    "title": {
-                                        "type": "string",
-                                        "example": "Finales de torres",
-                                        "maxLength": 255
-                                    },
-                                    "description": {
-                                        "type": "string",
-                                        "example": "Actividad de la torre y ejercicios practicos.",
-                                        "maxLength": 255
-                                    },
-                                    "category": {
-                                        "type": "string",
-                                        "example": "endgame"
-                                    },
-                                    "resource": {
-                                        "type": "string",
-                                        "example": "https://ejemplo.com",
-                                        "maxLength": 255
-                                    }
-                                },
-                                "type": "object"
+                                "$ref": "#/components/schemas/TrainingSessionInput"
                             }
                         }
                     }
                 },
                 "responses": {
                     "201": {
-                        "description": "TrainingSession creada exitosamente.",
+                        "description": "Sesión creada exitosamente.",
                         "content": {
                             "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "data": {
-                                        "id": 1,
-                                        "title": "Finales de torres",
-                                        "description": "Actividad de la torre y ejercicios practicos.",
-                                        "category": "endgame",
-                                        "resource": "https://lichess.org/study/abcd1234"
-                                    }
+                                "schema": {
+                                    "$ref": "#/components/schemas/TrainingSessionResource"
                                 }
                             }
                         }
                     },
-                    "422": {
-                        "description": "Datos de validación incorrectos."
-                    },
                     "401": {
-                        "description": "No autenticado."
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationFailed"
                     }
                 },
                 "security": [
@@ -393,53 +210,37 @@
                 ]
             }
         },
-        "/training-sessions/{training-session}": {
+        "/training-sessions/{training_session}": {
             "get": {
                 "tags": [
                     "Training Sessions"
                 ],
-                "summary": "Listar una sesion de entrenamiento",
-                "operationId": "60eb7abbdda49e483fcffcdb03b868ae",
+                "summary": "Obtener el detalle de una sesión de entrenamiento",
+                "operationId": "getTrainingSession",
                 "parameters": [
                     {
-                        "name": "training-session",
-                        "in": "path",
-                        "description": "ID de la sesion de entrenamiento",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
+                        "$ref": "#/components/parameters/TrainingSessionId"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Detalle de la training session devuelta exitosamente.",
+                        "description": "Detalle de la sesión devuelto exitosamente.",
                         "content": {
                             "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "data": [
-                                        {
-                                            "id": 1,
-                                            "title": "Defensa Caro Kann",
-                                            "description": "Variante del avance en la defensa caro kann",
-                                            "category": "opening",
-                                            "resources": "http://example.com"
-                                        }
-                                    ]
+                                "schema": {
+                                    "$ref": "#/components/schemas/TrainingSessionResource"
                                 }
                             }
                         }
                     },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
                     "403": {
-                        "description": "No tienes permisos para ver esta sesion de entrenamiento."
+                        "$ref": "#/components/responses/Forbidden"
                     },
                     "404": {
-                        "description": "sesion de entrenamiento no encontrada."
-                    },
-                    "401": {
-                        "description": "No autenticado."
+                        "$ref": "#/components/responses/NotFound"
                     }
                 },
                 "security": [
@@ -452,32 +253,25 @@
                 "tags": [
                     "Training Sessions"
                 ],
-                "summary": "Eliminar una sesion de entrenamiento",
-                "operationId": "65a903ab5d51e292718974df4210c9d4",
+                "summary": "Eliminar una sesión de entrenamiento",
+                "operationId": "deleteTrainingSession",
                 "parameters": [
                     {
-                        "name": "trainingSession",
-                        "in": "path",
-                        "description": "ID de la trainingSession a eliminar",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
+                        "$ref": "#/components/parameters/TrainingSessionId"
                     }
                 ],
                 "responses": {
                     "204": {
-                        "description": "TrainingSession eliminada exitosamente."
+                        "description": "Sesión eliminada exitosamente."
                     },
                     "401": {
-                        "description": "No autenticado."
+                        "$ref": "#/components/responses/Unauthenticated"
                     },
                     "403": {
-                        "description": "No autorizado."
+                        "$ref": "#/components/responses/Forbidden"
                     },
                     "404": {
-                        "description": "TrainingSession no encontrado."
+                        "$ref": "#/components/responses/NotFound"
                     }
                 },
                 "security": [
@@ -485,25 +279,16 @@
                         "bearerAuth": []
                     }
                 ]
-            }
-        },
-        "/training-sessions/{training_session}": {
+            },
             "patch": {
                 "tags": [
                     "Training Sessions"
                 ],
                 "summary": "Actualizar una sesión de entrenamiento",
-                "operationId": "e90b4beef458bb61294c396c4ba92d2b",
+                "operationId": "updateTrainingSession",
                 "parameters": [
                     {
-                        "name": "training_session",
-                        "in": "path",
-                        "description": "ID de la sesión",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
+                        "$ref": "#/components/parameters/TrainingSessionId"
                     }
                 ],
                 "requestBody": {
@@ -511,32 +296,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "title",
-                                    "category"
-                                ],
-                                "properties": {
-                                    "title": {
-                                        "type": "string",
-                                        "example": "Entrenamiento actualizado",
-                                        "maxLength": 255
-                                    },
-                                    "description": {
-                                        "type": "string",
-                                        "example": "Preparación de aperturas",
-                                        "maxLength": 255
-                                    },
-                                    "category": {
-                                        "type": "string",
-                                        "example": "opening"
-                                    },
-                                    "resource": {
-                                        "type": "string",
-                                        "example": "https://lichess.org/study",
-                                        "maxLength": 255
-                                    }
-                                },
-                                "type": "object"
+                                "$ref": "#/components/schemas/TrainingSessionInput"
                             }
                         }
                     }
@@ -546,30 +306,23 @@
                         "description": "Sesión actualizada.",
                         "content": {
                             "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "data": {
-                                        "id": 1,
-                                        "title": "Entrenamiento actualizado",
-                                        "description": "Preparación de aperturas",
-                                        "category": "opening",
-                                        "resource": "https://lichess.org/study"
-                                    }
+                                "schema": {
+                                    "$ref": "#/components/schemas/TrainingSessionResource"
                                 }
                             }
                         }
                     },
-                    "422": {
-                        "description": "Datos de validación incorrectos."
-                    },
                     "401": {
-                        "description": "No autenticado."
+                        "$ref": "#/components/responses/Unauthenticated"
                     },
                     "403": {
-                        "description": "No autorizado."
+                        "$ref": "#/components/responses/Forbidden"
                     },
                     "404": {
-                        "description": "Sesión no encontrada."
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationFailed"
                     }
                 },
                 "security": [
@@ -1494,6 +1247,58 @@
                     },
                     "token": {
                         "$ref": "#/components/schemas/AuthToken"
+                    }
+                },
+                "type": "object"
+            },
+            "RegisterInput": {
+                "required": [
+                    "name",
+                    "email",
+                    "password",
+                    "password_confirmation"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "Lucía Fernández",
+                        "maxLength": 255
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "lucia@example.com",
+                        "maxLength": 255
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password",
+                        "example": "password123",
+                        "minLength": 8
+                    },
+                    "password_confirmation": {
+                        "type": "string",
+                        "format": "password",
+                        "example": "password123"
+                    }
+                },
+                "type": "object"
+            },
+            "LoginInput": {
+                "required": [
+                    "email",
+                    "password"
+                ],
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "lucia@example.com"
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password",
+                        "example": "password123"
                     }
                 },
                 "type": "object"

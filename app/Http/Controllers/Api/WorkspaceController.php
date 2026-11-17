@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\WorkspaceResource;
 use App\Http\Requests\StoreWorkspaceRequest;
 use App\Http\Requests\UpdateWorkspaceRequest;
+use App\Http\Resources\WorkspaceResource;
 use App\Models\Workspace;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Http\JsonResponse;
@@ -14,13 +14,13 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use OpenApi\Attributes as OA;
 
 
-#[OA\Tag(name: 'Workspaces', description: 'Endpoints para la gestión de workspaces')]
+#[OA\Tag(name: 'Workspaces', description: 'Endpoints for workspace management')]
 class WorkspaceController extends Controller
 {
     #[OA\Post(
         path: '/workspaces',
         operationId: 'createWorkspace',
-        summary: 'Crear un nuevo workspace',
+        summary: 'Create a workspace',
         tags: ['Workspaces'],
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(
@@ -30,7 +30,7 @@ class WorkspaceController extends Controller
         responses: [
             new OA\Response(
                 response: 201,
-                description: 'Workspace creado exitosamente.',
+                description: 'Workspace created.',
                 content: new OA\JsonContent(ref: '#/components/schemas/WorkspaceResource')
             ),
             new OA\Response(response: 401, ref: '#/components/responses/Unauthenticated'),
@@ -49,13 +49,13 @@ class WorkspaceController extends Controller
     #[OA\Get(
         path: '/workspaces',
         operationId: 'listWorkspaces',
-        summary: 'Listar los workspaces del usuario',
+        summary: 'List the user\'s workspaces',
         tags: ['Workspaces'],
         security: [['bearerAuth' => []]],
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'Listado de workspaces devuelto con éxito.',
+                description: 'Workspaces listed.',
                 content: new OA\JsonContent(ref: '#/components/schemas/WorkspaceList')
             ),
             new OA\Response(response: 401, ref: '#/components/responses/Unauthenticated'),
@@ -81,7 +81,7 @@ class WorkspaceController extends Controller
     #[OA\Get(
         path: '/workspaces/{workspace}',
         operationId: 'getWorkspace',
-        summary: 'Obtener el detalle de un workspace',
+        summary: 'Get a workspace',
         tags: ['Workspaces'],
         security: [['bearerAuth' => []]],
         parameters: [
@@ -90,7 +90,7 @@ class WorkspaceController extends Controller
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'Detalle del workspace devuelto exitosamente.',
+                description: 'Workspace returned.',
                 content: new OA\JsonContent(ref: '#/components/schemas/WorkspaceResource')
             ),
             new OA\Response(response: 401, ref: '#/components/responses/Unauthenticated'),
@@ -108,8 +108,8 @@ class WorkspaceController extends Controller
     #[OA\Patch(
         path: '/workspaces/{workspace}',
         operationId: 'updateWorkspace',
-        summary: 'Actualizar un workspace',
-        description: 'Solo el owner puede actualizar el workspace.',
+        summary: 'Update a workspace',
+        description: 'Only the owner can update the workspace.',
         tags: ['Workspaces'],
         security: [['bearerAuth' => []]],
         parameters: [
@@ -122,7 +122,7 @@ class WorkspaceController extends Controller
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'Workspace actualizado exitosamente.',
+                description: 'Workspace updated.',
                 content: new OA\JsonContent(ref: '#/components/schemas/WorkspaceResource')
             ),
             new OA\Response(response: 401, ref: '#/components/responses/Unauthenticated'),
@@ -143,15 +143,15 @@ class WorkspaceController extends Controller
     #[OA\Delete(
         path: '/workspaces/{workspace}',
         operationId: 'deleteWorkspace',
-        summary: 'Eliminar un workspace',
-        description: 'Solo el owner puede eliminar el workspace.',
+        summary: 'Delete a workspace',
+        description: 'Only the owner can delete the workspace.',
         tags: ['Workspaces'],
         security: [['bearerAuth' => []]],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/WorkspaceId'),
         ],
         responses: [
-            new OA\Response(response: 204, description: 'Workspace eliminado exitosamente.'),
+            new OA\Response(response: 204, description: 'Workspace deleted.'),
             new OA\Response(response: 401, ref: '#/components/responses/Unauthenticated'),
             new OA\Response(response: 403, ref: '#/components/responses/Forbidden'),
             new OA\Response(response: 404, ref: '#/components/responses/NotFound'),

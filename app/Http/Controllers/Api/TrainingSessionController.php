@@ -5,333 +5,143 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTrainingSessionRequest;
 use App\Http\Requests\UpdateTrainingSessionRequest;
+use App\Http\Resources\TrainingSessionResource;
 use App\Models\TrainingSession;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Gate;
 use OpenApi\Attributes as OA;
 
-#[OA\Tag(name: 'Training Sessions', description: 'Endpoints para la gestión de sesiones de entrenamiento')]
+#[OA\Tag(name: 'Training Sessions', description: 'Endpoints for training session management')]
 class TrainingSessionController extends Controller
 {
     #[OA\Post(
         path: '/training-sessions',
-        summary: 'Crear una nueva sesion de entrenamiento',
+        operationId: 'createTrainingSession',
+        summary: 'Create a training session',
         tags: ['Training Sessions'],
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(
             required: true,
-            content: new OA\JsonContent(
-                required: ['title', 'category'],
-                properties: [
-                    new OA\Property(
-                        property: 'title',
-                        type: 'string',
-                        maxLength: 255,
-                        example: 'Finales de torres'
-                    ),
-                    new OA\Property(
-                        property: 'description',
-                        type: 'string',
-                        maxLength: 255,
-                        example: 'Actividad de la torre y ejercicios practicos.'
-                    ),
-                    new OA\Property(
-                        property: 'category',
-                        type: 'string',
-                        example: 'endgame'
-                    ),
-                    new OA\Property(
-                        property: 'resource',
-                        type: 'string',
-                        maxLength: 255,
-                        example: 'https://ejemplo.com'
-                    ),
-                ]
-            )
+            content: new OA\JsonContent(ref: '#/components/schemas/TrainingSessionInput')
         ),
         responses: [
             new OA\Response(
                 response: 201,
-                description: 'TrainingSession creada exitosamente.',
-                content: new OA\JsonContent(
-                    example: [
-                        'data' => [
-                            'id' => 1,
-                            'title' => 'Finales de torres',
-                            'description' => 'Actividad de la torre y ejercicios practicos.',
-                            'category' => 'endgame',
-                            'resource' => 'https://lichess.org/study/abcd1234',
-                        ],
-                    ]
-                )
+                description: 'Training session created.',
+                content: new OA\JsonContent(ref: '#/components/schemas/TrainingSessionResource')
             ),
-            new OA\Response(
-                response: 422,
-                description: 'Datos de validación incorrectos.'
-            ),
-            new OA\Response(
-                response: 401,
-                description: 'No autenticado.'
-            ),
+            new OA\Response(response: 401, ref: '#/components/responses/Unauthenticated'),
+            new OA\Response(response: 422, ref: '#/components/responses/ValidationFailed'),
         ]
     )]
     public function store(StoreTrainingSessionRequest $request): JsonResponse
     {
         $trainingSession = $request->user()->trainingSessions()->create($request->validated());
 
-        return response()->json([
-            'data' => [
-                'id' => $trainingSession->id,
-                'title' => $trainingSession->title,
-                'description' => $trainingSession->description,
-                'category' => $trainingSession->category,
-                'resource' => $trainingSession->resource,
-            ]
-        ], 201);
+        return (new TrainingSessionResource($trainingSession))
+            ->response()
+            ->setStatusCode(201);
     }
 
     #[OA\Get(
         path: '/training-sessions',
-        summary: 'Listar las sesiones de entrenamiento del usuario',
+        operationId: 'listTrainingSessions',
+        summary: 'List the user\'s training sessions',
         tags: ['Training Sessions'],
-        security: [
-            ['bearerAuth' => []]
-        ],
+        security: [['bearerAuth' => []]],
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'Listado de sesiones de entrenamiento devuelto con éxito.',
-                content: new OA\JsonContent(
-                    example: [
-                        'data' => [
-                            [
-                                'id' => 1,
-                                'title' => 'Defensa Francesa',
-                                'description' => 'Variante Clasica en la defensa francesa',
-                                'category' => 'opening',
-                                'resources' => 'http://example.com',
-                            ],
-                            [
-                                'id' => 2,
-                                'title' => 'Defensa Caro Kann',
-                                'description' => 'Variante del avance en la defensa caro kann',
-                                'category' => 'opening',
-                                'resources' => 'http://example.com',
-                            ],
-                        ]
-                    ]
-                )
+                description: 'Training sessions listed.',
+                content: new OA\JsonContent(ref: '#/components/schemas/TrainingSessionList')
             ),
-            new OA\Response(
-                response: 401,
-                description: 'No autenticado.'
-            ),
+            new OA\Response(response: 401, ref: '#/components/responses/Unauthenticated'),
         ]
     )]
-    public function list(Request $request): JsonResponse
+    public function list(Request $request): AnonymousResourceCollection
     {
-        $trainingSession = $request->user()->trainingSessions()->get();
-
-        $formattedTraining = $trainingSession->map(function ($trainingSession) {
-            return [
-                'id' => $trainingSession->id,
-                'title' => $trainingSession->title,
-                'description' => $trainingSession->description,
-                'category' => $trainingSession->category,
-                'resource' => $trainingSession->resource,
-            ];
-        })->toArray();
-
-        return response()->json([
-            'data' => $formattedTraining,
-        ]);
+        return TrainingSessionResource::collection(
+            $request->user()->trainingSessions()->get()
+        );
     }
 
     #[OA\Get(
-        path: '/training-sessions/{training-session}',
-        summary: 'Listar una sesion de entrenamiento',
+        path: '/training-sessions/{training_session}',
+        operationId: 'getTrainingSession',
+        summary: 'Get a training session',
         tags: ['Training Sessions'],
-        security: [
-            ['bearerAuth' => []]
-        ],
+        security: [['bearerAuth' => []]],
         parameters: [
-            new OA\Parameter(
-                name: 'training-session',
-                in: 'path',
-                description: 'ID de la sesion de entrenamiento',
-                required: true,
-                schema: new OA\Schema(type: 'integer', example: 1)
-            )
+            new OA\Parameter(ref: '#/components/parameters/TrainingSessionId'),
         ],
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'Detalle de la training session devuelta exitosamente.',
-                content: new OA\JsonContent(
-                    example: [
-                        'data' => [
-                            [
-                                'id' => 1,
-                                'title' => 'Defensa Caro Kann',
-                                'description' => 'Variante del avance en la defensa caro kann',
-                                'category' => 'opening',
-                                'resources' => 'http://example.com',
-                            ],
-                        ]
-                    ]
-                )
+                description: 'Training session returned.',
+                content: new OA\JsonContent(ref: '#/components/schemas/TrainingSessionResource')
             ),
-            new OA\Response(
-                response: 403,
-                description: 'No tienes permisos para ver esta sesion de entrenamiento.'
-            ),
-            new OA\Response(
-                response: 404,
-                description: 'sesion de entrenamiento no encontrada.'
-            ),
-            new OA\Response(
-                response: 401,
-                description: 'No autenticado.'
-            ),
+            new OA\Response(response: 401, ref: '#/components/responses/Unauthenticated'),
+            new OA\Response(response: 403, ref: '#/components/responses/Forbidden'),
+            new OA\Response(response: 404, ref: '#/components/responses/NotFound'),
         ]
     )]
-    public function show(TrainingSession $trainingSession): JsonResponse
+    public function show(TrainingSession $trainingSession): TrainingSessionResource
     {
         Gate::authorize('view', $trainingSession);
 
-        return response()->json([
-            'data' => [
-                'id' => $trainingSession->id,
-                'title' => $trainingSession->title,
-                'description' => $trainingSession->description,
-                'category' => $trainingSession->category,
-                'resource' => $trainingSession->resource,
-            ]
-        ]);
+        return new TrainingSessionResource($trainingSession);
     }
 
     #[OA\Patch(
         path: '/training-sessions/{training_session}',
-        summary: 'Actualizar una sesión de entrenamiento',
+        operationId: 'updateTrainingSession',
+        summary: 'Update a training session',
         tags: ['Training Sessions'],
         security: [['bearerAuth' => []]],
         parameters: [
-            new OA\Parameter(
-                name: 'training_session',
-                in: 'path',
-                description: 'ID de la sesión',
-                required: true,
-                schema: new OA\Schema(
-                    type: 'integer',
-                    example: 1
-                )
-            ),
+            new OA\Parameter(ref: '#/components/parameters/TrainingSessionId'),
         ],
         requestBody: new OA\RequestBody(
             required: true,
-            content: new OA\JsonContent(
-                required: ['title', 'category'],
-                properties: [
-                    new OA\Property(
-                        property: 'title',
-                        type: 'string',
-                        maxLength: 255,
-                        example: 'Entrenamiento actualizado'
-                    ),
-                    new OA\Property(
-                        property: 'description',
-                        type: 'string',
-                        maxLength: 255,
-                        example: 'Preparación de aperturas'
-                    ),
-                    new OA\Property(
-                        property: 'category',
-                        type: 'string',
-                        example: 'opening'
-                    ),
-                    new OA\Property(
-                        property: 'resource',
-                        type: 'string',
-                        maxLength: 255,
-                        example: 'https://lichess.org/study'
-                    ),
-                ]
-            )
+            content: new OA\JsonContent(ref: '#/components/schemas/TrainingSessionInput')
         ),
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'Sesión actualizada.',
-                content: new OA\JsonContent(
-                    example: [
-                        'data' => [
-                            'id' => 1,
-                            'title' => 'Entrenamiento actualizado',
-                            'description' => 'Preparación de aperturas',
-                            'category' => 'opening',
-                            'resource' => 'https://lichess.org/study',
-                        ],
-                    ]
-                )
+                description: 'Training session updated.',
+                content: new OA\JsonContent(ref: '#/components/schemas/TrainingSessionResource')
             ),
-            new OA\Response(
-                response: 422,
-                description: 'Datos de validación incorrectos.'
-            ),
-            new OA\Response(
-                response: 401,
-                description: 'No autenticado.'
-            ),
-            new OA\Response(
-                response: 403,
-                description: 'No autorizado.'
-            ),
-            new OA\Response(
-                response: 404,
-                description: 'Sesión no encontrada.'
-            ),
+            new OA\Response(response: 401, ref: '#/components/responses/Unauthenticated'),
+            new OA\Response(response: 403, ref: '#/components/responses/Forbidden'),
+            new OA\Response(response: 404, ref: '#/components/responses/NotFound'),
+            new OA\Response(response: 422, ref: '#/components/responses/ValidationFailed'),
         ]
     )]
-    public function update(UpdateTrainingSessionRequest $request, TrainingSession $trainingSession): JsonResponse
+    public function update(UpdateTrainingSessionRequest $request, TrainingSession $trainingSession): TrainingSessionResource
     {
         Gate::authorize('update', $trainingSession);
 
         $trainingSession->update($request->validated());
 
-        return response()->json([
-            'data' => [
-                'id' => $trainingSession->id,
-                'title' => $trainingSession->title,
-                'description' => $trainingSession->description,
-                'category' => $trainingSession->category,
-                'resource' => $trainingSession->resource,
-            ]
-        ], 200);
+        return new TrainingSessionResource($trainingSession);
     }
 
     #[OA\Delete(
-        path: '/training-sessions/{training-session}',
-        summary: 'Eliminar una sesion de entrenamiento',
+        path: '/training-sessions/{training_session}',
+        operationId: 'deleteTrainingSession',
+        summary: 'Delete a training session',
         tags: ['Training Sessions'],
         security: [['bearerAuth' => []]],
         parameters: [
-            new OA\Parameter(
-                name: 'trainingSession',
-                in: 'path',
-                description: 'ID de la trainingSession a eliminar',
-                required: true,
-                schema: new OA\Schema(type: 'integer', example: 1)
-            )
+            new OA\Parameter(ref: '#/components/parameters/TrainingSessionId'),
         ],
         responses: [
-            new OA\Response(
-                response: 204,
-                description: 'TrainingSession eliminada exitosamente.'
-            ),
-            new OA\Response(response: 401, description: 'No autenticado.'),
-            new OA\Response(response: 403, description: 'No autorizado.'),
-            new OA\Response(response: 404, description: 'TrainingSession no encontrado.')
+            new OA\Response(response: 204, description: 'Training session deleted.'),
+            new OA\Response(response: 401, ref: '#/components/responses/Unauthenticated'),
+            new OA\Response(response: 403, ref: '#/components/responses/Forbidden'),
+            new OA\Response(response: 404, ref: '#/components/responses/NotFound'),
         ]
     )]
     public function delete(TrainingSession $trainingSession): JsonResponse

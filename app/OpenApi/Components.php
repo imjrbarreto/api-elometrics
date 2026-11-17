@@ -5,22 +5,23 @@ namespace App\OpenApi;
 use OpenApi\Attributes as OA;
 
 /*
- * Componentes reutilizables del spec: schemas, respuestas de error y parámetros de ruta.
- * Ubicación sugerida: app/OpenApi/Components.php
+ * Reusable OpenAPI components: schemas, error responses and path parameters.
+ * Suggested location: app/OpenApi/Components.php
  *
- * Las clases están vacías a propósito: solo sirven de soporte para los atributos.
- * l5-swagger las encuentra porque escanea app/ (revisa 'annotations' en config/l5-swagger.php).
+ * The classes are empty on purpose: they only hold the attributes.
+ * The file is loaded through composer's "autoload-dev" > "files" so that
+ * swagger-php can resolve the classes by reflection.
  */
 
 // =====================================================================
-// ERRORES
+// ERRORS
 // =====================================================================
 
 #[OA\Schema(
     schema: 'Message',
     required: ['message'],
     properties: [
-        new OA\Property(property: 'message', type: 'string', example: 'No autorizado.'),
+        new OA\Property(property: 'message', type: 'string', example: 'Unauthorized.'),
     ],
 )]
 final class MessageSchema {}
@@ -43,46 +44,46 @@ final class MessageSchema {}
 )]
 final class ValidationErrorSchema {}
 
-// Respuestas de error reutilizables: en los endpoints se usan con
+// Reusable error responses. In the endpoints they are used with
 // new OA\Response(response: 401, ref: '#/components/responses/Unauthenticated')
 
 #[OA\Response(
     response: 'Unauthenticated',
-    description: 'Token ausente, inválido o expirado.',
+    description: 'Missing, invalid or expired token.',
     content: new OA\JsonContent(ref: '#/components/schemas/Message'),
 )]
 final class UnauthenticatedResponse {}
 
 #[OA\Response(
     response: 'Forbidden',
-    description: 'No tienes permisos para esta acción.',
+    description: 'You do not have permission to perform this action.',
     content: new OA\JsonContent(ref: '#/components/schemas/Message'),
 )]
 final class ForbiddenResponse {}
 
 #[OA\Response(
     response: 'NotFound',
-    description: 'Recurso no encontrado.',
+    description: 'Resource not found.',
     content: new OA\JsonContent(ref: '#/components/schemas/Message'),
 )]
 final class NotFoundResponse {}
 
 #[OA\Response(
     response: 'ValidationFailed',
-    description: 'Datos de validación incorrectos.',
+    description: 'Validation failed.',
     content: new OA\JsonContent(ref: '#/components/schemas/ValidationError'),
 )]
 final class ValidationFailedResponse {}
 
 #[OA\Response(
     response: 'Conflict',
-    description: 'La operación entra en conflicto con el estado actual (por ejemplo, ya existe).',
+    description: 'The request conflicts with the current state (for example, it already exists).',
     content: new OA\JsonContent(ref: '#/components/schemas/Message'),
 )]
 final class ConflictResponse {}
 
 // =====================================================================
-// PARÁMETROS DE RUTA (un solo nombre por recurso, igual al de la ruta)
+// PATH PARAMETERS (one name per resource, identical to the route's)
 // =====================================================================
 
 #[OA\Parameter(
@@ -90,7 +91,7 @@ final class ConflictResponse {}
     name: 'workspace',
     in: 'path',
     required: true,
-    description: 'ID del workspace',
+    description: 'Workspace ID',
     schema: new OA\Schema(type: 'integer', example: 1),
 )]
 final class WorkspaceIdParameter {}
@@ -100,7 +101,7 @@ final class WorkspaceIdParameter {}
     name: 'training_session',
     in: 'path',
     required: true,
-    description: 'ID de la sesión de entrenamiento',
+    description: 'Training session ID',
     schema: new OA\Schema(type: 'integer', example: 3),
 )]
 final class TrainingSessionIdParameter {}
@@ -110,16 +111,16 @@ final class TrainingSessionIdParameter {}
     name: 'user',
     in: 'path',
     required: true,
-    description: 'ID del usuario',
+    description: 'User ID',
     schema: new OA\Schema(type: 'integer', example: 2),
 )]
 final class UserIdParameter {}
 
 // =====================================================================
-// ENTIDADES
-// `required` importa: lo que NO esté ahí se genera como opcional (`campo?: tipo`)
-// en TypeScript, y tendrías que comprobar undefined en todo el front.
-// `nullable: true` solo en lo que de verdad puede venir null.
+// ENTITIES
+// `required` matters: anything NOT listed there is generated as optional
+// (`field?: type`) in TypeScript, and the front would have to check for
+// undefined everywhere. `nullable: true` only on what can really be null.
 // =====================================================================
 
 #[OA\Schema(
@@ -138,12 +139,12 @@ final class UserSchema {}
     required: ['token_type', 'access_token'],
     properties: [
         new OA\Property(property: 'token_type', type: 'string', example: 'Bearer'),
-        new OA\Property(property: 'access_token', type: 'string', example: 'TOKEN_DE_ACCESO'),
+        new OA\Property(property: 'access_token', type: 'string', example: 'ACCESS_TOKEN'),
     ],
 )]
 final class AuthTokenSchema {}
 
-// Respuesta de /register (201) y /login (200)
+// Response of /register (201) and /login (200)
 #[OA\Schema(
     schema: 'AuthResponse',
     required: ['data', 'token'],
@@ -154,7 +155,7 @@ final class AuthTokenSchema {}
 )]
 final class AuthResponseSchema {}
 
-// Body de POST /register (refleja las reglas de RegisterRequest)
+// Body of POST /register (mirrors the rules of RegisterRequest)
 #[OA\Schema(
     schema: 'RegisterInput',
     required: ['name', 'email', 'password', 'password_confirmation'],
@@ -167,7 +168,7 @@ final class AuthResponseSchema {}
 )]
 final class RegisterInputSchema {}
 
-// Body de POST /login (refleja las reglas de LoginRequest)
+// Body of POST /login (mirrors the rules of LoginRequest)
 #[OA\Schema(
     schema: 'LoginInput',
     required: ['email', 'password'],
@@ -192,17 +193,17 @@ final class UserResourceSchema {}
     required: ['id', 'user_id', 'title', 'category'],
     properties: [
         new OA\Property(property: 'id', type: 'integer', example: 3),
-        new OA\Property(property: 'user_id', type: 'integer', description: 'ID del creador de la sesión', example: 1),
-        new OA\Property(property: 'title', type: 'string', maxLength: 255, example: 'Finales de torres'),
-        new OA\Property(property: 'description', type: 'string', nullable: true, example: 'Actividad de la torre y del rey.'),
+        new OA\Property(property: 'user_id', type: 'integer', description: 'ID of the session creator', example: 1),
+        new OA\Property(property: 'title', type: 'string', maxLength: 255, example: 'Rook endgames'),
+        new OA\Property(property: 'description', type: 'string', nullable: true, example: 'Rook and king activity.'),
         new OA\Property(property: 'category', ref: '#/components/schemas/TrainingCategory'),
         new OA\Property(property: 'resource', type: 'string', nullable: true, example: 'https://lichess.org/study'),
     ],
 )]
 final class TrainingSessionSchema {}
 
-// Categorías de una sesión: se define UNA vez y se referencia desde todos los schemas.
-// AJUSTA estos valores a los que acepta tu validación.
+// Session categories: defined ONCE and referenced from all the schemas.
+// ADJUST these values to the ones your validation accepts.
 #[OA\Schema(
     schema: 'TrainingCategory',
     type: 'string',
@@ -211,25 +212,25 @@ final class TrainingSessionSchema {}
 )]
 final class TrainingCategorySchema {}
 
-// Body de POST /training-sessions (refleja las reglas de StoreTrainingSessionRequest)
+// Body of POST /training-sessions (mirrors the rules of StoreTrainingSessionRequest)
 #[OA\Schema(
     schema: 'TrainingSessionInput',
     required: ['title', 'category'],
     properties: [
-        new OA\Property(property: 'title', type: 'string', maxLength: 255, example: 'Finales de torres'),
-        new OA\Property(property: 'description', type: 'string', maxLength: 255, nullable: true, example: 'Actividad de la torre y ejercicios practicos.'),
+        new OA\Property(property: 'title', type: 'string', maxLength: 255, example: 'Rook endgames'),
+        new OA\Property(property: 'description', type: 'string', maxLength: 255, nullable: true, example: 'Rook activity and practical exercises.'),
         new OA\Property(property: 'category', ref: '#/components/schemas/TrainingCategory'),
-        new OA\Property(property: 'resource', type: 'string', maxLength: 255, nullable: true, example: 'https://ejemplo.com'),
+        new OA\Property(property: 'resource', type: 'string', maxLength: 255, nullable: true, example: 'https://example.com'),
     ],
 )]
 final class TrainingSessionInputSchema {}
 
-// Body de PATCH /training-sessions/{training_session}: mismos campos, todos opcionales
+// Body of PATCH /training-sessions/{training_session}: same fields, all optional
 #[OA\Schema(
     schema: 'TrainingSessionPatch',
     properties: [
-        new OA\Property(property: 'title', type: 'string', maxLength: 255, example: 'Entrenamiento actualizado'),
-        new OA\Property(property: 'description', type: 'string', maxLength: 255, nullable: true, example: 'Preparación de aperturas'),
+        new OA\Property(property: 'title', type: 'string', maxLength: 255, example: 'Updated training'),
+        new OA\Property(property: 'description', type: 'string', maxLength: 255, nullable: true, example: 'Opening preparation'),
         new OA\Property(property: 'category', ref: '#/components/schemas/TrainingCategory'),
         new OA\Property(property: 'resource', type: 'string', maxLength: 255, nullable: true, example: 'https://lichess.org/study'),
     ],
@@ -238,26 +239,26 @@ final class TrainingSessionPatchSchema {}
 
 #[OA\Schema(
     schema: 'Workspace',
-    // `role` NO está en `required` porque la API todavía no lo devuelve.
-    // Cuando el Resource del workspace lo incluya, añádelo aquí.
+    // `role` is NOT in `required` because the API does not return it yet.
+    // When the workspace Resource includes it, add it here.
     required: ['id', 'title', 'status'],
     properties: [
         new OA\Property(property: 'id', type: 'integer', example: 1),
-        new OA\Property(property: 'title', type: 'string', maxLength: 255, example: 'Camino a FM'),
+        new OA\Property(property: 'title', type: 'string', maxLength: 255, example: 'Road to FM'),
         new OA\Property(property: 'status', ref: '#/components/schemas/WorkspaceStatus'),
         new OA\Property(
             property: 'role',
             type: 'string',
             enum: ['owner', 'coach', 'student', 'viewer'],
-            description: 'Rol del usuario autenticado en este workspace (pendiente de implementar)',
+            description: 'Role of the authenticated user in this workspace (not implemented yet)',
             example: 'owner',
         ),
     ],
 )]
 final class WorkspaceSchema {}
 
-// Estados de un workspace: se define UNA vez y se referencia desde los demás schemas.
-// AJUSTA estos valores a los que acepta tu validación.
+// Workspace statuses: defined ONCE and referenced from the other schemas.
+// ADJUST these values to the ones your validation accepts.
 #[OA\Schema(
     schema: 'WorkspaceStatus',
     type: 'string',
@@ -266,22 +267,22 @@ final class WorkspaceSchema {}
 )]
 final class WorkspaceStatusSchema {}
 
-// Body de POST /workspaces (refleja las reglas de StoreWorkspaceRequest)
+// Body of POST /workspaces (mirrors the rules of StoreWorkspaceRequest)
 #[OA\Schema(
     schema: 'WorkspaceInput',
     required: ['title', 'status'],
     properties: [
-        new OA\Property(property: 'title', type: 'string', maxLength: 255, example: 'Camino a FM'),
+        new OA\Property(property: 'title', type: 'string', maxLength: 255, example: 'Road to FM'),
         new OA\Property(property: 'status', ref: '#/components/schemas/WorkspaceStatus'),
     ],
 )]
 final class WorkspaceInputSchema {}
 
-// Body de PATCH /workspaces/{workspace}: mismos campos, todos opcionales
+// Body of PATCH /workspaces/{workspace}: same fields, all optional
 #[OA\Schema(
     schema: 'WorkspacePatch',
     properties: [
-        new OA\Property(property: 'title', type: 'string', maxLength: 255, example: 'Workspace actualizado'),
+        new OA\Property(property: 'title', type: 'string', maxLength: 255, example: 'Updated workspace'),
         new OA\Property(property: 'status', ref: '#/components/schemas/WorkspaceStatus'),
     ],
 )]
@@ -306,16 +307,16 @@ final class MemberSchema {}
         new OA\Property(property: 'id', type: 'integer', example: 1),
         new OA\Property(property: 'workspace_id', type: 'integer', example: 1),
         new OA\Property(property: 'training_session_id', type: 'integer', example: 3),
-        new OA\Property(property: 'user_id', type: 'integer', description: 'ID del estudiante autor', example: 8),
-        new OA\Property(property: 'content', type: 'string', example: 'Mi variante principal es 1.Cf5.'),
-        // Solo viene en el listado de respuestas, por eso no está en `required`.
+        new OA\Property(property: 'user_id', type: 'integer', description: 'ID of the student who wrote the response', example: 8),
+        new OA\Property(property: 'content', type: 'string', example: 'My main line is 1.Nf5.'),
+        // Only present in the list of responses, so it is not in `required`.
         new OA\Property(property: 'user', ref: '#/components/schemas/User'),
     ],
 )]
 final class TrainingSessionResponseSchema {}
 
 // =====================================================================
-// ENVOLTURAS { data: ... }
+// ENVELOPES { data: ... }
 // =====================================================================
 
 #[OA\Schema(

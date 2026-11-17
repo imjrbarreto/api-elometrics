@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\UserResource;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\LoginRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -13,14 +13,14 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 use OpenApi\Attributes as OA;
 
-#[OA\Tag(name: 'Autenticación', description: 'Endpoints para la gestión de usuarios y sesiones')]
+#[OA\Tag(name: 'Authentication', description: 'Endpoints for user and session management')]
 class AuthController extends Controller
 {
     #[OA\Post(
         path: '/register',
         operationId: 'register',
-        summary: 'Registrar un usuario y obtener un token',
-        tags: ['Autenticación'],
+        summary: 'Register a user and obtain a token',
+        tags: ['Authentication'],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(ref: '#/components/schemas/RegisterInput')
@@ -28,7 +28,7 @@ class AuthController extends Controller
         responses: [
             new OA\Response(
                 response: 201,
-                description: 'Usuario creado. Devuelve sus datos públicos y un token de acceso.',
+                description: 'User created. Returns the public user data and an access token.',
                 content: new OA\JsonContent(ref: '#/components/schemas/AuthResponse')
             ),
             new OA\Response(response: 422, ref: '#/components/responses/ValidationFailed'),
@@ -56,8 +56,8 @@ class AuthController extends Controller
     #[OA\Post(
         path: '/login',
         operationId: 'login',
-        summary: 'Iniciar sesión y obtener un token',
-        tags: ['Autenticación'],
+        summary: 'Log in and obtain a token',
+        tags: ['Authentication'],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(ref: '#/components/schemas/LoginInput')
@@ -65,12 +65,12 @@ class AuthController extends Controller
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'Sesión iniciada.',
+                description: 'Logged in.',
                 content: new OA\JsonContent(ref: '#/components/schemas/AuthResponse')
             ),
             new OA\Response(
                 response: 401,
-                description: 'Credenciales incorrectas.',
+                description: 'Invalid credentials.',
                 content: new OA\JsonContent(ref: '#/components/schemas/Message')
             ),
             new OA\Response(response: 422, ref: '#/components/responses/ValidationFailed'),
@@ -102,13 +102,13 @@ class AuthController extends Controller
     #[OA\Get(
         path: '/users/me',
         operationId: 'getCurrentUser',
-        summary: 'Obtener los datos del usuario autenticado',
-        tags: ['Autenticación'],
+        summary: 'Get the authenticated user',
+        tags: ['Authentication'],
         security: [['bearerAuth' => []]],
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'Datos del usuario autenticado.',
+                description: 'Authenticated user data.',
                 content: new OA\JsonContent(ref: '#/components/schemas/UserResource')
             ),
             new OA\Response(response: 401, ref: '#/components/responses/Unauthenticated'),
@@ -122,13 +122,13 @@ class AuthController extends Controller
     #[OA\Post(
         path: '/logout',
         operationId: 'logout',
-        summary: 'Cerrar sesión revocando el token actual',
-        tags: ['Autenticación'],
+        summary: 'Log out by revoking the current token',
+        tags: ['Authentication'],
         security: [['bearerAuth' => []]],
         responses: [
             new OA\Response(
                 response: 204,
-                description: 'Token actual revocado. Respuesta sin contenido.'
+                description: 'Current token revoked. No content.'
             ),
             new OA\Response(response: 401, ref: '#/components/responses/Unauthenticated'),
         ]
