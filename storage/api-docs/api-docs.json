@@ -695,32 +695,20 @@
                     "Workspaces"
                 ],
                 "summary": "Listar los workspaces del usuario",
-                "operationId": "d79e45779b474bfc8b0f4a116fa3963e",
+                "operationId": "listWorkspaces",
                 "responses": {
                     "200": {
                         "description": "Listado de workspaces devuelto con éxito.",
                         "content": {
                             "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "data": [
-                                        {
-                                            "id": 1,
-                                            "title": "Camino a FM",
-                                            "status": "active"
-                                        },
-                                        {
-                                            "id": 2,
-                                            "title": "Workspace Secundario",
-                                            "status": "paused"
-                                        }
-                                    ]
+                                "schema": {
+                                    "$ref": "#/components/schemas/WorkspaceList"
                                 }
                             }
                         }
                     },
                     "401": {
-                        "description": "No autenticado."
+                        "$ref": "#/components/responses/Unauthenticated"
                     }
                 },
                 "security": [
@@ -734,28 +722,13 @@
                     "Workspaces"
                 ],
                 "summary": "Crear un nuevo workspace",
-                "operationId": "f939e1b7dc818f464683b44bb4ba1a16",
+                "operationId": "createWorkspace",
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "title",
-                                    "status"
-                                ],
-                                "properties": {
-                                    "title": {
-                                        "type": "string",
-                                        "example": "Workspace 1",
-                                        "maxLength": 255
-                                    },
-                                    "status": {
-                                        "type": "string",
-                                        "example": "active"
-                                    }
-                                },
-                                "type": "object"
+                                "$ref": "#/components/schemas/WorkspaceInput"
                             }
                         }
                     }
@@ -765,22 +738,17 @@
                         "description": "Workspace creado exitosamente.",
                         "content": {
                             "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "data": {
-                                        "id": 1,
-                                        "title": "Workspace 1",
-                                        "status": "active"
-                                    }
+                                "schema": {
+                                    "$ref": "#/components/schemas/WorkspaceResource"
                                 }
                             }
                         }
                     },
-                    "422": {
-                        "description": "Datos de validación incorrectos."
-                    },
                     "401": {
-                        "description": "No autenticado."
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationFailed"
                     }
                 },
                 "security": [
@@ -796,17 +764,10 @@
                     "Workspaces"
                 ],
                 "summary": "Obtener el detalle de un workspace",
-                "operationId": "bc39ae11b5640832c108d7858a1ea5ab",
+                "operationId": "getWorkspace",
                 "parameters": [
                     {
-                        "name": "workspace",
-                        "in": "path",
-                        "description": "ID del workspace",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
+                        "$ref": "#/components/parameters/WorkspaceId"
                     }
                 ],
                 "responses": {
@@ -814,25 +775,20 @@
                         "description": "Detalle del workspace devuelto exitosamente.",
                         "content": {
                             "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "data": {
-                                        "id": 1,
-                                        "title": "Camino a FM",
-                                        "status": "active"
-                                    }
+                                "schema": {
+                                    "$ref": "#/components/schemas/WorkspaceResource"
                                 }
                             }
                         }
                     },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
                     "403": {
-                        "description": "No tienes permisos para ver este workspace."
+                        "$ref": "#/components/responses/Forbidden"
                     },
                     "404": {
-                        "description": "Workspace no encontrado."
-                    },
-                    "401": {
-                        "description": "No autenticado."
+                        "$ref": "#/components/responses/NotFound"
                     }
                 },
                 "security": [
@@ -846,17 +802,11 @@
                     "Workspaces"
                 ],
                 "summary": "Eliminar un workspace",
-                "operationId": "786ce8b767d24ad9eafccf984e883deb",
+                "description": "Solo el owner puede eliminar el workspace.",
+                "operationId": "deleteWorkspace",
                 "parameters": [
                     {
-                        "name": "workspace",
-                        "in": "path",
-                        "description": "ID del workspace a eliminar",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
+                        "$ref": "#/components/parameters/WorkspaceId"
                     }
                 ],
                 "responses": {
@@ -864,13 +814,13 @@
                         "description": "Workspace eliminado exitosamente."
                     },
                     "401": {
-                        "description": "No autenticado."
+                        "$ref": "#/components/responses/Unauthenticated"
                     },
                     "403": {
-                        "description": "No autorizado."
+                        "$ref": "#/components/responses/Forbidden"
                     },
                     "404": {
-                        "description": "Workspace no encontrado."
+                        "$ref": "#/components/responses/NotFound"
                     }
                 },
                 "security": [
@@ -884,17 +834,11 @@
                     "Workspaces"
                 ],
                 "summary": "Actualizar un workspace",
-                "operationId": "2178bdbad17e6e9f43c24b8e4ef4e391",
+                "description": "Solo el owner puede actualizar el workspace.",
+                "operationId": "updateWorkspace",
                 "parameters": [
                     {
-                        "name": "workspace",
-                        "in": "path",
-                        "description": "ID del workspace",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
+                        "$ref": "#/components/parameters/WorkspaceId"
                     }
                 ],
                 "requestBody": {
@@ -902,18 +846,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "properties": {
-                                    "title": {
-                                        "type": "string",
-                                        "example": "Workspace 1",
-                                        "maxLength": 255
-                                    },
-                                    "status": {
-                                        "type": "string",
-                                        "example": "active"
-                                    }
-                                },
-                                "type": "object"
+                                "$ref": "#/components/schemas/WorkspacePatch"
                             }
                         }
                     }
@@ -923,28 +856,23 @@
                         "description": "Workspace actualizado exitosamente.",
                         "content": {
                             "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "data": {
-                                        "id": 1,
-                                        "title": "Workspace actualizado",
-                                        "status": "active"
-                                    }
+                                "schema": {
+                                    "$ref": "#/components/schemas/WorkspaceResource"
                                 }
                             }
                         }
                     },
-                    "422": {
-                        "description": "Datos de validación incorrectos."
-                    },
                     "401": {
-                        "description": "No autenticado."
+                        "$ref": "#/components/responses/Unauthenticated"
                     },
                     "403": {
-                        "description": "No autorizado."
+                        "$ref": "#/components/responses/Forbidden"
                     },
                     "404": {
-                        "description": "Workspace no encontrado."
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationFailed"
                     }
                 },
                 "security": [
@@ -1475,6 +1403,540 @@
         }
     },
     "components": {
+        "schemas": {
+            "Message": {
+                "required": [
+                    "message"
+                ],
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "No autorizado."
+                    }
+                },
+                "type": "object"
+            },
+            "ValidationError": {
+                "required": [
+                    "message",
+                    "errors"
+                ],
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "The email field is required."
+                    },
+                    "errors": {
+                        "type": "object",
+                        "example": {
+                            "email": [
+                                "The email field is required."
+                            ]
+                        },
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "User": {
+                "required": [
+                    "id",
+                    "name",
+                    "email"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Lucía Fernández"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "lucia@example.com"
+                    }
+                },
+                "type": "object"
+            },
+            "AuthToken": {
+                "required": [
+                    "token_type",
+                    "access_token"
+                ],
+                "properties": {
+                    "token_type": {
+                        "type": "string",
+                        "example": "Bearer"
+                    },
+                    "access_token": {
+                        "type": "string",
+                        "example": "TOKEN_DE_ACCESO"
+                    }
+                },
+                "type": "object"
+            },
+            "AuthResponse": {
+                "required": [
+                    "data",
+                    "token"
+                ],
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/User"
+                    },
+                    "token": {
+                        "$ref": "#/components/schemas/AuthToken"
+                    }
+                },
+                "type": "object"
+            },
+            "UserResource": {
+                "required": [
+                    "data"
+                ],
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/User"
+                    }
+                },
+                "type": "object"
+            },
+            "TrainingSession": {
+                "required": [
+                    "id",
+                    "user_id",
+                    "title",
+                    "category"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "user_id": {
+                        "description": "ID del creador de la sesión",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "Finales de torres",
+                        "maxLength": 255
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Actividad de la torre y del rey.",
+                        "nullable": true
+                    },
+                    "category": {
+                        "$ref": "#/components/schemas/TrainingCategory"
+                    },
+                    "resource": {
+                        "type": "string",
+                        "example": "https://lichess.org/study",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "TrainingCategory": {
+                "type": "string",
+                "example": "endgame",
+                "enum": [
+                    "opening",
+                    "middlegame",
+                    "endgame",
+                    "tactics"
+                ]
+            },
+            "TrainingSessionInput": {
+                "required": [
+                    "title",
+                    "category"
+                ],
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "example": "Finales de torres",
+                        "maxLength": 255
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Actividad de la torre y ejercicios practicos.",
+                        "nullable": true,
+                        "maxLength": 255
+                    },
+                    "category": {
+                        "$ref": "#/components/schemas/TrainingCategory"
+                    },
+                    "resource": {
+                        "type": "string",
+                        "example": "https://ejemplo.com",
+                        "nullable": true,
+                        "maxLength": 255
+                    }
+                },
+                "type": "object"
+            },
+            "TrainingSessionPatch": {
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "example": "Entrenamiento actualizado",
+                        "maxLength": 255
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Preparación de aperturas",
+                        "nullable": true,
+                        "maxLength": 255
+                    },
+                    "category": {
+                        "$ref": "#/components/schemas/TrainingCategory"
+                    },
+                    "resource": {
+                        "type": "string",
+                        "example": "https://lichess.org/study",
+                        "nullable": true,
+                        "maxLength": 255
+                    }
+                },
+                "type": "object"
+            },
+            "Workspace": {
+                "required": [
+                    "id",
+                    "title",
+                    "status"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "Camino a FM",
+                        "maxLength": 255
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/WorkspaceStatus"
+                    },
+                    "role": {
+                        "description": "Rol del usuario autenticado en este workspace (pendiente de implementar)",
+                        "type": "string",
+                        "example": "owner",
+                        "enum": [
+                            "owner",
+                            "coach",
+                            "student",
+                            "viewer"
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "WorkspaceStatus": {
+                "type": "string",
+                "example": "active",
+                "enum": [
+                    "active",
+                    "paused"
+                ]
+            },
+            "WorkspaceInput": {
+                "required": [
+                    "title",
+                    "status"
+                ],
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "example": "Camino a FM",
+                        "maxLength": 255
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/WorkspaceStatus"
+                    }
+                },
+                "type": "object"
+            },
+            "WorkspacePatch": {
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "example": "Workspace actualizado",
+                        "maxLength": 255
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/WorkspaceStatus"
+                    }
+                },
+                "type": "object"
+            },
+            "Member": {
+                "required": [
+                    "id",
+                    "name",
+                    "email",
+                    "role"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Marcos Ruiz"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "marcos@example.com"
+                    },
+                    "role": {
+                        "type": "string",
+                        "example": "student",
+                        "enum": [
+                            "owner",
+                            "coach",
+                            "student",
+                            "viewer"
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "TrainingSessionResponse": {
+                "required": [
+                    "id",
+                    "workspace_id",
+                    "training_session_id",
+                    "user_id",
+                    "content"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "workspace_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "training_session_id": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "user_id": {
+                        "description": "ID del estudiante autor",
+                        "type": "integer",
+                        "example": 8
+                    },
+                    "content": {
+                        "type": "string",
+                        "example": "Mi variante principal es 1.Cf5."
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/User"
+                    }
+                },
+                "type": "object"
+            },
+            "TrainingSessionResource": {
+                "required": [
+                    "data"
+                ],
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/TrainingSession"
+                    }
+                },
+                "type": "object"
+            },
+            "TrainingSessionList": {
+                "required": [
+                    "data"
+                ],
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TrainingSession"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "WorkspaceResource": {
+                "required": [
+                    "data"
+                ],
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/Workspace"
+                    }
+                },
+                "type": "object"
+            },
+            "WorkspaceList": {
+                "required": [
+                    "data"
+                ],
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Workspace"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "MemberResource": {
+                "required": [
+                    "data"
+                ],
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/Member"
+                    }
+                },
+                "type": "object"
+            },
+            "MemberList": {
+                "required": [
+                    "data"
+                ],
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Member"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "TrainingSessionResponseResource": {
+                "required": [
+                    "data"
+                ],
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/TrainingSessionResponse"
+                    }
+                },
+                "type": "object"
+            },
+            "TrainingSessionResponseList": {
+                "required": [
+                    "data"
+                ],
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TrainingSessionResponse"
+                        }
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "responses": {
+            "Unauthenticated": {
+                "description": "Token ausente, inválido o expirado.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Message"
+                        }
+                    }
+                }
+            },
+            "Forbidden": {
+                "description": "No tienes permisos para esta acción.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Message"
+                        }
+                    }
+                }
+            },
+            "NotFound": {
+                "description": "Recurso no encontrado.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Message"
+                        }
+                    }
+                }
+            },
+            "ValidationFailed": {
+                "description": "Datos de validación incorrectos.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        }
+                    }
+                }
+            },
+            "Conflict": {
+                "description": "La operación entra en conflicto con el estado actual (por ejemplo, ya existe).",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Message"
+                        }
+                    }
+                }
+            }
+        },
+        "parameters": {
+            "WorkspaceId": {
+                "name": "workspace",
+                "in": "path",
+                "description": "ID del workspace",
+                "required": true,
+                "schema": {
+                    "type": "integer",
+                    "example": 1
+                }
+            },
+            "TrainingSessionId": {
+                "name": "training_session",
+                "in": "path",
+                "description": "ID de la sesión de entrenamiento",
+                "required": true,
+                "schema": {
+                    "type": "integer",
+                    "example": 3
+                }
+            },
+            "UserId": {
+                "name": "user",
+                "in": "path",
+                "description": "ID del usuario",
+                "required": true,
+                "schema": {
+                    "type": "integer",
+                    "example": 2
+                }
+            }
+        },
         "securitySchemes": {
             "bearerAuth": {
                 "type": "http",

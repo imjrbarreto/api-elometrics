@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\WorkspaceResource;
 use App\Http\Requests\StoreWorkspaceRequest;
 use App\Http\Requests\UpdateWorkspaceRequest;
 use App\Models\Workspace;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use OpenApi\Attributes as OA;
 
 
@@ -17,100 +19,49 @@ class WorkspaceController extends Controller
 {
     #[OA\Post(
         path: '/workspaces',
+        operationId: 'createWorkspace',
         summary: 'Crear un nuevo workspace',
         tags: ['Workspaces'],
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(
             required: true,
-            content: new OA\JsonContent(
-                required: ['title', 'status'],
-                properties: [
-                    new OA\Property(
-                        property: 'title',
-                        type: 'string',
-                        maxLength: 255,
-                        example: 'Workspace 1'
-                    ),
-                    new OA\Property(
-                        property: 'status',
-                        type: 'string',
-                        example: 'active'
-                    ),
-                ]
-            )
+            content: new OA\JsonContent(ref: '#/components/schemas/WorkspaceInput')
         ),
         responses: [
             new OA\Response(
                 response: 201,
                 description: 'Workspace creado exitosamente.',
-                content: new OA\JsonContent(
-                    example: [
-                        'data' => [
-                            'id' => 1,
-                            'title' => 'Workspace 1',
-                            'status' => 'active',
-                        ],
-                    ]
-                )
+                content: new OA\JsonContent(ref: '#/components/schemas/WorkspaceResource')
             ),
-            new OA\Response(
-                response: 422,
-                description: 'Datos de validación incorrectos.'
-            ),
-            new OA\Response(
-                response: 401,
-                description: 'No autenticado.'
-            ),
+            new OA\Response(response: 401, ref: '#/components/responses/Unauthenticated'),
+            new OA\Response(response: 422, ref: '#/components/responses/ValidationFailed'),
         ]
     )]
     public function store(StoreWorkspaceRequest $request): JsonResponse
     {
         $workspace = $request->user()->workspaces()->create($request->validated());
 
-        return response()->json([
-            'data' => [
-                'id' => $workspace->id,
-                'title' => $workspace->title,
-                'status' => $workspace->status,
-            ]
-        ], 201);
+        return (new WorkspaceResource($workspace))
+            ->response()
+            ->setStatusCode(201);
     }
 
     #[OA\Get(
         path: '/workspaces',
+        operationId: 'listWorkspaces',
         summary: 'Listar los workspaces del usuario',
         tags: ['Workspaces'],
-        security: [
-            ['bearerAuth' => []]
-        ],
+        security: [['bearerAuth' => []]],
         responses: [
             new OA\Response(
                 response: 200,
                 description: 'Listado de workspaces devuelto con éxito.',
-                content: new OA\JsonContent(
-                    example: [
-                        'data' => [
-                            [
-                                'id' => 1,
-                                'title' => 'Camino a FM',
-                                'status' => 'active',
-                            ],
-                            [
-                                'id' => 2,
-                                'title' => 'Workspace Secundario',
-                                'status' => 'paused',
-                            ]
-                        ]
-                    ]
-                )
+                content: new OA\JsonContent(ref: '#/components/schemas/WorkspaceList')
             ),
-            new OA\Response(
-                response: 401,
-                description: 'No autenticado.'
-            ),
+            new OA\Response(response: 401, ref: '#/components/responses/Unauthenticated'),
         ]
     )]
-    public function list(Request $request): JsonResponse
+    public function list(Request $request): AnonymousResourceCollection
     {
         $userId = $request->user()->id;
 
@@ -124,163 +75,86 @@ class WorkspaceController extends Controller
             ->orderBy('id')
             ->get();
 
-        return response()->json([
-            'data' => $workspaces->map(fn (Workspace $workspace) => [
-                'id' => $workspace->id,
-                'title' => $workspace->title,
-                'status' => $workspace->status,
-            ])->all(),
-        ]);
+        return WorkspaceResource::collection($workspaces);
     }
 
     #[OA\Get(
         path: '/workspaces/{workspace}',
+        operationId: 'getWorkspace',
         summary: 'Obtener el detalle de un workspace',
         tags: ['Workspaces'],
-        security: [
-            ['bearerAuth' => []]
-        ],
+        security: [['bearerAuth' => []]],
         parameters: [
-            new OA\Parameter(
-                name: 'workspace',
-                in: 'path',
-                description: 'ID del workspace',
-                required: true,
-                schema: new OA\Schema(type: 'integer', example: 1)
-            )
+            new OA\Parameter(ref: '#/components/parameters/WorkspaceId'),
         ],
         responses: [
             new OA\Response(
                 response: 200,
                 description: 'Detalle del workspace devuelto exitosamente.',
-                content: new OA\JsonContent(
-                    example: [
-                        'data' => [
-                            'id' => 1,
-                            'title' => 'Camino a FM',
-                            'status' => 'active',
-                        ]
-                    ]
-                )
+                content: new OA\JsonContent(ref: '#/components/schemas/WorkspaceResource')
             ),
-            new OA\Response(
-                response: 403,
-                description: 'No tienes permisos para ver este workspace.'
-            ),
-            new OA\Response(
-                response: 404,
-                description: 'Workspace no encontrado.'
-            ),
-            new OA\Response(
-                response: 401,
-                description: 'No autenticado.'
-            ),
+            new OA\Response(response: 401, ref: '#/components/responses/Unauthenticated'),
+            new OA\Response(response: 403, ref: '#/components/responses/Forbidden'),
+            new OA\Response(response: 404, ref: '#/components/responses/NotFound'),
         ]
     )]
-    public function show(Workspace $workspace): JsonResponse
+    public function show(Workspace $workspace): WorkspaceResource
     {
         Gate::authorize('view', $workspace);
 
-        return response()->json([
-            'data' => [
-                'id' => $workspace->id,
-                'title' => $workspace->title,
-                'status' => $workspace->status,
-            ]
-        ]);
+        return new WorkspaceResource($workspace);
     }
 
     #[OA\Patch(
         path: '/workspaces/{workspace}',
+        operationId: 'updateWorkspace',
         summary: 'Actualizar un workspace',
+        description: 'Solo el owner puede actualizar el workspace.',
         tags: ['Workspaces'],
-        security: [
-            ['bearerAuth' => []]
-        ],
+        security: [['bearerAuth' => []]],
         parameters: [
-            new OA\Parameter(
-                name: 'workspace',
-                in: 'path',
-                description: 'ID del workspace',
-                required: true,
-                schema: new OA\Schema(type: 'integer', example: 1)
-            )
+            new OA\Parameter(ref: '#/components/parameters/WorkspaceId'),
         ],
         requestBody: new OA\RequestBody(
             required: true,
-            content: new OA\JsonContent(
-                properties: [
-                    new OA\Property(
-                        property: 'title',
-                        type: 'string',
-                        maxLength: 255,
-                        example: 'Workspace 1'
-                    ),
-                    new OA\Property(
-                        property: 'status',
-                        type: 'string',
-                        example: 'active'
-                    ),
-                ]
-            )
+            content: new OA\JsonContent(ref: '#/components/schemas/WorkspacePatch')
         ),
         responses: [
             new OA\Response(
                 response: 200,
                 description: 'Workspace actualizado exitosamente.',
-                content: new OA\JsonContent(
-                    example: [
-                        'data' => [
-                            'id' => 1,
-                            'title' => 'Workspace actualizado',
-                            'status' => 'active',
-                        ],
-                    ]
-                )
+                content: new OA\JsonContent(ref: '#/components/schemas/WorkspaceResource')
             ),
-            new OA\Response(response: 422, description: 'Datos de validación incorrectos.'),
-            new OA\Response(response: 401,description: 'No autenticado.'),
-            new OA\Response(response: 403, description: 'No autorizado.'),
-            new OA\Response(response: 404, description: 'Workspace no encontrado.')
+            new OA\Response(response: 401, ref: '#/components/responses/Unauthenticated'),
+            new OA\Response(response: 403, ref: '#/components/responses/Forbidden'),
+            new OA\Response(response: 404, ref: '#/components/responses/NotFound'),
+            new OA\Response(response: 422, ref: '#/components/responses/ValidationFailed'),
         ]
     )]
-    public function update(UpdateWorkspaceRequest $request, Workspace $workspace): JsonResponse
+    public function update(UpdateWorkspaceRequest $request, Workspace $workspace): WorkspaceResource
     {
         Gate::authorize('update', $workspace);
 
         $workspace->update($request->validated());
 
-        return response()->json([
-            'data' => [
-                'id' => $workspace->id,
-                'title' => $workspace->title,
-                'status' => $workspace->status,
-            ]
-        ], 200);
+        return new WorkspaceResource($workspace);
     }
 
     #[OA\Delete(
         path: '/workspaces/{workspace}',
+        operationId: 'deleteWorkspace',
         summary: 'Eliminar un workspace',
+        description: 'Solo el owner puede eliminar el workspace.',
         tags: ['Workspaces'],
         security: [['bearerAuth' => []]],
         parameters: [
-            new OA\Parameter(
-                name: 'workspace',
-                in: 'path',
-                description: 'ID del workspace a eliminar',
-                required: true,
-                schema: new OA\Schema(type: 'integer', example: 1)
-            )
+            new OA\Parameter(ref: '#/components/parameters/WorkspaceId'),
         ],
         responses: [
-            new OA\Response(
-                response: 204,
-                description: 'Workspace eliminado exitosamente.'
-            ),
-            new OA\Response(response: 401, description: 'No autenticado.'),
-            new OA\Response(response: 403, description: 'No autorizado.'),
-            new OA\Response(response: 404, description: 'Workspace no encontrado.')
+            new OA\Response(response: 204, description: 'Workspace eliminado exitosamente.'),
+            new OA\Response(response: 401, ref: '#/components/responses/Unauthenticated'),
+            new OA\Response(response: 403, ref: '#/components/responses/Forbidden'),
+            new OA\Response(response: 404, ref: '#/components/responses/NotFound'),
         ]
     )]
     public function delete(Workspace $workspace): JsonResponse

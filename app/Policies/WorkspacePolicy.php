@@ -18,12 +18,9 @@ class WorkspacePolicy
         return false;
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
     public function view(User $user, Workspace $workspace): bool
     {
-        return $user->id === $workspace->user_id;
+        return $workspace->isOwnedBy($user) || $workspace->hasMember($user);
     }
 
     /**
@@ -47,7 +44,7 @@ class WorkspacePolicy
      */
     public function delete(User $user, Workspace $workspace): bool
     {
-        return $user->id === $workspace->user_id;;
+        return $user->id === $workspace->user_id;
     }
 
     /**
