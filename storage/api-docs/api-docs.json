@@ -2,13 +2,13 @@
     "openapi": "3.0.0",
     "info": {
         "title": "Elometrics API",
-        "description": "API para la gestión de entrenamientos de ajedrez.",
+        "description": "API for managing chess training.",
         "version": "1.0.0"
     },
     "servers": [
         {
             "url": "http://127.0.0.1:8000/api/v1",
-            "description": "API local"
+            "description": "Local API"
         }
     ],
     "paths": {
@@ -216,6 +216,7 @@
                     "Training Sessions"
                 ],
                 "summary": "Get a training session",
+                "description": "Only the creator of the session can view it.",
                 "operationId": "getTrainingSession",
                 "parameters": [
                     {
@@ -254,6 +255,7 @@
                     "Training Sessions"
                 ],
                 "summary": "Delete a training session",
+                "description": "Only the creator of the session can delete it.",
                 "operationId": "deleteTrainingSession",
                 "parameters": [
                     {
@@ -285,6 +287,7 @@
                     "Training Sessions"
                 ],
                 "summary": "Update a training session",
+                "description": "Only the creator of the session can update it.",
                 "operationId": "updateTrainingSession",
                 "parameters": [
                     {
@@ -296,7 +299,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/TrainingSessionInput"
+                                "$ref": "#/components/schemas/TrainingSessionPatch"
                             }
                         }
                     }
@@ -640,78 +643,33 @@
                 "tags": [
                     "Workspace Members"
                 ],
-                "summary": "Listar miembros de un espacio de trabajo",
-                "operationId": "398f77fb57d66db62bbc8fd6148ba3f8",
+                "summary": "List the members of a workspace",
+                "description": "Available to any member of the workspace. The owner is included in the list.",
+                "operationId": "listWorkspaceMembers",
                 "parameters": [
                     {
-                        "name": "workspace",
-                        "in": "path",
-                        "description": "ID del espacio de trabajo (Workspace)",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
+                        "$ref": "#/components/parameters/WorkspaceId"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Lista de miembros obtenida exitosamente.",
+                        "description": "Members listed.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "required": [
-                                                    "id",
-                                                    "name",
-                                                    "email",
-                                                    "role"
-                                                ],
-                                                "properties": {
-                                                    "id": {
-                                                        "type": "integer",
-                                                        "example": 1
-                                                    },
-                                                    "name": {
-                                                        "type": "string",
-                                                        "example": "Juan Pérez"
-                                                    },
-                                                    "email": {
-                                                        "type": "string",
-                                                        "format": "email",
-                                                        "example": "juan@example.com"
-                                                    },
-                                                    "role": {
-                                                        "type": "string",
-                                                        "example": "owner",
-                                                        "enum": [
-                                                            "owner",
-                                                            "coach",
-                                                            "student",
-                                                            "viewer"
-                                                        ]
-                                                    }
-                                                },
-                                                "type": "object"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/MemberList"
                                 }
                             }
                         }
                     },
                     "401": {
-                        "description": "No autenticado."
+                        "$ref": "#/components/responses/Unauthenticated"
                     },
                     "403": {
-                        "description": "No autorizado. El usuario no tiene permisos para ver los miembros de este workspace."
+                        "$ref": "#/components/responses/Forbidden"
                     },
                     "404": {
-                        "description": "Workspace no encontrado."
+                        "$ref": "#/components/responses/NotFound"
                     }
                 },
                 "security": [
@@ -724,18 +682,12 @@
                 "tags": [
                     "Workspace Members"
                 ],
-                "summary": "Agregar un miembro a un espacio de trabajo",
-                "operationId": "4516451af34a2277113561e5cd413dd4",
+                "summary": "Add a member to a workspace",
+                "description": "Only the owner can add members. The user must already be registered. Returns 422 if the data is invalid, the email does not belong to a registered user or the user already belongs to the workspace.",
+                "operationId": "addWorkspaceMember",
                 "parameters": [
                     {
-                        "name": "workspace",
-                        "in": "path",
-                        "description": "ID del espacio de trabajo (Workspace)",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
+                        "$ref": "#/components/parameters/WorkspaceId"
                     }
                 ],
                 "requestBody": {
@@ -743,82 +695,33 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "email",
-                                    "role"
-                                ],
-                                "properties": {
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email",
-                                        "example": "colaborador@example.com"
-                                    },
-                                    "role": {
-                                        "type": "string",
-                                        "example": "student",
-                                        "enum": [
-                                            "coach",
-                                            "student",
-                                            "viewer"
-                                        ]
-                                    }
-                                },
-                                "type": "object"
+                                "$ref": "#/components/schemas/MemberInput"
                             }
                         }
                     }
                 },
                 "responses": {
                     "201": {
-                        "description": "Miembro agregado exitosamente.",
+                        "description": "Member added.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "properties": {
-                                                "id": {
-                                                    "type": "integer",
-                                                    "example": 2
-                                                },
-                                                "name": {
-                                                    "type": "string",
-                                                    "example": "Carlos Gómez"
-                                                },
-                                                "email": {
-                                                    "type": "string",
-                                                    "format": "email",
-                                                    "example": "colaborador@example.com"
-                                                },
-                                                "role": {
-                                                    "type": "string",
-                                                    "example": "student",
-                                                    "enum": [
-                                                        "coach",
-                                                        "student",
-                                                        "viewer"
-                                                    ]
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/MemberResource"
                                 }
                             }
                         }
                     },
                     "401": {
-                        "description": "No autenticado."
+                        "$ref": "#/components/responses/Unauthenticated"
                     },
                     "403": {
-                        "description": "No tienes permiso para añadir miembros."
+                        "$ref": "#/components/responses/Forbidden"
                     },
                     "404": {
-                        "description": "Workspace no encontrado."
+                        "$ref": "#/components/responses/NotFound"
                     },
                     "422": {
-                        "description": "Datos inválidos, email inexistente o miembro duplicado."
+                        "$ref": "#/components/responses/ValidationFailed"
                     }
                 },
                 "security": [
@@ -833,42 +736,29 @@
                 "tags": [
                     "Workspace Members"
                 ],
-                "summary": "Remover un miembro de un espacio de trabajo",
-                "operationId": "fb1ed430ebe8cf12c9159da0fac7a14b",
+                "summary": "Remove a member from a workspace",
+                "description": "The owner can remove any member. Any member can remove themselves (leave the workspace). The owner cannot be removed.",
+                "operationId": "removeWorkspaceMember",
                 "parameters": [
                     {
-                        "name": "workspace",
-                        "in": "path",
-                        "description": "ID del espacio de trabajo (Workspace)",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
+                        "$ref": "#/components/parameters/WorkspaceId"
                     },
                     {
-                        "name": "user",
-                        "in": "path",
-                        "description": "ID del usuario a remover del workspace",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 2
-                        }
+                        "$ref": "#/components/parameters/UserId"
                     }
                 ],
                 "responses": {
                     "204": {
-                        "description": "Miembro removido con éxito, sin contenido de retorno."
+                        "description": "Member removed. No content."
                     },
                     "401": {
-                        "description": "No autenticado."
+                        "$ref": "#/components/responses/Unauthenticated"
                     },
                     "403": {
-                        "description": "No autorizado. El usuario actual no tiene permisos para remover a este miembro."
+                        "$ref": "#/components/responses/Forbidden"
                     },
                     "404": {
-                        "description": "Workspace, Usuario no encontrado, o el usuario especificado no pertenece a este workspace."
+                        "$ref": "#/components/responses/NotFound"
                     }
                 },
                 "security": [
@@ -1138,13 +1028,13 @@
         "/up": {
             "get": {
                 "tags": [
-                    "Estado"
+                    "Health"
                 ],
-                "summary": "Comprobar que la aplicación responde",
-                "operationId": "43c8db3f2b224e1366d703efbca684fd",
+                "summary": "Check that the application is running",
+                "operationId": "healthCheck",
                 "responses": {
                     "200": {
-                        "description": "La aplicación está operativa."
+                        "description": "The application is up."
                     }
                 },
                 "servers": [
@@ -1359,7 +1249,8 @@
                     "opening",
                     "middlegame",
                     "endgame",
-                    "tactics"
+                    "tactics",
+                    "strategy"
                 ]
             },
             "TrainingSessionInput": {
@@ -1384,6 +1275,7 @@
                     },
                     "resource": {
                         "type": "string",
+                        "format": "uri",
                         "example": "https://example.com",
                         "nullable": true,
                         "maxLength": 255
@@ -1409,6 +1301,7 @@
                     },
                     "resource": {
                         "type": "string",
+                        "format": "uri",
                         "example": "https://lichess.org/study",
                         "nullable": true,
                         "maxLength": 255
@@ -1420,7 +1313,8 @@
                 "required": [
                     "id",
                     "title",
-                    "status"
+                    "status",
+                    "role"
                 ],
                 "properties": {
                     "id": {
@@ -1436,7 +1330,7 @@
                         "$ref": "#/components/schemas/WorkspaceStatus"
                     },
                     "role": {
-                        "description": "Role of the authenticated user in this workspace (not implemented yet)",
+                        "description": "Role of the authenticated user in this workspace",
                         "type": "string",
                         "example": "owner",
                         "enum": [
@@ -1513,6 +1407,29 @@
                         "example": "student",
                         "enum": [
                             "owner",
+                            "coach",
+                            "student",
+                            "viewer"
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "MemberInput": {
+                "required": [
+                    "email",
+                    "role"
+                ],
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "marcos@example.com"
+                    },
+                    "role": {
+                        "type": "string",
+                        "example": "student",
+                        "enum": [
                             "coach",
                             "student",
                             "viewer"
@@ -1752,6 +1669,10 @@
     },
     "tags": [
         {
+            "name": "Health",
+            "description": "Application health check"
+        },
+        {
             "name": "Authentication",
             "description": "Endpoints for user and session management"
         },
@@ -1768,16 +1689,12 @@
             "description": "Endpoints for workspace management"
         },
         {
+            "name": "Workspace Members",
+            "description": "Endpoints for managing the members of a workspace"
+        },
+        {
             "name": "Workspace Training Sessions",
             "description": "Consulta y gestión de vínculos entre workspaces y sesiones de entrenamiento reutilizables"
-        },
-        {
-            "name": "Workspace Members",
-            "description": "Workspace Members"
-        },
-        {
-            "name": "Estado",
-            "description": "Estado"
         }
     ]
 }

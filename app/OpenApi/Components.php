@@ -207,7 +207,7 @@ final class TrainingSessionSchema {}
 #[OA\Schema(
     schema: 'TrainingCategory',
     type: 'string',
-    enum: ['opening', 'middlegame', 'endgame', 'tactics'],
+    enum: ['opening', 'middlegame', 'endgame', 'tactics', 'strategy'],
     example: 'endgame',
 )]
 final class TrainingCategorySchema {}
@@ -298,6 +298,18 @@ final class WorkspacePatchSchema {}
     ],
 )]
 final class MemberSchema {}
+
+// Body of POST /workspaces/{workspace}/members (mirrors StoreWorkspaceMemberRequest).
+// `owner` cannot be assigned: the owner is the user who created the workspace.
+#[OA\Schema(
+    schema: 'MemberInput',
+    required: ['email', 'role'],
+    properties: [
+        new OA\Property(property: 'email', type: 'string', format: 'email', example: 'marcos@example.com'),
+        new OA\Property(property: 'role', type: 'string', enum: ['coach', 'student', 'viewer'], example: 'student'),
+    ],
+)]
+final class MemberInputSchema {}
 
 #[OA\Schema(
     schema: 'TrainingSessionResponse',
