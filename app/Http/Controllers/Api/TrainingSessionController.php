@@ -71,6 +71,7 @@ class TrainingSessionController extends Controller
         path: '/training-sessions/{training_session}',
         operationId: 'getTrainingSession',
         summary: 'Get a training session',
+        description: 'Only the creator of the session can view it.',
         tags: ['Training Sessions'],
         security: [['bearerAuth' => []]],
         parameters: [
@@ -98,6 +99,7 @@ class TrainingSessionController extends Controller
         path: '/training-sessions/{training_session}',
         operationId: 'updateTrainingSession',
         summary: 'Update a training session',
+        description: 'Only the creator of the session can update it.',
         tags: ['Training Sessions'],
         security: [['bearerAuth' => []]],
         parameters: [
@@ -105,7 +107,7 @@ class TrainingSessionController extends Controller
         ],
         requestBody: new OA\RequestBody(
             required: true,
-            content: new OA\JsonContent(ref: '#/components/schemas/TrainingSessionInput')
+            content: new OA\JsonContent(ref: '#/components/schemas/TrainingSessionPatch')
         ),
         responses: [
             new OA\Response(
@@ -132,6 +134,7 @@ class TrainingSessionController extends Controller
         path: '/training-sessions/{training_session}',
         operationId: 'deleteTrainingSession',
         summary: 'Delete a training session',
+        description: 'Only the creator of the session can delete it.',
         tags: ['Training Sessions'],
         security: [['bearerAuth' => []]],
         parameters: [

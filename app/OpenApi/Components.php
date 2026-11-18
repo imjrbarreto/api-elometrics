@@ -220,7 +220,7 @@ final class TrainingCategorySchema {}
         new OA\Property(property: 'title', type: 'string', maxLength: 255, example: 'Rook endgames'),
         new OA\Property(property: 'description', type: 'string', maxLength: 255, nullable: true, example: 'Rook activity and practical exercises.'),
         new OA\Property(property: 'category', ref: '#/components/schemas/TrainingCategory'),
-        new OA\Property(property: 'resource', type: 'string', maxLength: 255, nullable: true, example: 'https://example.com'),
+        new OA\Property(property: 'resource', type: 'string', format: 'uri', maxLength: 255, nullable: true, example: 'https://example.com'),
     ],
 )]
 final class TrainingSessionInputSchema {}
@@ -232,16 +232,14 @@ final class TrainingSessionInputSchema {}
         new OA\Property(property: 'title', type: 'string', maxLength: 255, example: 'Updated training'),
         new OA\Property(property: 'description', type: 'string', maxLength: 255, nullable: true, example: 'Opening preparation'),
         new OA\Property(property: 'category', ref: '#/components/schemas/TrainingCategory'),
-        new OA\Property(property: 'resource', type: 'string', maxLength: 255, nullable: true, example: 'https://lichess.org/study'),
+        new OA\Property(property: 'resource', type: 'string', format: 'uri', maxLength: 255, nullable: true, example: 'https://lichess.org/study'),
     ],
 )]
 final class TrainingSessionPatchSchema {}
 
 #[OA\Schema(
     schema: 'Workspace',
-    // `role` is NOT in `required` because the API does not return it yet.
-    // When the workspace Resource includes it, add it here.
-    required: ['id', 'title', 'status'],
+    required: ['id', 'title', 'status', 'role'],
     properties: [
         new OA\Property(property: 'id', type: 'integer', example: 1),
         new OA\Property(property: 'title', type: 'string', maxLength: 255, example: 'Road to FM'),
@@ -250,7 +248,7 @@ final class TrainingSessionPatchSchema {}
             property: 'role',
             type: 'string',
             enum: ['owner', 'coach', 'student', 'viewer'],
-            description: 'Role of the authenticated user in this workspace (not implemented yet)',
+            description: 'Role of the authenticated user in this workspace',
             example: 'owner',
         ),
     ],
@@ -262,7 +260,7 @@ final class WorkspaceSchema {}
 #[OA\Schema(
     schema: 'WorkspaceStatus',
     type: 'string',
-    enum: ['active', 'paused'],
+    enum: ['active', 'paused', 'archived'],
     example: 'active',
 )]
 final class WorkspaceStatusSchema {}
@@ -270,7 +268,8 @@ final class WorkspaceStatusSchema {}
 // Body of POST /workspaces (mirrors the rules of StoreWorkspaceRequest)
 #[OA\Schema(
     schema: 'WorkspaceInput',
-    required: ['title', 'status'],
+    // `status` is optional: the API defaults it to `active`.
+    required: ['title'],
     properties: [
         new OA\Property(property: 'title', type: 'string', maxLength: 255, example: 'Road to FM'),
         new OA\Property(property: 'status', ref: '#/components/schemas/WorkspaceStatus'),

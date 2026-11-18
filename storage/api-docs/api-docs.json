@@ -1454,13 +1454,13 @@
                 "example": "active",
                 "enum": [
                     "active",
-                    "paused"
+                    "paused",
+                    "archived"
                 ]
             },
             "WorkspaceInput": {
                 "required": [
-                    "title",
-                    "status"
+                    "title"
                 ],
                 "properties": {
                     "title": {
