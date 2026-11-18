@@ -91,35 +91,25 @@ it('forbids students and viewers from adding members', function (string $role) {
     ]);
 })->with(['student', 'viewer']);
 
-it('allows a coach to add a student to the workspace', function () {
+it('forbids non-owner members from adding members', function (string $role) {
     /** @var \Tests\TestCase $this */
 
-    [, $workspace] = emWorkspace();
+    [$owner, $workspace] = emWorkspace();
 
-    $coach = emMember($workspace, 'coach');
+    $member = emMember($workspace, $role);
+    $candidate = User::factory()->create();
 
-    $student = User::factory()->create();
+    Passport::actingAs($member);
 
-    Passport::actingAs($coach);
-
-    $this->postJson(
-        apiUrl("workspaces/{$workspace->id}/members"),
-        [
-            'email' => $student->email,
-            'role' => 'student',
-        ]
-    )
-        ->assertCreated()
-        ->assertJsonPath('data.id', $student->id)
-        ->assertJsonPath('data.role', 'student');
-
-    $this->assertDatabaseHas('user_workspace', [
-        'workspace_id' => $workspace->id,
-        'user_id' => $student->id,
-    ]);
-
-    expect($workspace->roleOf($student))->toBe('student');
-});
+    $this->postJson(apiUrl("workspaces/{$workspace->id}/members"), [
+        'email' => $candidate->email,
+        'role' => 'student',
+    ])->assertForbidden();
+})->with([
+    'coach',
+    'student',
+    'viewer',
+]);
 
 it('forbids a coach from another workspace from adding members', function () {
     /** @var \Tests\TestCase $this */

@@ -34,11 +34,11 @@ function emWorkspace(): array
     return [$owner, $workspace];
 }
 
-function emMember(Workspace $workspace, string $role): User
+function emMember(Workspace $workspace, string $role, ?User $user = null): User
 {
     app(WorkspaceRoleSeeder::class)->run();
 
-    $user = User::factory()->create();
+    $user ??= User::factory()->create();
 
     $workspace->members()->attach($user->id);
 

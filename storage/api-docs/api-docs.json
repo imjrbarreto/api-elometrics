@@ -15,9 +15,9 @@
         "/register": {
             "post": {
                 "tags": [
-                    "Autenticación"
+                    "Authentication"
                 ],
-                "summary": "Registrar un usuario y obtener un token",
+                "summary": "Register a user and obtain a token",
                 "operationId": "register",
                 "requestBody": {
                     "required": true,
@@ -31,7 +31,7 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Usuario creado. Devuelve sus datos públicos y un token de acceso.",
+                        "description": "User created. Returns the public user data and an access token.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -49,9 +49,9 @@
         "/login": {
             "post": {
                 "tags": [
-                    "Autenticación"
+                    "Authentication"
                 ],
-                "summary": "Iniciar sesión y obtener un token",
+                "summary": "Log in and obtain a token",
                 "operationId": "login",
                 "requestBody": {
                     "required": true,
@@ -65,7 +65,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Sesión iniciada.",
+                        "description": "Logged in.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -75,7 +75,7 @@
                         }
                     },
                     "401": {
-                        "description": "Credenciales incorrectas.",
+                        "description": "Invalid credentials.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -93,13 +93,13 @@
         "/users/me": {
             "get": {
                 "tags": [
-                    "Autenticación"
+                    "Authentication"
                 ],
-                "summary": "Obtener los datos del usuario autenticado",
+                "summary": "Get the authenticated user",
                 "operationId": "getCurrentUser",
                 "responses": {
                     "200": {
-                        "description": "Datos del usuario autenticado.",
+                        "description": "Authenticated user data.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -122,13 +122,13 @@
         "/logout": {
             "post": {
                 "tags": [
-                    "Autenticación"
+                    "Authentication"
                 ],
-                "summary": "Cerrar sesión revocando el token actual",
+                "summary": "Log out by revoking the current token",
                 "operationId": "logout",
                 "responses": {
                     "204": {
-                        "description": "Token actual revocado. Respuesta sin contenido."
+                        "description": "Current token revoked. No content."
                     },
                     "401": {
                         "$ref": "#/components/responses/Unauthenticated"
@@ -146,11 +146,11 @@
                 "tags": [
                     "Training Sessions"
                 ],
-                "summary": "Listar las sesiones de entrenamiento del usuario",
+                "summary": "List the user's training sessions",
                 "operationId": "listTrainingSessions",
                 "responses": {
                     "200": {
-                        "description": "Listado de sesiones de entrenamiento devuelto con éxito.",
+                        "description": "Training sessions listed.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -173,7 +173,7 @@
                 "tags": [
                     "Training Sessions"
                 ],
-                "summary": "Crear una nueva sesión de entrenamiento",
+                "summary": "Create a training session",
                 "operationId": "createTrainingSession",
                 "requestBody": {
                     "required": true,
@@ -187,7 +187,7 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Sesión creada exitosamente.",
+                        "description": "Training session created.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -215,7 +215,7 @@
                 "tags": [
                     "Training Sessions"
                 ],
-                "summary": "Obtener el detalle de una sesión de entrenamiento",
+                "summary": "Get a training session",
                 "operationId": "getTrainingSession",
                 "parameters": [
                     {
@@ -224,7 +224,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Detalle de la sesión devuelto exitosamente.",
+                        "description": "Training session returned.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -253,7 +253,7 @@
                 "tags": [
                     "Training Sessions"
                 ],
-                "summary": "Eliminar una sesión de entrenamiento",
+                "summary": "Delete a training session",
                 "operationId": "deleteTrainingSession",
                 "parameters": [
                     {
@@ -262,7 +262,7 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": "Sesión eliminada exitosamente."
+                        "description": "Training session deleted."
                     },
                     "401": {
                         "$ref": "#/components/responses/Unauthenticated"
@@ -284,7 +284,7 @@
                 "tags": [
                     "Training Sessions"
                 ],
-                "summary": "Actualizar una sesión de entrenamiento",
+                "summary": "Update a training session",
                 "operationId": "updateTrainingSession",
                 "parameters": [
                     {
@@ -303,7 +303,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Sesión actualizada.",
+                        "description": "Training session updated.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -447,11 +447,11 @@
                 "tags": [
                     "Workspaces"
                 ],
-                "summary": "Listar los workspaces del usuario",
+                "summary": "List the user's workspaces",
                 "operationId": "listWorkspaces",
                 "responses": {
                     "200": {
-                        "description": "Listado de workspaces devuelto con éxito.",
+                        "description": "Workspaces listed.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -474,7 +474,7 @@
                 "tags": [
                     "Workspaces"
                 ],
-                "summary": "Crear un nuevo workspace",
+                "summary": "Create a workspace",
                 "operationId": "createWorkspace",
                 "requestBody": {
                     "required": true,
@@ -488,7 +488,7 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Workspace creado exitosamente.",
+                        "description": "Workspace created.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -516,7 +516,7 @@
                 "tags": [
                     "Workspaces"
                 ],
-                "summary": "Obtener el detalle de un workspace",
+                "summary": "Get a workspace",
                 "operationId": "getWorkspace",
                 "parameters": [
                     {
@@ -525,7 +525,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Detalle del workspace devuelto exitosamente.",
+                        "description": "Workspace returned.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -554,8 +554,8 @@
                 "tags": [
                     "Workspaces"
                 ],
-                "summary": "Eliminar un workspace",
-                "description": "Solo el owner puede eliminar el workspace.",
+                "summary": "Delete a workspace",
+                "description": "Only the owner can delete the workspace.",
                 "operationId": "deleteWorkspace",
                 "parameters": [
                     {
@@ -564,7 +564,7 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": "Workspace eliminado exitosamente."
+                        "description": "Workspace deleted."
                     },
                     "401": {
                         "$ref": "#/components/responses/Unauthenticated"
@@ -586,8 +586,8 @@
                 "tags": [
                     "Workspaces"
                 ],
-                "summary": "Actualizar un workspace",
-                "description": "Solo el owner puede actualizar el workspace.",
+                "summary": "Update a workspace",
+                "description": "Only the owner can update the workspace.",
                 "operationId": "updateWorkspace",
                 "parameters": [
                     {
@@ -606,7 +606,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Workspace actualizado exitosamente.",
+                        "description": "Workspace updated.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1164,7 +1164,7 @@
                 "properties": {
                     "message": {
                         "type": "string",
-                        "example": "No autorizado."
+                        "example": "Unauthorized."
                     }
                 },
                 "type": "object"
@@ -1231,7 +1231,7 @@
                     },
                     "access_token": {
                         "type": "string",
-                        "example": "TOKEN_DE_ACCESO"
+                        "example": "ACCESS_TOKEN"
                     }
                 },
                 "type": "object"
@@ -1327,18 +1327,18 @@
                         "example": 3
                     },
                     "user_id": {
-                        "description": "ID del creador de la sesión",
+                        "description": "ID of the session creator",
                         "type": "integer",
                         "example": 1
                     },
                     "title": {
                         "type": "string",
-                        "example": "Finales de torres",
+                        "example": "Rook endgames",
                         "maxLength": 255
                     },
                     "description": {
                         "type": "string",
-                        "example": "Actividad de la torre y del rey.",
+                        "example": "Rook and king activity.",
                         "nullable": true
                     },
                     "category": {
@@ -1370,12 +1370,12 @@
                 "properties": {
                     "title": {
                         "type": "string",
-                        "example": "Finales de torres",
+                        "example": "Rook endgames",
                         "maxLength": 255
                     },
                     "description": {
                         "type": "string",
-                        "example": "Actividad de la torre y ejercicios practicos.",
+                        "example": "Rook activity and practical exercises.",
                         "nullable": true,
                         "maxLength": 255
                     },
@@ -1384,7 +1384,7 @@
                     },
                     "resource": {
                         "type": "string",
-                        "example": "https://ejemplo.com",
+                        "example": "https://example.com",
                         "nullable": true,
                         "maxLength": 255
                     }
@@ -1395,12 +1395,12 @@
                 "properties": {
                     "title": {
                         "type": "string",
-                        "example": "Entrenamiento actualizado",
+                        "example": "Updated training",
                         "maxLength": 255
                     },
                     "description": {
                         "type": "string",
-                        "example": "Preparación de aperturas",
+                        "example": "Opening preparation",
                         "nullable": true,
                         "maxLength": 255
                     },
@@ -1429,14 +1429,14 @@
                     },
                     "title": {
                         "type": "string",
-                        "example": "Camino a FM",
+                        "example": "Road to FM",
                         "maxLength": 255
                     },
                     "status": {
                         "$ref": "#/components/schemas/WorkspaceStatus"
                     },
                     "role": {
-                        "description": "Rol del usuario autenticado en este workspace (pendiente de implementar)",
+                        "description": "Role of the authenticated user in this workspace (not implemented yet)",
                         "type": "string",
                         "example": "owner",
                         "enum": [
@@ -1465,7 +1465,7 @@
                 "properties": {
                     "title": {
                         "type": "string",
-                        "example": "Camino a FM",
+                        "example": "Road to FM",
                         "maxLength": 255
                     },
                     "status": {
@@ -1478,7 +1478,7 @@
                 "properties": {
                     "title": {
                         "type": "string",
-                        "example": "Workspace actualizado",
+                        "example": "Updated workspace",
                         "maxLength": 255
                     },
                     "status": {
@@ -1543,13 +1543,13 @@
                         "example": 3
                     },
                     "user_id": {
-                        "description": "ID del estudiante autor",
+                        "description": "ID of the student who wrote the response",
                         "type": "integer",
                         "example": 8
                     },
                     "content": {
                         "type": "string",
-                        "example": "Mi variante principal es 1.Cf5."
+                        "example": "My main line is 1.Nf5."
                     },
                     "user": {
                         "$ref": "#/components/schemas/User"
@@ -1660,7 +1660,7 @@
         },
         "responses": {
             "Unauthenticated": {
-                "description": "Token ausente, inválido o expirado.",
+                "description": "Missing, invalid or expired token.",
                 "content": {
                     "application/json": {
                         "schema": {
@@ -1670,7 +1670,7 @@
                 }
             },
             "Forbidden": {
-                "description": "No tienes permisos para esta acción.",
+                "description": "You do not have permission to perform this action.",
                 "content": {
                     "application/json": {
                         "schema": {
@@ -1680,7 +1680,7 @@
                 }
             },
             "NotFound": {
-                "description": "Recurso no encontrado.",
+                "description": "Resource not found.",
                 "content": {
                     "application/json": {
                         "schema": {
@@ -1690,7 +1690,7 @@
                 }
             },
             "ValidationFailed": {
-                "description": "Datos de validación incorrectos.",
+                "description": "Validation failed.",
                 "content": {
                     "application/json": {
                         "schema": {
@@ -1700,7 +1700,7 @@
                 }
             },
             "Conflict": {
-                "description": "La operación entra en conflicto con el estado actual (por ejemplo, ya existe).",
+                "description": "The request conflicts with the current state (for example, it already exists).",
                 "content": {
                     "application/json": {
                         "schema": {
@@ -1714,7 +1714,7 @@
             "WorkspaceId": {
                 "name": "workspace",
                 "in": "path",
-                "description": "ID del workspace",
+                "description": "Workspace ID",
                 "required": true,
                 "schema": {
                     "type": "integer",
@@ -1724,7 +1724,7 @@
             "TrainingSessionId": {
                 "name": "training_session",
                 "in": "path",
-                "description": "ID de la sesión de entrenamiento",
+                "description": "Training session ID",
                 "required": true,
                 "schema": {
                     "type": "integer",
@@ -1734,7 +1734,7 @@
             "UserId": {
                 "name": "user",
                 "in": "path",
-                "description": "ID del usuario",
+                "description": "User ID",
                 "required": true,
                 "schema": {
                     "type": "integer",
@@ -1752,12 +1752,12 @@
     },
     "tags": [
         {
-            "name": "Autenticación",
-            "description": "Endpoints para la gestión de usuarios y sesiones"
+            "name": "Authentication",
+            "description": "Endpoints for user and session management"
         },
         {
             "name": "Training Sessions",
-            "description": "Endpoints para la gestión de sesiones de entrenamiento"
+            "description": "Endpoints for training session management"
         },
         {
             "name": "Training Session Responses",
@@ -1765,7 +1765,7 @@
         },
         {
             "name": "Workspaces",
-            "description": "Endpoints para la gestión de workspaces"
+            "description": "Endpoints for workspace management"
         },
         {
             "name": "Workspace Training Sessions",

@@ -13,6 +13,7 @@ class WorkspaceResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'status' => $this->status,
+            'role' => $this->roleOf($request->user()),
         ];
     }
 }

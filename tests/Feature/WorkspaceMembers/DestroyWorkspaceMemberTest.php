@@ -162,42 +162,23 @@ it('forbids students and viewers from removing other members', function (
     expect($workspace->roleOf($target))->toBe('student');
 })->with(['student', 'viewer']);
 
-it('allows a coach to remove another member', function () {
+it('forbids non-owner members from removing other members', function (string $role) {
     /** @var \Tests\TestCase $this */
 
-    [, $workspace] = emWorkspace();
+    [$owner, $workspace] = emWorkspace();
 
-    $coach = emMember($workspace, 'coach');
-    $student = emMember($workspace, 'student');
+    $actor = emMember($workspace, $role);
+    $other = emMember($workspace, 'student');
 
-    Passport::actingAs($coach);
+    Passport::actingAs($actor);
 
-    $this->deleteJson(
-        apiUrl("workspaces/{$workspace->id}/members/{$student->id}")
-    )->assertNoContent();
-
-    $this->assertDatabaseMissing('user_workspace', [
-        'workspace_id' => $workspace->id,
-        'user_id' => $student->id,
-    ]);
-
-    $this->assertDatabaseMissing('model_has_roles', [
-        'workspace_id' => $workspace->id,
-        'model_id' => $student->id,
-        'model_type' => $student->getMorphClass(),
-    ]);
-
-    $this->assertDatabaseHas('users', [
-        'id' => $student->id,
-    ]);
-
-    $this->assertDatabaseHas('user_workspace', [
-        'workspace_id' => $workspace->id,
-        'user_id' => $coach->id,
-    ]);
-
-    expect($workspace->roleOf($coach))->toBe('coach');
-});
+    $this->deleteJson(apiUrl("workspaces/{$workspace->id}/members/{$other->id}"))
+        ->assertForbidden();
+})->with([
+    'coach',
+    'student',
+    'viewer',
+]);
 
 it('does not reuse removal permissions from another workspace', function () {
     /** @var \Tests\TestCase $this */

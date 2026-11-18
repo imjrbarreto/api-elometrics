@@ -45,8 +45,6 @@ class WorkspaceRoleSeeder extends Seeder
             if ($roleName === 'coach') {
                 $role->syncPermissions([
                     'members.view',
-                    'members.add',
-                    'members.remove',
                 ]);
             }
         }
