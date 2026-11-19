@@ -148,11 +148,7 @@ class WorkspacePolicy
 
     public function detachTrainingSession(User $user, Workspace $workspace): bool
     {
-        return in_array(
-            $workspace->roleOf($user),
-            ['owner', 'coach'],
-            true
-        );
+        return in_array($workspace->roleOf($user), ['owner', 'coach'], true);
     }
 
     public function respondToTrainingSession(User $user, Workspace $workspace): bool 

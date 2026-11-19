@@ -150,6 +150,12 @@ class WorkspaceMemberController extends Controller
         abort_unless($workspace->hasMember($user), 404);
 
         DB::transaction(function () use ($workspace, $user) {
+            $workspace->trainingSessions()->detach(
+                $workspace->trainingSessions()
+                    ->where('training_sessions.user_id', $user->id)
+                    ->pluck('training_sessions.id')
+            );
+            
             WorkspaceRoles::within(
                 $workspace,
                 $user,

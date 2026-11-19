@@ -11,94 +11,29 @@ use App\Http\Resources\TrainingSessionResource;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Gate;
 use OpenApi\Attributes as OA;
-#[OA\Tag(name: 'Workspace Training Sessions', description: 'Consulta y gestión de vínculos entre workspaces y sesiones de entrenamiento reutilizables')]
+
+#[OA\Tag(name: 'Workspace Training Sessions', description: 'Query and manage the links between workspaces and reusable training sessions')]
 class WorkspaceTrainingSessionController extends Controller
 {
-
     #[OA\Get(
         path: '/workspaces/{workspace}/training-sessions',
-        summary: 'Listar las sesiones vinculadas a un workspace',
-        description: 'Disponible para owner, coach, student y viewer del workspace. Devuelve una lista vacía si no existen sesiones vinculadas.',
+        operationId: 'listWorkspaceTrainingSessions',
+        summary: 'List the training sessions linked to a workspace',
+        description: 'Available to any member of the workspace. Returns an empty list if no sessions are linked.',
         tags: ['Workspace Training Sessions'],
         security: [['bearerAuth' => []]],
         parameters: [
-            new OA\Parameter(
-                name: 'workspace',
-                in: 'path',
-                required: true,
-                description: 'ID del workspace',
-                schema: new OA\Schema(
-                    type: 'integer',
-                    example: 1
-                )
-            ),
+            new OA\Parameter(ref: '#/components/parameters/WorkspaceId'),
         ],
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'Listado de sesiones vinculadas.',
-                content: new OA\JsonContent(
-                    type: 'object',
-                    properties: [
-                        new OA\Property(
-                            property: 'data',
-                            type: 'array',
-                            items: new OA\Items(
-                                type: 'object',
-                                properties: [
-                                    new OA\Property(
-                                        property: 'id',
-                                        type: 'integer',
-                                        example: 3
-                                    ),
-                                    new OA\Property(
-                                        property: 'user_id',
-                                        type: 'integer',
-                                        description: 'ID del creador de la sesión',
-                                        example: 1
-                                    ),
-                                    new OA\Property(
-                                        property: 'title',
-                                        type: 'string',
-                                        example: 'Finales de torres'
-                                    ),
-                                    new OA\Property(
-                                        property: 'description',
-                                        type: 'string',
-                                        nullable: true,
-                                        example: 'Actividad de la torre y del rey.'
-                                    ),
-                                    new OA\Property(
-                                        property: 'category',
-                                        type: 'string',
-                                        nullable: true,
-                                        example: 'endgame'
-                                    ),
-                                    new OA\Property(
-                                        property: 'resource',
-                                        type: 'string',
-                                        format: 'uri',
-                                        nullable: true,
-                                        example: 'https://lichess.org/study'
-                                    ),
-                                ]
-                            )
-                        ),
-                    ]
-                )
+                description: 'Linked training sessions listed.',
+                content: new OA\JsonContent(ref: '#/components/schemas/TrainingSessionList')
             ),
-            new OA\Response(
-                response: 401,
-                description: 'Usuario no autenticado.'
-            ),
-            new OA\Response(
-                response: 403,
-                description: 'El usuario no pertenece al workspace.'
-            ),
-            new OA\Response(
-                response: 404,
-                description: 'Workspace no encontrado.'
-            ),
+            new OA\Response(response: 401, ref: '#/components/responses/Unauthenticated'),
+            new OA\Response(response: 403, ref: '#/components/responses/Forbidden'),
+            new OA\Response(response: 404, ref: '#/components/responses/NotFound'),
         ]
     )]
     public function index(Workspace $workspace): AnonymousResourceCollection
@@ -114,61 +49,28 @@ class WorkspaceTrainingSessionController extends Controller
 
     #[OA\Post(
         path: '/workspaces/{workspace}/training-sessions',
-        summary: 'Vincular una sesión existente a un workspace',
-        description: 'Permite al owner o coach vincular una sesión creada por él. Repetir la vinculación no crea duplicados.',
+        operationId: 'linkTrainingSession',
+        summary: 'Link an existing training session to a workspace',
+        description: 'Only the owner or a coach of the workspace can link a session, and only one they created. '
+            . 'Linking the same session again does not create duplicates.',
         tags: ['Workspace Training Sessions'],
         security: [['bearerAuth' => []]],
         parameters: [
-            new OA\Parameter(
-                name: 'workspace',
-                in: 'path',
-                required: true,
-                description: 'ID del workspace',
-                schema: new OA\Schema(
-                    type: 'integer',
-                    example: 1
-                )
-            ),
+            new OA\Parameter(ref: '#/components/parameters/WorkspaceId'),
         ],
         requestBody: new OA\RequestBody(
             required: true,
-            content: new OA\JsonContent(
-                type: 'object',
-                required: ['training_session_id'],
-                properties: [
-                    new OA\Property(
-                        property: 'training_session_id',
-                        type: 'integer',
-                        description: 'ID de una sesión existente creada por el usuario autenticado',
-                        example: 3
-                    ),
-                ]
-            )
+            content: new OA\JsonContent(ref: '#/components/schemas/LinkTrainingSessionInput')
         ),
         responses: [
-            new OA\Response(
-                response: 204,
-                description: 'Sesión vinculada correctamente o vinculación ya existente.'
-            ),
-            new OA\Response(
-                response: 401,
-                description: 'Usuario no autenticado.'
-            ),
-            new OA\Response(
-                response: 403,
-                description: 'El usuario no es owner o coach del workspace, o no es el creador de la sesión.'
-            ),
-            new OA\Response(
-                response: 404,
-                description: 'Workspace no encontrado.'
-            ),
-            new OA\Response(
-                response: 422,
-                description: 'El identificador de sesión falta, no es válido o no corresponde a una sesión existente.'
-            ),
+            new OA\Response(response: 204, description: 'Session linked, or the link already existed.'),
+            new OA\Response(response: 401, ref: '#/components/responses/Unauthenticated'),
+            new OA\Response(response: 403, ref: '#/components/responses/Forbidden'),
+            new OA\Response(response: 404, ref: '#/components/responses/NotFound'),
+            new OA\Response(response: 422, ref: '#/components/responses/ValidationFailed'),
         ]
     )]
-    public function store(AttachTrainingSessionRequest $request,Workspace $workspace): Response 
+    public function store(AttachTrainingSessionRequest $request, Workspace $workspace): Response
     {
         $data = $request->validated();
 
@@ -189,54 +91,26 @@ class WorkspaceTrainingSessionController extends Controller
 
     #[OA\Delete(
         path: '/workspaces/{workspace}/training-sessions/{training_session}',
-        summary: 'Desvincular una sesión de un workspace',
-        description: 'Disponible para owner y coach. Elimina únicamente la vinculación: conserva la sesión original y sus vínculos con otros workspaces.',
+        operationId: 'unlinkTrainingSession',
+        summary: 'Unlink a training session from a workspace',
+        description: 'The owner can unlink any session; a coach can unlink only the sessions they created. '
+            . 'Only the link is removed: the session itself and its links to other workspaces are kept.',
         tags: ['Workspace Training Sessions'],
         security: [['bearerAuth' => []]],
         parameters: [
-            new OA\Parameter(
-                name: 'workspace',
-                in: 'path',
-                required: true,
-                description: 'ID del workspace',
-                schema: new OA\Schema(
-                    type: 'integer',
-                    example: 1
-                )
-            ),
-            new OA\Parameter(
-                name: 'training_session',
-                in: 'path',
-                required: true,
-                description: 'ID de la sesión que se quiere desvincular',
-                schema: new OA\Schema(
-                    type: 'integer',
-                    example: 3
-                )
-            ),
+            new OA\Parameter(ref: '#/components/parameters/WorkspaceId'),
+            new OA\Parameter(ref: '#/components/parameters/TrainingSessionId'),
         ],
         responses: [
-            new OA\Response(
-                response: 204,
-                description: 'Sesión desvinculada correctamente.'
-            ),
-            new OA\Response(
-                response: 401,
-                description: 'Usuario no autenticado.'
-            ),
-            new OA\Response(
-                response: 403,
-                description: 'El usuario no es owner o coach del workspace.'
-            ),
-            new OA\Response(
-                response: 404,
-                description: 'Workspace o sesión no encontrados, o la sesión no está vinculada al workspace indicado.'
-            ),
+            new OA\Response(response: 204, description: 'Session unlinked.'),
+            new OA\Response(response: 401, ref: '#/components/responses/Unauthenticated'),
+            new OA\Response(response: 403, ref: '#/components/responses/Forbidden'),
+            new OA\Response(response: 404, ref: '#/components/responses/NotFound'),
         ]
     )]
-    public function destroy(Workspace $workspace, TrainingSession $training_session): Response 
+    public function destroy(Workspace $workspace, TrainingSession $training_session): Response
     {
-        Gate::authorize('detachTrainingSession', $workspace);
+        Gate::authorize('detachTrainingSession', [$workspace, $training_session]);
 
         $isLinked = $workspace->trainingSessions()
             ->whereKey($training_session->id)

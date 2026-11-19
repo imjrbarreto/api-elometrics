@@ -237,6 +237,21 @@ final class TrainingSessionInputSchema {}
 )]
 final class TrainingSessionPatchSchema {}
 
+// Body of POST /workspaces/{workspace}/training-sessions (mirrors AttachTrainingSessionRequest)
+#[OA\Schema(
+    schema: 'LinkTrainingSessionInput',
+    required: ['training_session_id'],
+    properties: [
+        new OA\Property(
+            property: 'training_session_id',
+            type: 'integer',
+            description: 'ID of an existing session created by the authenticated user',
+            example: 3,
+        ),
+    ],
+)]
+final class LinkTrainingSessionInputSchema {}
+
 #[OA\Schema(
     schema: 'Workspace',
     required: ['id', 'title', 'status', 'role'],
