@@ -134,7 +134,8 @@ class TrainingSessionController extends Controller
         path: '/training-sessions/{training_session}',
         operationId: 'deleteTrainingSession',
         summary: 'Delete a training session',
-        description: 'Only the creator of the session can delete it.',
+        description: 'Only the creator of the session can delete it. '
+        . 'A session that is linked to a workspace or has responses cannot be deleted: unlink it first.',
         tags: ['Training Sessions'],
         security: [['bearerAuth' => []]],
         parameters: [
@@ -145,11 +146,18 @@ class TrainingSessionController extends Controller
             new OA\Response(response: 401, ref: '#/components/responses/Unauthenticated'),
             new OA\Response(response: 403, ref: '#/components/responses/Forbidden'),
             new OA\Response(response: 404, ref: '#/components/responses/NotFound'),
+            new OA\Response(response: 409, ref: '#/components/responses/Conflict'),
         ]
     )]
     public function delete(TrainingSession $trainingSession): JsonResponse
     {
         Gate::authorize('delete', $trainingSession);
+
+        abort_if(
+            $trainingSession->workspaces()->exists() || $trainingSession->responses()->exists(),
+            409,
+            'The training session is linked to a workspace or has responses and cannot be deleted.'
+        );
 
         $trainingSession->delete();
 

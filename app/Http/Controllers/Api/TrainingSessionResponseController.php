@@ -9,117 +9,42 @@ use App\Models\TrainingSessionResponse;
 use App\Models\Workspace;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Database\UniqueConstraintViolationException;
 use OpenApi\Attributes as OA;
 
-#[OA\Tag(name: 'Training Session Responses', description: 'Respuestas de estudiantes a sesiones vinculadas a workspaces')]
+#[OA\Tag(name: 'Training Session Responses', description: 'Student responses to training sessions linked to workspaces')]
 class TrainingSessionResponseController extends Controller
 {
-
     #[OA\Post(
         path: '/workspaces/{workspace}/training-sessions/{training_session}/responses',
-        summary: 'Responder a una sesión vinculada',
-        description: 'Requiere el permiso training-sessions.respond en el workspace. Cada estudiante puede enviar una única respuesta por sesión y workspace. El autor se obtiene del usuario autenticado.',
+        operationId: 'createTrainingSessionResponse',
+        summary: 'Respond to a linked training session',
+        description: 'Only members with the training-sessions.respond permission (currently students) can respond. '
+            . 'Each student can send a single response per session and workspace. '
+            . 'The author is the authenticated user. The session must be linked to the workspace.',
         tags: ['Training Session Responses'],
         security: [['bearerAuth' => []]],
         parameters: [
-            new OA\Parameter(
-                name: 'workspace',
-                in: 'path',
-                required: true,
-                description: 'ID del workspace',
-                schema: new OA\Schema(
-                    type: 'integer',
-                    example: 1
-                )
-            ),
-            new OA\Parameter(
-                name: 'training_session',
-                in: 'path',
-                required: true,
-                description: 'ID de una sesión vinculada al workspace',
-                schema: new OA\Schema(
-                    type: 'integer',
-                    example: 3
-                )
-            ),
+            new OA\Parameter(ref: '#/components/parameters/WorkspaceId'),
+            new OA\Parameter(ref: '#/components/parameters/TrainingSessionId'),
         ],
         requestBody: new OA\RequestBody(
             required: true,
-            content: new OA\JsonContent(
-                type: 'object',
-                required: ['content'],
-                properties: [
-                    new OA\Property(
-                        property: 'content',
-                        type: 'string',
-                        minLength: 1,
-                        maxLength: 10000,
-                        example: 'Mi variante principal es 1.Cf5.'
-                    ),
-                ]
-            )
+            content: new OA\JsonContent(ref: '#/components/schemas/TrainingSessionResponseInput')
         ),
         responses: [
             new OA\Response(
                 response: 201,
-                description: 'Respuesta creada correctamente.',
-                content: new OA\JsonContent(
-                    type: 'object',
-                    properties: [
-                        new OA\Property(
-                            property: 'data',
-                            type: 'object',
-                            properties: [
-                                new OA\Property(
-                                    property: 'id',
-                                    type: 'integer',
-                                    example: 1
-                                ),
-                                new OA\Property(
-                                    property: 'workspace_id',
-                                    type: 'integer',
-                                    example: 1
-                                ),
-                                new OA\Property(
-                                    property: 'training_session_id',
-                                    type: 'integer',
-                                    example: 3
-                                ),
-                                new OA\Property(
-                                    property: 'user_id',
-                                    type: 'integer',
-                                    description: 'ID del estudiante autenticado',
-                                    example: 8
-                                ),
-                                new OA\Property(
-                                    property: 'content',
-                                    type: 'string',
-                                    example: 'Mi variante principal es 1.Cf5.'
-                                ),
-                            ]
-                        ),
-                    ]
-                )
+                description: 'Response created.',
+                content: new OA\JsonContent(ref: '#/components/schemas/TrainingSessionResponseResource')
             ),
-            new OA\Response(
-                response: 401,
-                description: 'Usuario no autenticado.'
-            ),
-            new OA\Response(
-                response: 403,
-                description: 'El usuario no pertenece al workspace o no tiene el permiso para responder.'
-            ),
-            new OA\Response(
-                response: 404,
-                description: 'Workspace o sesión no encontrados, o la sesión no está vinculada al workspace.'
-            ),
-            new OA\Response(
-                response: 422,
-                description: 'Contenido ausente o inválido, o el estudiante ya respondió a esta sesión en este workspace.'
-            ),
+            new OA\Response(response: 401, ref: '#/components/responses/Unauthenticated'),
+            new OA\Response(response: 403, ref: '#/components/responses/Forbidden'),
+            new OA\Response(response: 404, ref: '#/components/responses/NotFound'),
+            new OA\Response(response: 422, ref: '#/components/responses/ValidationFailed'),
         ]
     )]
-    public function store(StoreTrainingSessionResponseRequest $request, Workspace $workspace, TrainingSession $training_session): JsonResponse 
+    public function store(StoreTrainingSessionResponseRequest $request, Workspace $workspace, TrainingSession $training_session): JsonResponse
     {
         $isLinked = $workspace->trainingSessions()
             ->whereKey($training_session->id)
@@ -129,24 +54,18 @@ class TrainingSessionResponseController extends Controller
 
         $data = $request->validated();
 
-        $alreadyResponded = TrainingSessionResponse::query()
-            ->where('workspace_id', $workspace->id)
-            ->where('training_session_id', $training_session->id)
-            ->where('user_id', $request->user()->id)
-            ->exists();
-
-        if ($alreadyResponded) {
+        try {
+            $response = TrainingSessionResponse::create([
+                'workspace_id' => $workspace->id,
+                'training_session_id' => $training_session->id,
+                'user_id' => $request->user()->id,
+                'content' => $data['content'],
+            ]);
+        } catch (UniqueConstraintViolationException) {
             throw ValidationException::withMessages([
-                'content' => 'Ya has respondido a esta sesión en este workspace.',
+                'content' => 'You have already responded to this session in this workspace.',
             ]);
         }
-
-        $response = TrainingSessionResponse::create([
-            'workspace_id' => $workspace->id,
-            'training_session_id' => $training_session->id,
-            'user_id' => $request->user()->id,
-            'content' => $data['content'],
-        ]);
 
         return response()->json([
             'data' => [
