@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
 
@@ -7,7 +7,7 @@
 
     <style>
         @page {
-            margin: 40px;
+            margin: 40px 40px 60px 40px;
         }
 
         body {
@@ -17,44 +17,105 @@
             color: #222;
         }
 
-        h1 {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-
-        h2 {
-            font-size: 16px;
-            margin-top: 24px;
+        .header {
+            border-bottom: 2px solid #245c42;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
         }
 
         .context {
+            margin: 0 0 4px 0;
+            font-size: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
             color: #666;
-            margin-bottom: 24px;
+        }
+
+        h1 {
+            margin: 0 0 8px 0;
+            font-size: 24px;
+            line-height: 1.25;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 10px;
+            background: #e8f1ec;
+            color: #245c42;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .meta {
+            margin: 0;
+        }
+
+        .author {
+            margin-left: 8px;
+            font-size: 11px;
+            color: #666;
+        }
+
+        h2 {
+            margin: 24px 0 6px 0;
+            padding-bottom: 3px;
+            border-bottom: 1px solid #ddd;
+            font-size: 14px;
+            color: #245c42;
         }
 
         .description {
+            margin: 0;
             white-space: pre-wrap;
+            word-wrap: break-word;
         }
 
         a {
             color: #245c42;
             word-wrap: break-word;
         }
+
+        .footer {
+            position: fixed;
+            bottom: -30px;
+            left: 0;
+            right: 0;
+            padding-top: 6px;
+            border-top: 1px solid #ddd;
+            font-size: 10px;
+            color: #888;
+        }
+
+        .footer .page:before {
+            content: counter(page);
+        }
     </style>
 </head>
 
 <body>
-    <p class="context">
-        Workspace: {{ $workspace->title }}
-    </p>
+    @php
+        $categoryLabel = $session->category
+            ? (\App\Enums\TrainingCategory::tryFrom($session->category)?->label() ?? $session->category)
+            : null;
+    @endphp
 
-    <h1>{{ $session->title }}</h1>
+    <div class="footer">
+        Generado el {{ now()->format('d/m/Y') }} &middot; Página <span class="page"></span>
+    </div>
 
-    @if ($session->category)
-        <p>
-            <strong>Categoría:</strong> {{ $session->category }}
+    <div class="header">
+        <p class="context">Workspace: {{ $workspace->title }}</p>
+
+        <h1>{{ $session->title }}</h1>
+
+        <p class="meta">
+            @if ($categoryLabel)
+                <span class="badge">{{ $categoryLabel }}</span>
+            @endif
+            <span class="author">Creada por {{ $session->user->name }}</span>
         </p>
-    @endif
+    </div>
 
     @if ($session->description)
         <h2>Descripción</h2>
@@ -66,9 +127,11 @@
         <h2>Recurso</h2>
 
         <p>
-            <a href="{{ $session->resource }}">
+            @if (\Illuminate\Support\Str::startsWith($session->resource, ['http://', 'https://']))
+                <a href="{{ $session->resource }}">{{ $session->resource }}</a>
+            @else
                 {{ $session->resource }}
-            </a>
+            @endif
         </p>
     @endif
 </body>

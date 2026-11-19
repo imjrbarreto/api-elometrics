@@ -14,34 +14,26 @@ class WorkspaceTrainingSessionExportController extends Controller
 {
     #[OA\Get(
         path: '/workspaces/{workspace}/training-sessions/{training_session}/export',
-        summary: 'Descargar una sesión vinculada como PDF',
-        description: 'Disponible para todos los miembros del workspace.',
+        operationId: 'exportTrainingSession',
+        summary: 'Download a linked training session as a PDF',
+        description: 'Available to any member of the workspace. The session must be linked to the workspace.',
         tags: ['Workspace Training Sessions'],
         security: [['bearerAuth' => []]],
         parameters: [
-            new OA\Parameter(
-                name: 'workspace',
-                in: 'path',
-                required: true,
-                schema: new OA\Schema(
-                    type: 'integer',
-                    example: 1
-                )
-            ),
-            new OA\Parameter(
-                name: 'training_session',
-                in: 'path',
-                required: true,
-                schema: new OA\Schema(
-                    type: 'integer',
-                    example: 3
-                )
-            ),
+            new OA\Parameter(ref: '#/components/parameters/WorkspaceId'),
+            new OA\Parameter(ref: '#/components/parameters/TrainingSessionId'),
         ],
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'PDF de la sesión seleccionada.',
+                description: 'PDF of the selected training session.',
+                headers: [
+                    new OA\Header(
+                        header: 'Content-Disposition',
+                        description: 'Attachment with the file name, for example: attachment; filename=training-session-3.pdf',
+                        schema: new OA\Schema(type: 'string')
+                    ),
+                ],
                 content: [
                     new OA\MediaType(
                         mediaType: 'application/pdf',
@@ -52,18 +44,9 @@ class WorkspaceTrainingSessionExportController extends Controller
                     ),
                 ]
             ),
-            new OA\Response(
-                response: 401,
-                description: 'Usuario no autenticado.'
-            ),
-            new OA\Response(
-                response: 403,
-                description: 'El usuario no pertenece al workspace.'
-            ),
-            new OA\Response(
-                response: 404,
-                description: 'Workspace o sesión inexistentes, o sesión no vinculada.'
-            ),
+            new OA\Response(response: 401, ref: '#/components/responses/Unauthenticated'),
+            new OA\Response(response: 403, ref: '#/components/responses/Forbidden'),
+            new OA\Response(response: 404, ref: '#/components/responses/NotFound'),
         ]
     )]
     public function __invoke(Workspace $workspace, TrainingSession $training_session): Response
@@ -78,7 +61,7 @@ class WorkspaceTrainingSessionExportController extends Controller
 
         return Pdf::loadView('pdf.training-session', [
             'workspace' => $workspace,
-            'session' => $training_session,
+            'session' => $training_session->load('user'),
         ])
             ->setPaper('a4')
             ->download("training-session-{$training_session->id}.pdf");
