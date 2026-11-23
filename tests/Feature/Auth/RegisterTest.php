@@ -15,7 +15,6 @@ beforeEach(function () {
 it('registers a user with valid data', function () {
     /** @var \Tests\TestCase $this */
     
-    // Preparar:
     $data = [
         'name' => 'Jaime Romero',
         'email' => 'jaime@example.com',
@@ -23,10 +22,8 @@ it('registers a user with valid data', function () {
         'password_confirmation' => 'password123',
     ];
 
-    //Actuar:
     $response = $this->postJson(apiUrl('register'), $data);
 
-    //Comprobar
     $response
         ->assertCreated()
         ->assertJsonPath('data.name', 'Jaime Romero')
@@ -46,17 +43,14 @@ it('registers a user with valid data', function () {
 it('rejects registration without a name', function () {
     /** @var \Tests\TestCase $this */
 
-    // PREPARAR: datos sin el campo name
     $data = [
         'email' => 'jaime@example.com',
         'password' => 'password123',
         'password_confirmation' => 'password123',
     ];
 
-    // ACTUAR
     $response = $this->postJson(apiUrl('register'), $data);
 
-    // COMPROBAR
     $response
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['name']);
@@ -65,7 +59,6 @@ it('rejects registration without a name', function () {
 it('rejects registration when passwords do not match', function () {
     /** @var \Tests\TestCase $this */
 
-    // PREPARAR
     $data = [
         'name' => 'Jaime Romero',
         'email' => 'jaime@example.com',
@@ -73,10 +66,8 @@ it('rejects registration when passwords do not match', function () {
         'password_confirmation' => 'otra-password',
     ];
 
-    // ACTUAR
     $response = $this->postJson(apiUrl('register'), $data);
 
-    // COMPROBAR
     $response
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['password']);
@@ -85,7 +76,6 @@ it('rejects registration when passwords do not match', function () {
 it('rejects registration with an existing email', function () {
     /** @var \Tests\TestCase $this */
 
-    // PREPARAR: crear un usuario y los datos del nuevo registro
     User::factory()->create([
         'email' => 'jaime@example.com',
     ]);
@@ -97,10 +87,8 @@ it('rejects registration with an existing email', function () {
         'password_confirmation' => 'password123',
     ];
 
-    // ACTUAR
     $response = $this->postJson(apiUrl('register'), $data);
 
-    // COMPROBAR
     $response
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['email']);
@@ -109,7 +97,6 @@ it('rejects registration with an existing email', function () {
 it('returns an access token after registration', function () {
     /** @var \Tests\TestCase $this */
 
-    // PREPARAR
     $data = [
         'name' => 'Jaime Romero',
         'email' => 'jaime@example.com',
@@ -117,10 +104,8 @@ it('returns an access token after registration', function () {
         'password_confirmation' => 'password123',
     ];
 
-    // ACTUAR
     $response = $this->postJson(apiUrl('register'), $data);
 
-    // COMPROBAR
     $response
         ->assertCreated()
         ->assertJsonPath('token.token_type', 'Bearer')

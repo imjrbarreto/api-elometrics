@@ -16,57 +16,28 @@ use OpenApi\Attributes as OA;
 
 
 
-#[OA\Tag(name: 'Members', description: 'Endpoints para la gestión de integrantes dentro de un workspace')]
+#[OA\Tag(name: 'Workspace Members', description: 'Endpoints for managing the members of a workspace')]
 class WorkspaceMemberController extends Controller
 {
     #[OA\Get(
         path: '/workspaces/{workspace}/members',
-        summary: 'Listar miembros de un espacio de trabajo',
+        operationId: 'listWorkspaceMembers',
+        summary: 'List the members of a workspace',
+        description: 'Available to any member of the workspace. The owner is included in the list.',
         tags: ['Workspace Members'],
         security: [['bearerAuth' => []]],
         parameters: [
-            new OA\Parameter(
-                name: 'workspace',
-                in: 'path',
-                description: 'ID del espacio de trabajo (Workspace)',
-                required: true,
-                schema: new OA\Schema(type: 'integer', example: 1)
-            )
+            new OA\Parameter(ref: '#/components/parameters/WorkspaceId'),
         ],
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'Lista de miembros obtenida exitosamente.',
-                content: new OA\JsonContent(
-                    properties: [
-                        new OA\Property(
-                            property: 'data',
-                            type: 'array',
-                            items: new OA\Items(
-                                required: ['id', 'name', 'email', 'role'],
-                                properties: [
-                                    new OA\Property(property: 'id', type: 'integer', example: 1),
-                                    new OA\Property(property: 'name', type: 'string', example: 'Juan Pérez'),
-                                    new OA\Property(property: 'email', type: 'string', format: 'email', example: 'juan@example.com'),
-                                    new OA\Property(property: 'role', type: 'string', example: 'admin')
-                                ]
-                            )
-                        )
-                    ]
-                )
+                description: 'Members listed.',
+                content: new OA\JsonContent(ref: '#/components/schemas/MemberList')
             ),
-            new OA\Response(
-                response: 401,
-                description: 'No autenticado.'
-            ),
-            new OA\Response(
-                response: 403,
-                description: 'No autorizado. El usuario no tiene permisos para ver los miembros de este workspace.'
-            ),
-            new OA\Response(
-                response: 404,
-                description: 'Workspace no encontrado.'
-            )
+            new OA\Response(response: 401, ref: '#/components/responses/Unauthenticated'),
+            new OA\Response(response: 403, ref: '#/components/responses/Forbidden'),
+            new OA\Response(response: 404, ref: '#/components/responses/NotFound'),
         ]
     )]
     public function index(Workspace $workspace): JsonResponse
@@ -94,71 +65,33 @@ class WorkspaceMemberController extends Controller
 
     #[OA\Post(
         path: '/workspaces/{workspace}/members',
-        summary: 'Agregar un miembro a un espacio de trabajo',
+        operationId: 'addWorkspaceMember',
+        summary: 'Add a member to a workspace',
+        description: 'Only the owner can add members. The user must already be registered. '
+            . 'Returns 422 if the data is invalid, the email does not belong to a registered user '
+            . 'or the user already belongs to the workspace.',
         tags: ['Workspace Members'],
         security: [['bearerAuth' => []]],
         parameters: [
-            new OA\Parameter(
-                name: 'workspace',
-                in: 'path',
-                description: 'ID del espacio de trabajo (Workspace)',
-                required: true,
-                schema: new OA\Schema(type: 'integer', example: 1)
-            )
+            new OA\Parameter(ref: '#/components/parameters/WorkspaceId'),
         ],
         requestBody: new OA\RequestBody(
             required: true,
-            content: new OA\JsonContent(
-                required: ['email', 'role'],
-                properties: [
-                    new OA\Property(
-                        property: 'email',
-                        type: 'string',
-                        format: 'email',
-                        example: 'colaborador@example.com'
-                    ),
-                    new OA\Property(
-                        property: 'role',
-                        type: 'string',
-                        example: 'editor'
-                    ),
-                ]
-            )
+            content: new OA\JsonContent(ref: '#/components/schemas/MemberInput')
         ),
         responses: [
             new OA\Response(
                 response: 201,
-                description: 'Miembro agregado exitosamente.',
-                content: new OA\JsonContent(
-                    properties: [
-                        new OA\Property(
-                            property: 'data',
-                            type: 'object',
-                            properties: [
-                                new OA\Property(property: 'id', type: 'integer', example: 2),
-                                new OA\Property(property: 'name', type: 'string', example: 'Carlos Gómez'),
-                                new OA\Property(property: 'email', type: 'string', format: 'email', example: 'colaborador@example.com'),
-                                new OA\Property(property: 'role', type: 'string', example: 'editor'),
-                            ]
-                        )
-                    ]
-                )
+                description: 'Member added.',
+                content: new OA\JsonContent(ref: '#/components/schemas/MemberResource')
             ),
-            new OA\Response(
-                response: 401,
-                description: 'No autenticado.'
-            ),
-            new OA\Response(
-                response: 404,
-                description: 'Workspace o Usuario (por email) no encontrado.'
-            ),
-            new OA\Response(
-                response: 422,
-                description: 'Datos de validación incorrectos (por ejemplo, si el usuario ya pertenece al workspace).'
-            ),
+            new OA\Response(response: 401, ref: '#/components/responses/Unauthenticated'),
+            new OA\Response(response: 403, ref: '#/components/responses/Forbidden'),
+            new OA\Response(response: 404, ref: '#/components/responses/NotFound'),
+            new OA\Response(response: 422, ref: '#/components/responses/ValidationFailed'),
         ]
     )]
-    public function store(StoreWorkspaceMemberRequest $request, Workspace $workspace): JsonResponse 
+    public function store(StoreWorkspaceMemberRequest $request, Workspace $workspace): JsonResponse
     {
         $data = $request->validated();
 
@@ -168,7 +101,7 @@ class WorkspaceMemberController extends Controller
         DB::transaction(function () use ($workspace, $member, $data) {
             if ($workspace->hasMember($member)) {
                 throw ValidationException::withMessages([
-                    'email' => 'El usuario ya pertenece al workspace.',
+                    'email' => 'The user already belongs to the workspace.',
                 ]);
             }
 
@@ -193,45 +126,23 @@ class WorkspaceMemberController extends Controller
 
     #[OA\Delete(
         path: '/workspaces/{workspace}/members/{user}',
-        summary: 'Remover un miembro de un espacio de trabajo',
+        operationId: 'removeWorkspaceMember',
+        summary: 'Remove a member from a workspace',
+        description: 'The owner can remove any member. Any member can remove themselves (leave the workspace). '
+            . 'The owner cannot be removed.',
         tags: ['Workspace Members'],
         security: [['bearerAuth' => []]],
         parameters: [
-            new OA\Parameter(
-                name: 'workspace',
-                in: 'path',
-                description: 'ID del espacio de trabajo (Workspace)',
-                required: true,
-                schema: new OA\Schema(type: 'integer', example: 1)
-            ),
-            new OA\Parameter(
-                name: 'user',
-                in: 'path',
-                description: 'ID del usuario a remover del workspace',
-                required: true,
-                schema: new OA\Schema(type: 'integer', example: 2)
-            )
+            new OA\Parameter(ref: '#/components/parameters/WorkspaceId'),
+            new OA\Parameter(ref: '#/components/parameters/UserId'),
         ],
         responses: [
-            new OA\Response(
-                response: 204,
-                description: 'Miembro removido con éxito, sin contenido de retorno.'
-            ),
-            new OA\Response(
-                response: 401,
-                description: 'No autenticado.'
-            ),
-            new OA\Response(
-                response: 403,
-                description: 'No autorizado. El usuario actual no tiene permisos para remover a este miembro.'
-            ),
-            new OA\Response(
-                response: 404,
-                description: 'Workspace, Usuario no encontrado, o el usuario especificado no pertenece a este workspace.'
-            )
+            new OA\Response(response: 204, description: 'Member removed. No content.'),
+            new OA\Response(response: 401, ref: '#/components/responses/Unauthenticated'),
+            new OA\Response(response: 403, ref: '#/components/responses/Forbidden'),
+            new OA\Response(response: 404, ref: '#/components/responses/NotFound'),
         ]
     )]
-
     public function destroy(Workspace $workspace, User $user): Response
     {
         Gate::authorize('removeMember', [$workspace, $user]);
@@ -239,6 +150,12 @@ class WorkspaceMemberController extends Controller
         abort_unless($workspace->hasMember($user), 404);
 
         DB::transaction(function () use ($workspace, $user) {
+            $workspace->trainingSessions()->detach(
+                $workspace->trainingSessions()
+                    ->where('training_sessions.user_id', $user->id)
+                    ->pluck('training_sessions.id')
+            );
+            
             WorkspaceRoles::within(
                 $workspace,
                 $user,

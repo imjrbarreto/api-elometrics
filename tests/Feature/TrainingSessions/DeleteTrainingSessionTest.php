@@ -9,9 +9,7 @@ it('can delete a training session', function () {
 
     $user = User::factory()->create();
 
-    $trainingSession = TrainingSession::factory()->create([
-        'user_id' => $user->id,
-    ]);
+    $trainingSession = TrainingSession::factory()->create(['user_id' => $user->id,]);
 
     Passport::actingAs($user);
 

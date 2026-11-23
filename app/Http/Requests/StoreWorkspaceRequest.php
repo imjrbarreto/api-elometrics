@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\WorkspaceStatus;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreWorkspaceRequest extends FormRequest
 {
@@ -24,7 +26,7 @@ class StoreWorkspaceRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:255'],
-            'status' => ['required', 'string'],
+            'status' => ['sometimes', Rule::enum(WorkspaceStatus::class)],
         ];
     }
 }

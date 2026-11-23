@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\LoginRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -12,74 +13,25 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 use OpenApi\Attributes as OA;
 
-#[OA\Tag(name: 'Autenticación', description: 'Endpoints para la gestión de usuarios y sesiones')]
+#[OA\Tag(name: 'Authentication', description: 'Endpoints for user and session management')]
 class AuthController extends Controller
 {
     #[OA\Post(
         path: '/register',
-        summary: 'Registrar un usuario y obtener un token',
-        tags: ['Autenticación'],
+        operationId: 'register',
+        summary: 'Register a user and obtain a token',
+        tags: ['Authentication'],
         requestBody: new OA\RequestBody(
             required: true,
-            content: new OA\JsonContent(
-                required: [
-                    'name',
-                    'email',
-                    'password',
-                    'password_confirmation',
-                ],
-                properties: [
-                    new OA\Property(
-                        property: 'name',
-                        type: 'string',
-                        maxLength: 255,
-                        example: 'Jaime Romero'
-                    ),
-                    new OA\Property(
-                        property: 'email',
-                        type: 'string',
-                        format: 'email',
-                        maxLength: 255,
-                        example: 'jaime@example.com'
-                    ),
-                    new OA\Property(
-                        property: 'password',
-                        type: 'string',
-                        format: 'password',
-                        minLength: 8,
-                        example: 'password123'
-                    ),
-                    new OA\Property(
-                        property: 'password_confirmation',
-                        type: 'string',
-                        format: 'password',
-                        example: 'password123'
-                    ),
-                ]
-            )
+            content: new OA\JsonContent(ref: '#/components/schemas/RegisterInput')
         ),
         responses: [
             new OA\Response(
                 response: 201,
-                description: 'Usuario creado. Devuelve sus datos públicos y un token de acceso.',
-                content: new OA\JsonContent(
-                    example: [
-                        'data' => [
-                            'id' => 1,
-                            'name' => 'Jaime Romero',
-                            'email' => 'jaime@example.com',
-                        ],
-                        'token' => [
-                            'token_type' => 'Bearer',
-                            'access_token' => 'TOKEN_DE_ACCESO',
-                        ],
-                    ]
-                )
+                description: 'User created. Returns the public user data and an access token.',
+                content: new OA\JsonContent(ref: '#/components/schemas/AuthResponse')
             ),
-            new OA\Response(
-                response: 422,
-                description: 'Datos de validación incorrectos.'
-            ),
+            new OA\Response(response: 422, ref: '#/components/responses/ValidationFailed'),
         ]
     )]
     public function register(RegisterRequest $request): JsonResponse
@@ -93,11 +45,7 @@ class AuthController extends Controller
         $tokenResult = $user->createToken('Personal Access Token');
 
         return response()->json([
-            'data' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-            ],
+            'data' => new UserResource($user),
             'token' => [
                 'token_type' => 'Bearer',
                 'access_token' => $tokenResult->accessToken,
@@ -107,41 +55,25 @@ class AuthController extends Controller
 
     #[OA\Post(
         path: '/login',
-        summary: 'Iniciar sesión y obtener un token',
-        tags: ['Autenticación'],
+        operationId: 'login',
+        summary: 'Log in and obtain a token',
+        tags: ['Authentication'],
         requestBody: new OA\RequestBody(
             required: true,
-            content: new OA\JsonContent(
-                required: ['email', 'password'],
-                properties: [
-                    new OA\Property(
-                        property: 'email',
-                        type: 'string',
-                        format: 'email',
-                        example: 'jaime@example.com'
-                    ),
-                    new OA\Property(
-                        property: 'password',
-                        type: 'string',
-                        format: 'password',
-                        example: 'password123'
-                    ),
-                ]
-            )
+            content: new OA\JsonContent(ref: '#/components/schemas/LoginInput')
         ),
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'Credenciales correctas. Devuelve los datos del usuario y un token.'
+                description: 'Logged in.',
+                content: new OA\JsonContent(ref: '#/components/schemas/AuthResponse')
             ),
             new OA\Response(
                 response: 401,
-                description: 'Credenciales incorrectas.'
+                description: 'Invalid credentials.',
+                content: new OA\JsonContent(ref: '#/components/schemas/Message')
             ),
-            new OA\Response(
-                response: 422,
-                description: 'Datos de validación incorrectos.'
-            ),
+            new OA\Response(response: 422, ref: '#/components/responses/ValidationFailed'),
         ]
     )]
     public function login(LoginRequest $request): JsonResponse
@@ -159,11 +91,7 @@ class AuthController extends Controller
         $tokenResult = $user->createToken('Personal Access Token');
 
         return response()->json([
-            'data' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-            ],
+            'data' => new UserResource($user),
             'token' => [
                 'token_type' => 'Bearer',
                 'access_token' => $tokenResult->accessToken,
@@ -173,47 +101,36 @@ class AuthController extends Controller
 
     #[OA\Get(
         path: '/users/me',
-        summary: 'Obtener los datos del usuario autenticado',
-        tags: ['Autenticación'],
+        operationId: 'getCurrentUser',
+        summary: 'Get the authenticated user',
+        tags: ['Authentication'],
         security: [['bearerAuth' => []]],
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'Datos del usuario autenticado.'
+                description: 'Authenticated user data.',
+                content: new OA\JsonContent(ref: '#/components/schemas/UserResource')
             ),
-            new OA\Response(
-                response: 401,
-                description: 'Token ausente, inválido o expirado.'
-            ),
+            new OA\Response(response: 401, ref: '#/components/responses/Unauthenticated'),
         ]
     )]
-    public function me(Request $request): JsonResponse
+    public function me(Request $request): UserResource
     {
-        $user = $request->user();
-
-        return response()->json([
-            'data' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-            ],
-        ], 200);
+        return new UserResource($request->user());
     }
 
     #[OA\Post(
         path: '/logout',
-        summary: 'Cerrar sesión revocando el token actual',
-        tags: ['Autenticación'],
+        operationId: 'logout',
+        summary: 'Log out by revoking the current token',
+        tags: ['Authentication'],
         security: [['bearerAuth' => []]],
         responses: [
             new OA\Response(
                 response: 204,
-                description: 'Token actual revocado. Respuesta sin contenido.'
+                description: 'Current token revoked. No content.'
             ),
-            new OA\Response(
-                response: 401,
-                description: 'Token ausente, inválido o expirado.'
-            ),
+            new OA\Response(response: 401, ref: '#/components/responses/Unauthenticated'),
         ]
     )]
     public function logout(Request $request): Response

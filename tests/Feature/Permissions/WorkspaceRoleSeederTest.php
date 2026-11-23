@@ -75,7 +75,7 @@ it('assigns only member viewing permission to the viewer role', function () {
         ->toContain('members.view');
 });
 
-it('assigns member management permissions to the coach role', function () {
+it('assigns only member viewing permission to the coach role', function () {
     /** @var \Tests\TestCase $this */
 
     $this->seed(WorkspaceRoleSeeder::class);
@@ -91,10 +91,7 @@ it('assigns member management permissions to the coach role', function () {
         ->all();
 
     expect($permissions)
-        ->toHaveCount(3)
-        ->toContain(
-            'members.view',
-            'members.add',
-            'members.remove',
-        );
+        ->toHaveCount(1)
+        ->toContain('members.view')
+        ->not->toContain('members.add', 'members.remove');
 });

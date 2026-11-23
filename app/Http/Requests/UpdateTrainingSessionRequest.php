@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\TrainingCategory;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateTrainingSessionRequest extends FormRequest
 {
@@ -23,10 +25,10 @@ class UpdateTrainingSessionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['required', 'string', 'max:255'],
-            'description' => ['string', 'max:255'],
-            'category' => ['required', 'string'],
-            'resource' => ['string', 'max:255']
+            'title' => ['sometimes', 'required', 'string', 'max:255'],
+            'description' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'category' => ['sometimes', 'required', Rule::enum(TrainingCategory::class)],
+            'resource' => ['sometimes', 'nullable', 'url:http,https', 'max:255'],
         ];
     }
 }

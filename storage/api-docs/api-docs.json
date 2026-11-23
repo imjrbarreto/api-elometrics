@@ -2,85 +2,46 @@
     "openapi": "3.0.0",
     "info": {
         "title": "Elometrics API",
-        "description": "API para la gestión de entrenamientos de ajedrez.",
+        "description": "API for managing chess training.",
         "version": "1.0.0"
     },
     "servers": [
         {
             "url": "http://127.0.0.1:8000/api/v1",
-            "description": "API local"
+            "description": "Local API"
         }
     ],
     "paths": {
         "/register": {
             "post": {
                 "tags": [
-                    "Autenticación"
+                    "Authentication"
                 ],
-                "summary": "Registrar un usuario y obtener un token",
-                "operationId": "5d4fa5d5607ed675ba93907e1fc94534",
+                "summary": "Register a user and obtain a token",
+                "operationId": "register",
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "name",
-                                    "email",
-                                    "password",
-                                    "password_confirmation"
-                                ],
-                                "properties": {
-                                    "name": {
-                                        "type": "string",
-                                        "example": "Jaime Romero",
-                                        "maxLength": 255
-                                    },
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email",
-                                        "example": "jaime@example.com",
-                                        "maxLength": 255
-                                    },
-                                    "password": {
-                                        "type": "string",
-                                        "format": "password",
-                                        "example": "password123",
-                                        "minLength": 8
-                                    },
-                                    "password_confirmation": {
-                                        "type": "string",
-                                        "format": "password",
-                                        "example": "password123"
-                                    }
-                                },
-                                "type": "object"
+                                "$ref": "#/components/schemas/RegisterInput"
                             }
                         }
                     }
                 },
                 "responses": {
                     "201": {
-                        "description": "Usuario creado. Devuelve sus datos públicos y un token de acceso.",
+                        "description": "User created. Returns the public user data and an access token.",
                         "content": {
                             "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "data": {
-                                        "id": 1,
-                                        "name": "Jaime Romero",
-                                        "email": "jaime@example.com"
-                                    },
-                                    "token": {
-                                        "token_type": "Bearer",
-                                        "access_token": "TOKEN_DE_ACCESO"
-                                    }
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthResponse"
                                 }
                             }
                         }
                     },
                     "422": {
-                        "description": "Datos de validación incorrectos."
+                        "$ref": "#/components/responses/ValidationFailed"
                     }
                 }
             }
@@ -88,45 +49,43 @@
         "/login": {
             "post": {
                 "tags": [
-                    "Autenticación"
+                    "Authentication"
                 ],
-                "summary": "Iniciar sesión y obtener un token",
-                "operationId": "67d6d0fdd54fba132e1b6f55ca254183",
+                "summary": "Log in and obtain a token",
+                "operationId": "login",
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "email",
-                                    "password"
-                                ],
-                                "properties": {
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email",
-                                        "example": "jaime@example.com"
-                                    },
-                                    "password": {
-                                        "type": "string",
-                                        "format": "password",
-                                        "example": "password123"
-                                    }
-                                },
-                                "type": "object"
+                                "$ref": "#/components/schemas/LoginInput"
                             }
                         }
                     }
                 },
                 "responses": {
                     "200": {
-                        "description": "Credenciales correctas. Devuelve los datos del usuario y un token."
+                        "description": "Logged in.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthResponse"
+                                }
+                            }
+                        }
                     },
                     "401": {
-                        "description": "Credenciales incorrectas."
+                        "description": "Invalid credentials.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Message"
+                                }
+                            }
+                        }
                     },
                     "422": {
-                        "description": "Datos de validación incorrectos."
+                        "$ref": "#/components/responses/ValidationFailed"
                     }
                 }
             }
@@ -134,16 +93,23 @@
         "/users/me": {
             "get": {
                 "tags": [
-                    "Autenticación"
+                    "Authentication"
                 ],
-                "summary": "Obtener los datos del usuario autenticado",
-                "operationId": "58eb90e2b3be3d0480871a7c39a1785f",
+                "summary": "Get the authenticated user",
+                "operationId": "getCurrentUser",
                 "responses": {
                     "200": {
-                        "description": "Datos del usuario autenticado."
+                        "description": "Authenticated user data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResource"
+                                }
+                            }
+                        }
                     },
                     "401": {
-                        "description": "Token ausente, inválido o expirado."
+                        "$ref": "#/components/responses/Unauthenticated"
                     }
                 },
                 "security": [
@@ -156,16 +122,16 @@
         "/logout": {
             "post": {
                 "tags": [
-                    "Autenticación"
+                    "Authentication"
                 ],
-                "summary": "Cerrar sesión revocando el token actual",
-                "operationId": "28d48c13fca984400ac8de99f54ee13a",
+                "summary": "Log out by revoking the current token",
+                "operationId": "logout",
                 "responses": {
                     "204": {
-                        "description": "Token actual revocado. Respuesta sin contenido."
+                        "description": "Current token revoked. No content."
                     },
                     "401": {
-                        "description": "Token ausente, inválido o expirado."
+                        "$ref": "#/components/responses/Unauthenticated"
                     }
                 },
                 "security": [
@@ -180,37 +146,21 @@
                 "tags": [
                     "Training Sessions"
                 ],
-                "summary": "Listar las sesiones de entrenamiento del usuario",
-                "operationId": "1763d339b6576de0eb48347aad50a409",
+                "summary": "List the user's training sessions",
+                "operationId": "listTrainingSessions",
                 "responses": {
                     "200": {
-                        "description": "Listado de sesiones de entrenamiento devuelto con éxito.",
+                        "description": "Training sessions listed.",
                         "content": {
                             "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "data": [
-                                        {
-                                            "id": 1,
-                                            "title": "Defensa Francesa",
-                                            "description": "Variante Clasica en la defensa francesa",
-                                            "category": "opening",
-                                            "resources": "http://example.com"
-                                        },
-                                        {
-                                            "id": 2,
-                                            "title": "Defensa Caro Kann",
-                                            "description": "Variante del avance en la defensa caro kann",
-                                            "category": "opening",
-                                            "resources": "http://example.com"
-                                        }
-                                    ]
+                                "schema": {
+                                    "$ref": "#/components/schemas/TrainingSessionList"
                                 }
                             }
                         }
                     },
                     "401": {
-                        "description": "No autenticado."
+                        "$ref": "#/components/responses/Unauthenticated"
                     }
                 },
                 "security": [
@@ -223,66 +173,34 @@
                 "tags": [
                     "Training Sessions"
                 ],
-                "summary": "Crear una nueva sesion de entrenamiento",
-                "operationId": "a4bfe0648be836ea4d1463e2f755688b",
+                "summary": "Create a training session",
+                "operationId": "createTrainingSession",
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "title",
-                                    "category"
-                                ],
-                                "properties": {
-                                    "title": {
-                                        "type": "string",
-                                        "example": "Finales de torres",
-                                        "maxLength": 255
-                                    },
-                                    "description": {
-                                        "type": "string",
-                                        "example": "Actividad de la torre y ejercicios practicos.",
-                                        "maxLength": 255
-                                    },
-                                    "category": {
-                                        "type": "string",
-                                        "example": "endgame"
-                                    },
-                                    "resource": {
-                                        "type": "string",
-                                        "format": "uri",
-                                        "example": "https://ejemplo.com"
-                                    }
-                                },
-                                "type": "object"
+                                "$ref": "#/components/schemas/TrainingSessionInput"
                             }
                         }
                     }
                 },
                 "responses": {
                     "201": {
-                        "description": "TrainingSession creada exitosamente.",
+                        "description": "Training session created.",
                         "content": {
                             "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "data": {
-                                        "id": 1,
-                                        "title": "Finales de torres",
-                                        "description": "Actividad de la torre y ejercicios practicos.",
-                                        "category": "endgame",
-                                        "resource": "https://lichess.org/study/abcd1234"
-                                    }
+                                "schema": {
+                                    "$ref": "#/components/schemas/TrainingSessionResource"
                                 }
                             }
                         }
                     },
-                    "422": {
-                        "description": "Datos de validación incorrectos."
-                    },
                     "401": {
-                        "description": "No autenticado."
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationFailed"
                     }
                 },
                 "security": [
@@ -292,53 +210,38 @@
                 ]
             }
         },
-        "/training-sessions/{training-session}": {
+        "/training-sessions/{training_session}": {
             "get": {
                 "tags": [
                     "Training Sessions"
                 ],
-                "summary": "Listar una sesion de entrenamiento",
-                "operationId": "60eb7abbdda49e483fcffcdb03b868ae",
+                "summary": "Get a training session",
+                "description": "Only the creator of the session can view it.",
+                "operationId": "getTrainingSession",
                 "parameters": [
                     {
-                        "name": "training-session",
-                        "in": "path",
-                        "description": "ID de la sesion de entrenamiento",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
+                        "$ref": "#/components/parameters/TrainingSessionId"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Detalle de la training session devuelta exitosamente.",
+                        "description": "Training session returned.",
                         "content": {
                             "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "data": [
-                                        {
-                                            "id": 1,
-                                            "title": "Defensa Caro Kann",
-                                            "description": "Variante del avance en la defensa caro kann",
-                                            "category": "opening",
-                                            "resources": "http://example.com"
-                                        }
-                                    ]
+                                "schema": {
+                                    "$ref": "#/components/schemas/TrainingSessionResource"
                                 }
                             }
                         }
                     },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
                     "403": {
-                        "description": "No tienes permisos para ver esta sesion de entrenamiento."
+                        "$ref": "#/components/responses/Forbidden"
                     },
                     "404": {
-                        "description": "sesion de entrenamiento no encontrada."
-                    },
-                    "401": {
-                        "description": "No autenticado."
+                        "$ref": "#/components/responses/NotFound"
                     }
                 },
                 "security": [
@@ -351,32 +254,29 @@
                 "tags": [
                     "Training Sessions"
                 ],
-                "summary": "Eliminar una sesion de entrenamiento",
-                "operationId": "65a903ab5d51e292718974df4210c9d4",
+                "summary": "Delete a training session",
+                "description": "Only the creator of the session can delete it. A session that is linked to a workspace or has responses cannot be deleted: unlink it first.",
+                "operationId": "deleteTrainingSession",
                 "parameters": [
                     {
-                        "name": "trainingSession",
-                        "in": "path",
-                        "description": "ID de la trainingSession a eliminar",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
+                        "$ref": "#/components/parameters/TrainingSessionId"
                     }
                 ],
                 "responses": {
                     "204": {
-                        "description": "TrainingSession eliminada exitosamente."
+                        "description": "Training session deleted."
                     },
                     "401": {
-                        "description": "No autenticado."
+                        "$ref": "#/components/responses/Unauthenticated"
                     },
                     "403": {
-                        "description": "No autorizado."
+                        "$ref": "#/components/responses/Forbidden"
                     },
                     "404": {
-                        "description": "TrainingSession no encontrado."
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Conflict"
                     }
                 },
                 "security": [
@@ -389,18 +289,12 @@
                 "tags": [
                     "Training Sessions"
                 ],
-                "summary": "Actualizar una sesion de entrenamiento",
-                "operationId": "202f817da3451a06b189f16c5e4fe669",
+                "summary": "Update a training session",
+                "description": "Only the creator of the session can update it.",
+                "operationId": "updateTrainingSession",
                 "parameters": [
                     {
-                        "name": "training-session",
-                        "in": "path",
-                        "description": "ID de la training-session",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
+                        "$ref": "#/components/parameters/TrainingSessionId"
                     }
                 ],
                 "requestBody": {
@@ -408,60 +302,33 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "properties": {
-                                    "title": {
-                                        "type": "string",
-                                        "example": "Entrenamiento actualizado",
-                                        "maxLength": 255
-                                    },
-                                    "description": {
-                                        "type": "string",
-                                        "example": "Cambios de aperturas",
-                                        "maxLength": 255
-                                    },
-                                    "category": {
-                                        "type": "string",
-                                        "example": "opening"
-                                    },
-                                    "resources": {
-                                        "type": "string",
-                                        "example": "http://example.com"
-                                    }
-                                },
-                                "type": "object"
+                                "$ref": "#/components/schemas/TrainingSessionPatch"
                             }
                         }
                     }
                 },
                 "responses": {
                     "200": {
-                        "description": "TrainingSession actualizada exitosamente.",
+                        "description": "Training session updated.",
                         "content": {
                             "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "data": {
-                                        "id": 1,
-                                        "name": "TrainingSession actualizado",
-                                        "description": "actualizado",
-                                        "category": "opening",
-                                        "resources": "http://example.com"
-                                    }
+                                "schema": {
+                                    "$ref": "#/components/schemas/TrainingSessionResource"
                                 }
                             }
                         }
                     },
-                    "422": {
-                        "description": "Datos de validación incorrectos."
-                    },
                     "401": {
-                        "description": "No autenticado."
+                        "$ref": "#/components/responses/Unauthenticated"
                     },
                     "403": {
-                        "description": "No autorizado."
+                        "$ref": "#/components/responses/Forbidden"
                     },
                     "404": {
-                        "description": "Workspace no encontrado."
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationFailed"
                     }
                 },
                 "security": [
@@ -472,33 +339,61 @@
             }
         },
         "/workspaces/{workspace}/training-sessions/{training_session}/responses": {
+            "get": {
+                "tags": [
+                    "Training Session Responses"
+                ],
+                "summary": "List the responses to a linked training session",
+                "description": "Available to any member of the workspace. Members who can respond (students) only see the other responses after submitting their own: until then the list is empty. The responses of former members of the workspace are kept and still listed.",
+                "operationId": "listTrainingSessionResponses",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/WorkspaceId"
+                    },
+                    {
+                        "$ref": "#/components/parameters/TrainingSessionId"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Responses listed.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TrainingSessionResponseList"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
             "post": {
                 "tags": [
                     "Training Session Responses"
                 ],
-                "summary": "Responder a una sesión vinculada",
-                "description": "Requiere el permiso training-sessions.respond en el workspace. Cada estudiante puede enviar una única respuesta por sesión y workspace. El autor se obtiene del usuario autenticado.",
-                "operationId": "a3397b3f9a081454c3542a5aad6ea971",
+                "summary": "Respond to a linked training session",
+                "description": "Only members with the training-sessions.respond permission (currently students) can respond. Each student can send a single response per session and workspace. The author is the authenticated user. The session must be linked to the workspace.",
+                "operationId": "createTrainingSessionResponse",
                 "parameters": [
                     {
-                        "name": "workspace",
-                        "in": "path",
-                        "description": "ID del workspace",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
+                        "$ref": "#/components/parameters/WorkspaceId"
                     },
                     {
-                        "name": "training_session",
-                        "in": "path",
-                        "description": "ID de una sesión vinculada al workspace",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 3
-                        }
+                        "$ref": "#/components/parameters/TrainingSessionId"
                     }
                 ],
                 "requestBody": {
@@ -506,72 +401,33 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "content"
-                                ],
-                                "properties": {
-                                    "content": {
-                                        "type": "string",
-                                        "example": "Mi variante principal es 1.Cf5.",
-                                        "maxLength": 10000,
-                                        "minLength": 1
-                                    }
-                                },
-                                "type": "object"
+                                "$ref": "#/components/schemas/TrainingSessionResponseInput"
                             }
                         }
                     }
                 },
                 "responses": {
                     "201": {
-                        "description": "Respuesta creada correctamente.",
+                        "description": "Response created.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "properties": {
-                                                "id": {
-                                                    "type": "integer",
-                                                    "example": 1
-                                                },
-                                                "workspace_id": {
-                                                    "type": "integer",
-                                                    "example": 1
-                                                },
-                                                "training_session_id": {
-                                                    "type": "integer",
-                                                    "example": 3
-                                                },
-                                                "user_id": {
-                                                    "description": "ID del estudiante autenticado",
-                                                    "type": "integer",
-                                                    "example": 8
-                                                },
-                                                "content": {
-                                                    "type": "string",
-                                                    "example": "Mi variante principal es 1.Cf5."
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/TrainingSessionResponseResource"
                                 }
                             }
                         }
                     },
                     "401": {
-                        "description": "Usuario no autenticado."
+                        "$ref": "#/components/responses/Unauthenticated"
                     },
                     "403": {
-                        "description": "El usuario no pertenece al workspace o no tiene el permiso para responder."
+                        "$ref": "#/components/responses/Forbidden"
                     },
                     "404": {
-                        "description": "Workspace o sesión no encontrados, o la sesión no está vinculada al workspace."
+                        "$ref": "#/components/responses/NotFound"
                     },
                     "422": {
-                        "description": "Contenido ausente o inválido, o el estudiante ya respondió a esta sesión en este workspace."
+                        "$ref": "#/components/responses/ValidationFailed"
                     }
                 },
                 "security": [
@@ -586,33 +442,21 @@
                 "tags": [
                     "Workspaces"
                 ],
-                "summary": "Listar los workspaces del usuario",
-                "operationId": "d79e45779b474bfc8b0f4a116fa3963e",
+                "summary": "List the user's workspaces",
+                "operationId": "listWorkspaces",
                 "responses": {
                     "200": {
-                        "description": "Listado de workspaces devuelto con éxito.",
+                        "description": "Workspaces listed.",
                         "content": {
                             "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "data": [
-                                        {
-                                            "id": 1,
-                                            "title": "Camino a FM",
-                                            "status": "active"
-                                        },
-                                        {
-                                            "id": 2,
-                                            "title": "Workspace Secundario",
-                                            "status": "paused"
-                                        }
-                                    ]
+                                "schema": {
+                                    "$ref": "#/components/schemas/WorkspaceList"
                                 }
                             }
                         }
                     },
                     "401": {
-                        "description": "No autenticado."
+                        "$ref": "#/components/responses/Unauthenticated"
                     }
                 },
                 "security": [
@@ -625,54 +469,34 @@
                 "tags": [
                     "Workspaces"
                 ],
-                "summary": "Crear un nuevo workspace",
-                "operationId": "f939e1b7dc818f464683b44bb4ba1a16",
+                "summary": "Create a workspace",
+                "operationId": "createWorkspace",
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "title",
-                                    "status"
-                                ],
-                                "properties": {
-                                    "title": {
-                                        "type": "string",
-                                        "example": "Workspace 1",
-                                        "maxLength": 255
-                                    },
-                                    "status": {
-                                        "type": "string",
-                                        "example": "active"
-                                    }
-                                },
-                                "type": "object"
+                                "$ref": "#/components/schemas/WorkspaceInput"
                             }
                         }
                     }
                 },
                 "responses": {
                     "201": {
-                        "description": "Workspace creado exitosamente.",
+                        "description": "Workspace created.",
                         "content": {
                             "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "data": {
-                                        "id": 1,
-                                        "name": "Workspace 1",
-                                        "status": "active"
-                                    }
+                                "schema": {
+                                    "$ref": "#/components/schemas/WorkspaceResource"
                                 }
                             }
                         }
                     },
-                    "422": {
-                        "description": "Datos de validación incorrectos."
-                    },
                     "401": {
-                        "description": "No autenticado."
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationFailed"
                     }
                 },
                 "security": [
@@ -687,44 +511,32 @@
                 "tags": [
                     "Workspaces"
                 ],
-                "summary": "Obtener el detalle de un workspace",
-                "operationId": "bc39ae11b5640832c108d7858a1ea5ab",
+                "summary": "Get a workspace",
+                "operationId": "getWorkspace",
                 "parameters": [
                     {
-                        "name": "workspace",
-                        "in": "path",
-                        "description": "ID del workspace",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
+                        "$ref": "#/components/parameters/WorkspaceId"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Detalle del workspace devuelto exitosamente.",
+                        "description": "Workspace returned.",
                         "content": {
                             "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "data": {
-                                        "id": 1,
-                                        "title": "Camino a FM",
-                                        "status": "active"
-                                    }
+                                "schema": {
+                                    "$ref": "#/components/schemas/WorkspaceResource"
                                 }
                             }
                         }
                     },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
                     "403": {
-                        "description": "No tienes permisos para ver este workspace."
+                        "$ref": "#/components/responses/Forbidden"
                     },
                     "404": {
-                        "description": "Workspace no encontrado."
-                    },
-                    "401": {
-                        "description": "No autenticado."
+                        "$ref": "#/components/responses/NotFound"
                     }
                 },
                 "security": [
@@ -737,32 +549,26 @@
                 "tags": [
                     "Workspaces"
                 ],
-                "summary": "Eliminar un workspace",
-                "operationId": "786ce8b767d24ad9eafccf984e883deb",
+                "summary": "Delete a workspace",
+                "description": "Only the owner can delete the workspace.",
+                "operationId": "deleteWorkspace",
                 "parameters": [
                     {
-                        "name": "workspace",
-                        "in": "path",
-                        "description": "ID del workspace a eliminar",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
+                        "$ref": "#/components/parameters/WorkspaceId"
                     }
                 ],
                 "responses": {
                     "204": {
-                        "description": "Workspace eliminado exitosamente."
+                        "description": "Workspace deleted."
                     },
                     "401": {
-                        "description": "No autenticado."
+                        "$ref": "#/components/responses/Unauthenticated"
                     },
                     "403": {
-                        "description": "No autorizado."
+                        "$ref": "#/components/responses/Forbidden"
                     },
                     "404": {
-                        "description": "Workspace no encontrado."
+                        "$ref": "#/components/responses/NotFound"
                     }
                 },
                 "security": [
@@ -775,18 +581,12 @@
                 "tags": [
                     "Workspaces"
                 ],
-                "summary": "Actualizar un workspace",
-                "operationId": "2178bdbad17e6e9f43c24b8e4ef4e391",
+                "summary": "Update a workspace",
+                "description": "Only the owner can update the workspace.",
+                "operationId": "updateWorkspace",
                 "parameters": [
                     {
-                        "name": "workspace",
-                        "in": "path",
-                        "description": "ID del workspace",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
+                        "$ref": "#/components/parameters/WorkspaceId"
                     }
                 ],
                 "requestBody": {
@@ -794,49 +594,33 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "properties": {
-                                    "title": {
-                                        "type": "string",
-                                        "example": "Workspace 1",
-                                        "maxLength": 255
-                                    },
-                                    "status": {
-                                        "type": "string",
-                                        "example": "active"
-                                    }
-                                },
-                                "type": "object"
+                                "$ref": "#/components/schemas/WorkspacePatch"
                             }
                         }
                     }
                 },
                 "responses": {
                     "200": {
-                        "description": "Workspace actualizado exitosamente.",
+                        "description": "Workspace updated.",
                         "content": {
                             "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "data": {
-                                        "id": 1,
-                                        "name": "Workspace actualizado",
-                                        "status": "active"
-                                    }
+                                "schema": {
+                                    "$ref": "#/components/schemas/WorkspaceResource"
                                 }
                             }
                         }
                     },
-                    "422": {
-                        "description": "Datos de validación incorrectos."
-                    },
                     "401": {
-                        "description": "No autenticado."
+                        "$ref": "#/components/responses/Unauthenticated"
                     },
                     "403": {
-                        "description": "No autorizado."
+                        "$ref": "#/components/responses/Forbidden"
                     },
                     "404": {
-                        "description": "Workspace no encontrado."
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationFailed"
                     }
                 },
                 "security": [
@@ -851,72 +635,33 @@
                 "tags": [
                     "Workspace Members"
                 ],
-                "summary": "Listar miembros de un espacio de trabajo",
-                "operationId": "398f77fb57d66db62bbc8fd6148ba3f8",
+                "summary": "List the members of a workspace",
+                "description": "Available to any member of the workspace. The owner is included in the list.",
+                "operationId": "listWorkspaceMembers",
                 "parameters": [
                     {
-                        "name": "workspace",
-                        "in": "path",
-                        "description": "ID del espacio de trabajo (Workspace)",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
+                        "$ref": "#/components/parameters/WorkspaceId"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Lista de miembros obtenida exitosamente.",
+                        "description": "Members listed.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "required": [
-                                                    "id",
-                                                    "name",
-                                                    "email",
-                                                    "role"
-                                                ],
-                                                "properties": {
-                                                    "id": {
-                                                        "type": "integer",
-                                                        "example": 1
-                                                    },
-                                                    "name": {
-                                                        "type": "string",
-                                                        "example": "Juan Pérez"
-                                                    },
-                                                    "email": {
-                                                        "type": "string",
-                                                        "format": "email",
-                                                        "example": "juan@example.com"
-                                                    },
-                                                    "role": {
-                                                        "type": "string",
-                                                        "example": "admin"
-                                                    }
-                                                },
-                                                "type": "object"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/MemberList"
                                 }
                             }
                         }
                     },
                     "401": {
-                        "description": "No autenticado."
+                        "$ref": "#/components/responses/Unauthenticated"
                     },
                     "403": {
-                        "description": "No autorizado. El usuario no tiene permisos para ver los miembros de este workspace."
+                        "$ref": "#/components/responses/Forbidden"
                     },
                     "404": {
-                        "description": "Workspace no encontrado."
+                        "$ref": "#/components/responses/NotFound"
                     }
                 },
                 "security": [
@@ -929,18 +674,12 @@
                 "tags": [
                     "Workspace Members"
                 ],
-                "summary": "Agregar un miembro a un espacio de trabajo",
-                "operationId": "4516451af34a2277113561e5cd413dd4",
+                "summary": "Add a member to a workspace",
+                "description": "Only the owner can add members. The user must already be registered. Returns 422 if the data is invalid, the email does not belong to a registered user or the user already belongs to the workspace.",
+                "operationId": "addWorkspaceMember",
                 "parameters": [
                     {
-                        "name": "workspace",
-                        "in": "path",
-                        "description": "ID del espacio de trabajo (Workspace)",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
+                        "$ref": "#/components/parameters/WorkspaceId"
                     }
                 ],
                 "requestBody": {
@@ -948,69 +687,33 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "email",
-                                    "role"
-                                ],
-                                "properties": {
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email",
-                                        "example": "colaborador@example.com"
-                                    },
-                                    "role": {
-                                        "type": "string",
-                                        "example": "editor"
-                                    }
-                                },
-                                "type": "object"
+                                "$ref": "#/components/schemas/MemberInput"
                             }
                         }
                     }
                 },
                 "responses": {
                     "201": {
-                        "description": "Miembro agregado exitosamente.",
+                        "description": "Member added.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "properties": {
-                                                "id": {
-                                                    "type": "integer",
-                                                    "example": 2
-                                                },
-                                                "name": {
-                                                    "type": "string",
-                                                    "example": "Carlos Gómez"
-                                                },
-                                                "email": {
-                                                    "type": "string",
-                                                    "format": "email",
-                                                    "example": "colaborador@example.com"
-                                                },
-                                                "role": {
-                                                    "type": "string",
-                                                    "example": "editor"
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/MemberResource"
                                 }
                             }
                         }
                     },
                     "401": {
-                        "description": "No autenticado."
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
                     },
                     "404": {
-                        "description": "Workspace o Usuario (por email) no encontrado."
+                        "$ref": "#/components/responses/NotFound"
                     },
                     "422": {
-                        "description": "Datos de validación incorrectos (por ejemplo, si el usuario ya pertenece al workspace)."
+                        "$ref": "#/components/responses/ValidationFailed"
                     }
                 },
                 "security": [
@@ -1025,42 +728,29 @@
                 "tags": [
                     "Workspace Members"
                 ],
-                "summary": "Remover un miembro de un espacio de trabajo",
-                "operationId": "fb1ed430ebe8cf12c9159da0fac7a14b",
+                "summary": "Remove a member from a workspace",
+                "description": "The owner can remove any member. Any member can remove themselves (leave the workspace). The owner cannot be removed.",
+                "operationId": "removeWorkspaceMember",
                 "parameters": [
                     {
-                        "name": "workspace",
-                        "in": "path",
-                        "description": "ID del espacio de trabajo (Workspace)",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
+                        "$ref": "#/components/parameters/WorkspaceId"
                     },
                     {
-                        "name": "user",
-                        "in": "path",
-                        "description": "ID del usuario a remover del workspace",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 2
-                        }
+                        "$ref": "#/components/parameters/UserId"
                     }
                 ],
                 "responses": {
                     "204": {
-                        "description": "Miembro removido con éxito, sin contenido de retorno."
+                        "description": "Member removed. No content."
                     },
                     "401": {
-                        "description": "No autenticado."
+                        "$ref": "#/components/responses/Unauthenticated"
                     },
                     "403": {
-                        "description": "No autorizado. El usuario actual no tiene permisos para remover a este miembro."
+                        "$ref": "#/components/responses/Forbidden"
                     },
                     "404": {
-                        "description": "Workspace, Usuario no encontrado, o el usuario especificado no pertenece a este workspace."
+                        "$ref": "#/components/responses/NotFound"
                     }
                 },
                 "security": [
@@ -1075,79 +765,33 @@
                 "tags": [
                     "Workspace Training Sessions"
                 ],
-                "summary": "Listar las sesiones vinculadas a un workspace",
-                "description": "Disponible para owner, coach, student y viewer del workspace. Devuelve una lista vacía si no existen sesiones vinculadas.",
-                "operationId": "b4a5cb0ff6bcc3fb5b4f780a1d82494e",
+                "summary": "List the training sessions linked to a workspace",
+                "description": "Available to any member of the workspace. Returns an empty list if no sessions are linked.",
+                "operationId": "listWorkspaceTrainingSessions",
                 "parameters": [
                     {
-                        "name": "workspace",
-                        "in": "path",
-                        "description": "ID del workspace",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
+                        "$ref": "#/components/parameters/WorkspaceId"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Listado de sesiones vinculadas.",
+                        "description": "Linked training sessions listed.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "properties": {
-                                                    "id": {
-                                                        "type": "integer",
-                                                        "example": 3
-                                                    },
-                                                    "user_id": {
-                                                        "description": "ID del creador de la sesión",
-                                                        "type": "integer",
-                                                        "example": 1
-                                                    },
-                                                    "title": {
-                                                        "type": "string",
-                                                        "example": "Finales de torres"
-                                                    },
-                                                    "description": {
-                                                        "type": "string",
-                                                        "example": "Actividad de la torre y del rey.",
-                                                        "nullable": true
-                                                    },
-                                                    "category": {
-                                                        "type": "string",
-                                                        "example": "endgame",
-                                                        "nullable": true
-                                                    },
-                                                    "resource": {
-                                                        "type": "string",
-                                                        "format": "uri",
-                                                        "example": "https://lichess.org/study",
-                                                        "nullable": true
-                                                    }
-                                                },
-                                                "type": "object"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/TrainingSessionList"
                                 }
                             }
                         }
                     },
                     "401": {
-                        "description": "Usuario no autenticado."
+                        "$ref": "#/components/responses/Unauthenticated"
                     },
                     "403": {
-                        "description": "El usuario no pertenece al workspace."
+                        "$ref": "#/components/responses/Forbidden"
                     },
                     "404": {
-                        "description": "Workspace no encontrado."
+                        "$ref": "#/components/responses/NotFound"
                     }
                 },
                 "security": [
@@ -1160,19 +804,12 @@
                 "tags": [
                     "Workspace Training Sessions"
                 ],
-                "summary": "Vincular una sesión existente a un workspace",
-                "description": "Permite al owner o coach vincular una sesión creada por él. Repetir la vinculación no crea duplicados.",
-                "operationId": "e308489349a5f1774afee97f3d26a133",
+                "summary": "Link an existing training session to a workspace",
+                "description": "Only the owner or a coach of the workspace can link a session, and only one they created. Linking the same session again does not create duplicates.",
+                "operationId": "linkTrainingSession",
                 "parameters": [
                     {
-                        "name": "workspace",
-                        "in": "path",
-                        "description": "ID del workspace",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
+                        "$ref": "#/components/parameters/WorkspaceId"
                     }
                 ],
                 "requestBody": {
@@ -1180,36 +817,26 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "training_session_id"
-                                ],
-                                "properties": {
-                                    "training_session_id": {
-                                        "description": "ID de una sesión existente creada por el usuario autenticado",
-                                        "type": "integer",
-                                        "example": 3
-                                    }
-                                },
-                                "type": "object"
+                                "$ref": "#/components/schemas/LinkTrainingSessionInput"
                             }
                         }
                     }
                 },
                 "responses": {
                     "204": {
-                        "description": "Sesión vinculada correctamente o vinculación ya existente."
+                        "description": "Session linked, or the link already existed."
                     },
                     "401": {
-                        "description": "Usuario no autenticado."
+                        "$ref": "#/components/responses/Unauthenticated"
                     },
                     "403": {
-                        "description": "El usuario no es owner o coach del workspace, o no es el creador de la sesión."
+                        "$ref": "#/components/responses/Forbidden"
                     },
                     "404": {
-                        "description": "Workspace no encontrado."
+                        "$ref": "#/components/responses/NotFound"
                     },
                     "422": {
-                        "description": "El identificador de sesión falta, no es válido o no corresponde a una sesión existente."
+                        "$ref": "#/components/responses/ValidationFailed"
                     }
                 },
                 "security": [
@@ -1224,43 +851,29 @@
                 "tags": [
                     "Workspace Training Sessions"
                 ],
-                "summary": "Desvincular una sesión de un workspace",
-                "description": "Disponible para owner y coach. Elimina únicamente la vinculación: conserva la sesión original y sus vínculos con otros workspaces.",
-                "operationId": "6e3625f1e15240edeafa3600f4f8d8fa",
+                "summary": "Unlink a training session from a workspace",
+                "description": "The owner can unlink any session; a coach can unlink only the sessions they created. Only the link is removed: the session itself and its links to other workspaces are kept.",
+                "operationId": "unlinkTrainingSession",
                 "parameters": [
                     {
-                        "name": "workspace",
-                        "in": "path",
-                        "description": "ID del workspace",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
+                        "$ref": "#/components/parameters/WorkspaceId"
                     },
                     {
-                        "name": "training_session",
-                        "in": "path",
-                        "description": "ID de la sesión que se quiere desvincular",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 3
-                        }
+                        "$ref": "#/components/parameters/TrainingSessionId"
                     }
                 ],
                 "responses": {
                     "204": {
-                        "description": "Sesión desvinculada correctamente."
+                        "description": "Session unlinked."
                     },
                     "401": {
-                        "description": "Usuario no autenticado."
+                        "$ref": "#/components/responses/Unauthenticated"
                     },
                     "403": {
-                        "description": "El usuario no es owner o coach del workspace."
+                        "$ref": "#/components/responses/Forbidden"
                     },
                     "404": {
-                        "description": "Workspace o sesión no encontrados, o la sesión no está vinculada al workspace indicado."
+                        "$ref": "#/components/responses/NotFound"
                     }
                 },
                 "security": [
@@ -1275,32 +888,28 @@
                 "tags": [
                     "Workspace Training Sessions"
                 ],
-                "summary": "Descargar una sesión vinculada como PDF",
-                "description": "Disponible para todos los miembros del workspace.",
-                "operationId": "5dfeb823d2fa18253c08c7375f6909aa",
+                "summary": "Download a linked training session as a PDF",
+                "description": "Available to any member of the workspace. The session must be linked to the workspace.",
+                "operationId": "exportTrainingSession",
                 "parameters": [
                     {
-                        "name": "workspace",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
+                        "$ref": "#/components/parameters/WorkspaceId"
                     },
                     {
-                        "name": "training_session",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 3
-                        }
+                        "$ref": "#/components/parameters/TrainingSessionId"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "PDF de la sesión seleccionada.",
+                        "description": "PDF of the selected training session.",
+                        "headers": {
+                            "Content-Disposition": {
+                                "description": "Attachment with the file name, for example: attachment; filename=training-session-3.pdf",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "content": {
                             "application/pdf": {
                                 "schema": {
@@ -1311,13 +920,13 @@
                         }
                     },
                     "401": {
-                        "description": "Usuario no autenticado."
+                        "$ref": "#/components/responses/Unauthenticated"
                     },
                     "403": {
-                        "description": "El usuario no pertenece al workspace."
+                        "$ref": "#/components/responses/Forbidden"
                     },
                     "404": {
-                        "description": "Workspace o sesión inexistentes, o sesión no vinculada."
+                        "$ref": "#/components/responses/NotFound"
                     }
                 },
                 "security": [
@@ -1330,13 +939,13 @@
         "/up": {
             "get": {
                 "tags": [
-                    "Estado"
+                    "Health"
                 ],
-                "summary": "Comprobar que la aplicación responde",
-                "operationId": "43c8db3f2b224e1366d703efbca684fd",
+                "summary": "Check that the application is running",
+                "operationId": "healthCheck",
                 "responses": {
                     "200": {
-                        "description": "La aplicación está operativa."
+                        "description": "The application is up."
                     }
                 },
                 "servers": [
@@ -1348,6 +957,663 @@
         }
     },
     "components": {
+        "schemas": {
+            "Message": {
+                "required": [
+                    "message"
+                ],
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Unauthorized."
+                    }
+                },
+                "type": "object"
+            },
+            "ValidationError": {
+                "required": [
+                    "message",
+                    "errors"
+                ],
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "The email field is required."
+                    },
+                    "errors": {
+                        "type": "object",
+                        "example": {
+                            "email": [
+                                "The email field is required."
+                            ]
+                        },
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "User": {
+                "required": [
+                    "id",
+                    "name",
+                    "email"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Lucía Fernández"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "lucia@example.com"
+                    }
+                },
+                "type": "object"
+            },
+            "UserSummary": {
+                "required": [
+                    "id",
+                    "name"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 8
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Lucía Fernández"
+                    }
+                },
+                "type": "object"
+            },
+            "AuthToken": {
+                "required": [
+                    "token_type",
+                    "access_token"
+                ],
+                "properties": {
+                    "token_type": {
+                        "type": "string",
+                        "example": "Bearer"
+                    },
+                    "access_token": {
+                        "type": "string",
+                        "example": "ACCESS_TOKEN"
+                    }
+                },
+                "type": "object"
+            },
+            "AuthResponse": {
+                "required": [
+                    "data",
+                    "token"
+                ],
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/User"
+                    },
+                    "token": {
+                        "$ref": "#/components/schemas/AuthToken"
+                    }
+                },
+                "type": "object"
+            },
+            "RegisterInput": {
+                "required": [
+                    "name",
+                    "email",
+                    "password",
+                    "password_confirmation"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "Lucía Fernández",
+                        "maxLength": 255
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "lucia@example.com",
+                        "maxLength": 255
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password",
+                        "example": "password123",
+                        "minLength": 8
+                    },
+                    "password_confirmation": {
+                        "type": "string",
+                        "format": "password",
+                        "example": "password123"
+                    }
+                },
+                "type": "object"
+            },
+            "LoginInput": {
+                "required": [
+                    "email",
+                    "password"
+                ],
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "lucia@example.com"
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password",
+                        "example": "password123"
+                    }
+                },
+                "type": "object"
+            },
+            "UserResource": {
+                "required": [
+                    "data"
+                ],
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/User"
+                    }
+                },
+                "type": "object"
+            },
+            "TrainingSession": {
+                "required": [
+                    "id",
+                    "user_id",
+                    "title",
+                    "category"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "user_id": {
+                        "description": "ID of the session creator",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "Rook endgames",
+                        "maxLength": 255
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Rook and king activity.",
+                        "nullable": true
+                    },
+                    "category": {
+                        "$ref": "#/components/schemas/TrainingCategory"
+                    },
+                    "resource": {
+                        "type": "string",
+                        "example": "https://lichess.org/study",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "TrainingCategory": {
+                "type": "string",
+                "example": "endgame",
+                "enum": [
+                    "opening",
+                    "middlegame",
+                    "endgame",
+                    "tactics",
+                    "strategy"
+                ]
+            },
+            "TrainingSessionInput": {
+                "required": [
+                    "title",
+                    "category"
+                ],
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "example": "Rook endgames",
+                        "maxLength": 255
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Rook activity and practical exercises.",
+                        "nullable": true,
+                        "maxLength": 255
+                    },
+                    "category": {
+                        "$ref": "#/components/schemas/TrainingCategory"
+                    },
+                    "resource": {
+                        "type": "string",
+                        "format": "uri",
+                        "example": "https://example.com",
+                        "nullable": true,
+                        "maxLength": 255
+                    }
+                },
+                "type": "object"
+            },
+            "TrainingSessionPatch": {
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "example": "Updated training",
+                        "maxLength": 255
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Opening preparation",
+                        "nullable": true,
+                        "maxLength": 255
+                    },
+                    "category": {
+                        "$ref": "#/components/schemas/TrainingCategory"
+                    },
+                    "resource": {
+                        "type": "string",
+                        "format": "uri",
+                        "example": "https://lichess.org/study",
+                        "nullable": true,
+                        "maxLength": 255
+                    }
+                },
+                "type": "object"
+            },
+            "LinkTrainingSessionInput": {
+                "required": [
+                    "training_session_id"
+                ],
+                "properties": {
+                    "training_session_id": {
+                        "description": "ID of an existing session created by the authenticated user",
+                        "type": "integer",
+                        "example": 3
+                    }
+                },
+                "type": "object"
+            },
+            "Workspace": {
+                "required": [
+                    "id",
+                    "title",
+                    "status",
+                    "role"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "Road to FM",
+                        "maxLength": 255
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/WorkspaceStatus"
+                    },
+                    "role": {
+                        "description": "Role of the authenticated user in this workspace",
+                        "type": "string",
+                        "example": "owner",
+                        "enum": [
+                            "owner",
+                            "coach",
+                            "student",
+                            "viewer"
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "WorkspaceStatus": {
+                "type": "string",
+                "example": "active",
+                "enum": [
+                    "active",
+                    "paused",
+                    "archived"
+                ]
+            },
+            "WorkspaceInput": {
+                "required": [
+                    "title"
+                ],
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "example": "Road to FM",
+                        "maxLength": 255
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/WorkspaceStatus"
+                    }
+                },
+                "type": "object"
+            },
+            "WorkspacePatch": {
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "example": "Updated workspace",
+                        "maxLength": 255
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/WorkspaceStatus"
+                    }
+                },
+                "type": "object"
+            },
+            "Member": {
+                "required": [
+                    "id",
+                    "name",
+                    "email",
+                    "role"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Marcos Ruiz"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "marcos@example.com"
+                    },
+                    "role": {
+                        "type": "string",
+                        "example": "student",
+                        "enum": [
+                            "owner",
+                            "coach",
+                            "student",
+                            "viewer"
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "MemberInput": {
+                "required": [
+                    "email",
+                    "role"
+                ],
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "marcos@example.com"
+                    },
+                    "role": {
+                        "type": "string",
+                        "example": "student",
+                        "enum": [
+                            "coach",
+                            "student",
+                            "viewer"
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "TrainingSessionResponse": {
+                "required": [
+                    "id",
+                    "workspace_id",
+                    "training_session_id",
+                    "user_id",
+                    "content"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "workspace_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "training_session_id": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "user_id": {
+                        "description": "ID of the student who wrote the response",
+                        "type": "integer",
+                        "example": 8
+                    },
+                    "content": {
+                        "type": "string",
+                        "example": "My main line is 1.Nf5."
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/UserSummary"
+                    }
+                },
+                "type": "object"
+            },
+            "TrainingSessionResponseInput": {
+                "required": [
+                    "content"
+                ],
+                "properties": {
+                    "content": {
+                        "type": "string",
+                        "example": "My main line is 1.Nf5.",
+                        "maxLength": 10000,
+                        "minLength": 1
+                    }
+                },
+                "type": "object"
+            },
+            "TrainingSessionResource": {
+                "required": [
+                    "data"
+                ],
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/TrainingSession"
+                    }
+                },
+                "type": "object"
+            },
+            "TrainingSessionList": {
+                "required": [
+                    "data"
+                ],
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TrainingSession"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "WorkspaceResource": {
+                "required": [
+                    "data"
+                ],
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/Workspace"
+                    }
+                },
+                "type": "object"
+            },
+            "WorkspaceList": {
+                "required": [
+                    "data"
+                ],
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Workspace"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "MemberResource": {
+                "required": [
+                    "data"
+                ],
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/Member"
+                    }
+                },
+                "type": "object"
+            },
+            "MemberList": {
+                "required": [
+                    "data"
+                ],
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Member"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "TrainingSessionResponseResource": {
+                "required": [
+                    "data"
+                ],
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/TrainingSessionResponse"
+                    }
+                },
+                "type": "object"
+            },
+            "TrainingSessionResponseList": {
+                "required": [
+                    "data"
+                ],
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TrainingSessionResponse"
+                        }
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "responses": {
+            "Unauthenticated": {
+                "description": "Missing, invalid or expired token.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Message"
+                        }
+                    }
+                }
+            },
+            "Forbidden": {
+                "description": "You do not have permission to perform this action.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Message"
+                        }
+                    }
+                }
+            },
+            "NotFound": {
+                "description": "Resource not found.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Message"
+                        }
+                    }
+                }
+            },
+            "ValidationFailed": {
+                "description": "Validation failed.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        }
+                    }
+                }
+            },
+            "Conflict": {
+                "description": "The request conflicts with the current state (for example, it already exists).",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Message"
+                        }
+                    }
+                }
+            }
+        },
+        "parameters": {
+            "WorkspaceId": {
+                "name": "workspace",
+                "in": "path",
+                "description": "Workspace ID",
+                "required": true,
+                "schema": {
+                    "type": "integer",
+                    "example": 1
+                }
+            },
+            "TrainingSessionId": {
+                "name": "training_session",
+                "in": "path",
+                "description": "Training session ID",
+                "required": true,
+                "schema": {
+                    "type": "integer",
+                    "example": 3
+                }
+            },
+            "UserId": {
+                "name": "user",
+                "in": "path",
+                "description": "User ID",
+                "required": true,
+                "schema": {
+                    "type": "integer",
+                    "example": 2
+                }
+            }
+        },
         "securitySchemes": {
             "bearerAuth": {
                 "type": "http",
@@ -1358,32 +1624,32 @@
     },
     "tags": [
         {
-            "name": "Autenticación",
-            "description": "Endpoints para la gestión de usuarios y sesiones"
+            "name": "Health",
+            "description": "Application health check"
+        },
+        {
+            "name": "Authentication",
+            "description": "Endpoints for user and session management"
         },
         {
             "name": "Training Sessions",
-            "description": "Endpoints para la gestión de sesiones de entrenamiento"
+            "description": "Endpoints for training session management"
         },
         {
             "name": "Training Session Responses",
-            "description": "Respuestas de estudiantes a sesiones vinculadas a workspaces"
+            "description": "Student responses to training sessions linked to workspaces"
         },
         {
             "name": "Workspaces",
-            "description": "Endpoints para la gestión de workspaces"
-        },
-        {
-            "name": "Workspace Training Sessions",
-            "description": "Consulta y gestión de vínculos entre workspaces y sesiones de entrenamiento reutilizables"
+            "description": "Endpoints for workspace management"
         },
         {
             "name": "Workspace Members",
-            "description": "Workspace Members"
+            "description": "Endpoints for managing the members of a workspace"
         },
         {
-            "name": "Estado",
-            "description": "Estado"
+            "name": "Workspace Training Sessions",
+            "description": "Query and manage the links between workspaces and reusable training sessions"
         }
     ]
 }

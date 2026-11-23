@@ -15,7 +15,6 @@ beforeEach(function () {
 it('logs in with valid credentials', function () {
     /** @var \Tests\TestCase $this */
 
-    // PREPARAR: un usuario registrado y sus credenciales
     User::factory()->create([
         'email' => 'jaime@example.com',
         'password' => Hash::make('password123'),
@@ -26,10 +25,8 @@ it('logs in with valid credentials', function () {
         'password' => 'password123',
     ];
 
-    // ACTUAR
     $response = $this->postJson(apiUrl('login'), $data);
 
-    // COMPROBAR
     $response
         ->assertOk()
         ->assertJsonPath('data.email', 'jaime@example.com');
@@ -38,7 +35,6 @@ it('logs in with valid credentials', function () {
 it('rejects login with an incorrect password', function () {
     /** @var \Tests\TestCase $this */
 
-    // PREPARAR
     User::factory()->create([
         'email' => 'jaime@example.com',
         'password' => Hash::make('password123'),
@@ -49,17 +45,14 @@ it('rejects login with an incorrect password', function () {
         'password' => 'incorrect-password',
     ];
 
-    // ACTUAR
     $response = $this->postJson(apiUrl('login'), $data);
 
-    // COMPROBAR
     $response->assertUnauthorized();
 });
 
 it('returns an access token after login', function () {
     /** @var \Tests\TestCase $this */
 
-    // PREPARAR
     User::factory()->create([
         'email' => 'jaime@example.com',
         'password' => Hash::make('password123'),
@@ -70,10 +63,8 @@ it('returns an access token after login', function () {
         'password' => 'password123',
     ];
 
-    // ACTUAR
     $response = $this->postJson(apiUrl('login'), $data);
 
-    // COMPROBAR
     $response
         ->assertOk()
         ->assertJsonPath('token.token_type', 'Bearer')
