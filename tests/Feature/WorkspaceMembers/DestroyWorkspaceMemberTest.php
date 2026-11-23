@@ -72,7 +72,7 @@ it('preserves membership and roles in other workspaces', function () {
 it('allows a member to leave the workspace', function (string $role) {
     /** @var \Tests\TestCase $this */
 
-    [, $workspace] = emWorkspace();
+    [$owner, $workspace] = emWorkspace();
 
     $member = emMember($workspace, $role);
 
@@ -143,7 +143,7 @@ it('forbids students and viewers from removing other members', function (
 ) {
     /** @var \Tests\TestCase $this */
 
-    [, $workspace] = emWorkspace();
+    [$owner, $workspace] = emWorkspace();
 
     $actor = emMember($workspace, $role);
     $target = emMember($workspace, 'student');

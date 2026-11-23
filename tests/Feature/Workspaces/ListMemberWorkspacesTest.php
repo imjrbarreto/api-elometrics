@@ -23,11 +23,7 @@ it('lists workspaces where the user is a member', function (string $role) {
             'title' => $workspace->title,
             'status' => $workspace->status,
         ]);
-})->with([
-    'coach',
-    'student',
-    'viewer',
-]);
+})->with(['coach', 'student', 'viewer']);
 
 it('lets a member of any role view the workspace', function (string $role) {
     /** @var \Tests\TestCase $this */
@@ -41,11 +37,7 @@ it('lets a member of any role view the workspace', function (string $role) {
     $this->getJson(apiUrl("workspaces/{$workspace->id}"))
         ->assertOk()
         ->assertJsonPath('data.id', $workspace->id);
-})->with([
-    'coach',
-    'student',
-    'viewer',
-]);
+})->with(['coach','student','viewer']);
 
 it('forbids a user who is not a member from viewing the workspace', function () {
     /** @var \Tests\TestCase $this */
@@ -71,11 +63,7 @@ it('includes the user role in each workspace', function (string $role) {
         ->assertOk()
         ->assertJsonPath('data.0.id', $workspace->id)
         ->assertJsonPath('data.0.role', $role);
-})->with([
-    'coach',
-    'student',
-    'viewer',
-]);
+})->with(['coach', 'student', 'viewer']);
 
 it('includes the owner role for the workspace owner', function () {
     /** @var \Tests\TestCase $this */

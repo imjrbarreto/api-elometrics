@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable(['title', 'user_id', 'description', 'category', 'resource'])]
 class TrainingSession extends Model
 {
-    /** @use HasFactory<\Database\Factories\TrainingSessionFactory> */
     use HasFactory;
 
     public function user(): BelongsTo

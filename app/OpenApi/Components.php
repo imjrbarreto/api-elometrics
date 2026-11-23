@@ -134,6 +134,17 @@ final class UserIdParameter {}
 )]
 final class UserSchema {}
 
+// Minimal public data of a user (no email), used where other members' data is shown.
+#[OA\Schema(
+    schema: 'UserSummary',
+    required: ['id', 'name'],
+    properties: [
+        new OA\Property(property: 'id', type: 'integer', example: 8),
+        new OA\Property(property: 'name', type: 'string', example: 'Lucía Fernández'),
+    ],
+)]
+final class UserSummarySchema {}
+
 #[OA\Schema(
     schema: 'AuthToken',
     required: ['token_type', 'access_token'],
@@ -336,10 +347,21 @@ final class MemberInputSchema {}
         new OA\Property(property: 'user_id', type: 'integer', description: 'ID of the student who wrote the response', example: 8),
         new OA\Property(property: 'content', type: 'string', example: 'My main line is 1.Nf5.'),
         // Only present in the list of responses, so it is not in `required`.
-        new OA\Property(property: 'user', ref: '#/components/schemas/User'),
+        new OA\Property(property: 'user', ref: '#/components/schemas/UserSummary'),
     ],
 )]
 final class TrainingSessionResponseSchema {}
+
+// Body of POST /workspaces/{workspace}/training-sessions/{training_session}/responses
+// (mirrors StoreTrainingSessionResponseRequest)
+#[OA\Schema(
+    schema: 'TrainingSessionResponseInput',
+    required: ['content'],
+    properties: [
+        new OA\Property(property: 'content', type: 'string', minLength: 1, maxLength: 10000, example: 'My main line is 1.Nf5.'),
+    ],
+)]
+final class TrainingSessionResponseInputSchema {}
 
 // =====================================================================
 // ENVELOPES { data: ... }

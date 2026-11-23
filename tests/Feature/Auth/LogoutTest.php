@@ -14,27 +14,22 @@ beforeEach(function () {
 it('rejects unauthenticated logout', function () {
     /** @var \Tests\TestCase $this */
 
-    // ACTUAR
     $response = $this->postJson(apiUrl('logout'));
 
-    // COMPROBAR
     $response->assertUnauthorized();
 });
 
 it('revokes the current token on logout', function () {
     /** @var \Tests\TestCase $this */
 
-    // PREPARAR: crear un usuario y su token
     $user = User::factory()->create();
 
     $tokenResult = $user->createToken('Test Token');
 
-    // ACTUAR: enviar la petición con ese token
     $response = $this
         ->withToken($tokenResult->accessToken)
         ->postJson(apiUrl('logout'));
 
-    // COMPROBAR
     $response->assertNoContent();
 
     $this->assertDatabaseHas('oauth_access_tokens', [

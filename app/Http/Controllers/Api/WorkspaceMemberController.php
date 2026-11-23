@@ -101,7 +101,7 @@ class WorkspaceMemberController extends Controller
         DB::transaction(function () use ($workspace, $member, $data) {
             if ($workspace->hasMember($member)) {
                 throw ValidationException::withMessages([
-                    'email' => 'El usuario ya pertenece al workspace.',
+                    'email' => 'The user already belongs to the workspace.',
                 ]);
             }
 

@@ -30,7 +30,6 @@ use OpenApi\Attributes as OA;
     summary: 'Check that the application is running',
     tags: ['Health'],
     servers: [
-        // /up lives outside the /api/v1 prefix.
         new OA\Server(url: 'http://127.0.0.1:8000'),
     ],
     responses: [
