@@ -128,6 +128,10 @@ class WorkspacePolicy
         return $workspace->hasMember($user);
     }
 
+    public function viewTrainingSessionResponses(User $user, Workspace $workspace): bool {
+        return $workspace->hasMember($user);
+    }
+
     public function detachTrainingSession(User $user, Workspace $workspace): bool
     {
         return in_array($workspace->roleOf($user), ['owner', 'coach'], true);

@@ -38,7 +38,7 @@ class WorkspaceTrainingSessionController extends Controller
     )]
     public function index(Workspace $workspace): AnonymousResourceCollection
     {
-        Gate::authorize('viewTrainingSessions', $workspace);
+        Gate::authorize('viewTrainingSessionResponses', $workspace);
 
         $sessions = $workspace->trainingSessions()
             ->orderByDesc('training_sessions.id')
