@@ -42,6 +42,7 @@ Route::middleware('auth:api')->group(function () {
 Route::middleware('auth:api')->group(function () {
     Route::post('workspaces/{workspace}/training-sessions', [WorkspaceTrainingSessionController::class, 'store']);
     Route::get('workspaces/{workspace}/training-sessions', [WorkspaceTrainingSessionController::class, 'index']);
+    Route::get('workspaces/{workspace}/training-sessions/{training_session}', [WorkspaceTrainingSessionController::class, 'show']);
     Route::delete('workspaces/{workspace}/training-sessions/{training_session}', [WorkspaceTrainingSessionController::class, 'destroy']);
     });
     

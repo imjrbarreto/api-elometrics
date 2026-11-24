@@ -89,6 +89,41 @@ class WorkspaceTrainingSessionController extends Controller
         return response()->noContent();
     }
 
+    #[OA\Get(
+        path: '/workspaces/{workspace}/training-sessions/{training_session}',
+        operationId: 'getWorkspaceTrainingSession',
+        summary: 'Get a training session linked to a workspace',
+        description: 'Available to any member of the workspace.',
+        tags: ['Workspace Training Sessions'],
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(ref: '#/components/parameters/WorkspaceId'),
+            new OA\Parameter(ref: '#/components/parameters/TrainingSessionId'),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Linked training session returned.',
+                content: new OA\JsonContent(
+                    ref: '#/components/schemas/TrainingSessionResource'
+                )
+            ),
+            new OA\Response(response: 401, ref: '#/components/responses/Unauthenticated'),
+            new OA\Response(response: 403, ref: '#/components/responses/Forbidden'),
+            new OA\Response(response: 404, ref: '#/components/responses/NotFound'),
+        ]
+    )]
+    public function show(Workspace $workspace, TrainingSession $training_session): TrainingSessionResource 
+    {
+        Gate::authorize('viewTrainingSessions', $workspace);
+
+        $session = $workspace->trainingSessions()
+            ->whereKey($training_session->id)
+            ->firstOrFail();
+
+        return new TrainingSessionResource($session);
+    }
+
     #[OA\Delete(
         path: '/workspaces/{workspace}/training-sessions/{training_session}',
         operationId: 'unlinkTrainingSession',
