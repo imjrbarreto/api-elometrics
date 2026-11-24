@@ -847,6 +847,48 @@
             }
         },
         "/workspaces/{workspace}/training-sessions/{training_session}": {
+            "get": {
+                "tags": [
+                    "Workspace Training Sessions"
+                ],
+                "summary": "Get a training session linked to a workspace",
+                "description": "Available to any member of the workspace.",
+                "operationId": "getWorkspaceTrainingSession",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/WorkspaceId"
+                    },
+                    {
+                        "$ref": "#/components/parameters/TrainingSessionId"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Linked training session returned.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TrainingSessionResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
             "delete": {
                 "tags": [
                     "Workspace Training Sessions"
