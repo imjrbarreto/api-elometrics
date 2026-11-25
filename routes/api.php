@@ -35,7 +35,7 @@ Route::middleware('auth:api')->group(function () {
 
 Route::middleware('auth:api')->group(function () {
     Route::post('training-sessions/{training_session}/games', [TrainingGameController::class, 'store']);
-    // Route::delete('training-sessions/{training_session}', [TrainingSessionController::class, 'delete']);
+    Route::delete('training-sessions/{training_session}/games/{game}', [TrainingGameController::class, 'destroy']);
 });
 
 

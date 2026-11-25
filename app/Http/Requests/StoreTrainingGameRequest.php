@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\ValidPgn;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreTrainingGameRequest extends FormRequest
@@ -17,7 +18,13 @@ class StoreTrainingGameRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'pgn' => ['required', 'string', 'max:50000'],
+            'pgn' => [
+                'bail',
+                'required',
+                'string',
+                'max:50000',
+                new ValidPgn(),
+            ],
         ];
     }
 }
