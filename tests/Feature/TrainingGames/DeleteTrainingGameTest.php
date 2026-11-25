@@ -30,6 +30,8 @@ it('allows the creator to delete a training game', function () {
 });
 
 it('forbids deleting games from another user training session', function () {
+    /** @var \Tests\TestCase $this */
+
     $owner = User::factory()->create();
     $user = User::factory()->create();
 
@@ -53,6 +55,8 @@ it('forbids deleting games from another user training session', function () {
 });
 
 it('returns not found when the game belongs to another session', function () {
+    /** @var \Tests\TestCase $this */
+
     $user = User::factory()->create();
 
     $session = TrainingSession::factory()->create([

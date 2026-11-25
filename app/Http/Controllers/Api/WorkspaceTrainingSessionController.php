@@ -118,6 +118,7 @@ class WorkspaceTrainingSessionController extends Controller
         Gate::authorize('viewTrainingSessions', $workspace);
 
         $session = $workspace->trainingSessions()
+            ->with('games')
             ->whereKey($training_session->id)
             ->firstOrFail();
 

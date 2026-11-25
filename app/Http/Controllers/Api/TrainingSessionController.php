@@ -92,6 +92,8 @@ class TrainingSessionController extends Controller
     {
         Gate::authorize('view', $trainingSession);
 
+        $trainingSession->load('games');
+
         return new TrainingSessionResource($trainingSession);
     }
 
