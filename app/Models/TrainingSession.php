@@ -25,6 +25,11 @@ class TrainingSession extends Model
             ->withTimestamps();
     }
 
+    public function games(): HasMany
+    {
+        return $this->hasMany(TrainingGame::class);
+    }
+
     public function responses(): HasMany
     {
         return $this->hasMany(TrainingSessionResponse::class);

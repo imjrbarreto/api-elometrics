@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\TrainingGameController;
 use App\Http\Controllers\Api\WorkspaceController;
 use App\Http\Controllers\Api\TrainingSessionController;
 use App\Http\Controllers\Api\TrainingSessionResponseController;
@@ -32,6 +33,11 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('training-sessions/{training_session}', [TrainingSessionController::class, 'delete']);
 });
 
+Route::middleware('auth:api')->group(function () {
+    Route::post('training-sessions/{training_session}/games', [TrainingGameController::class, 'store']);
+    Route::delete('training-sessions/{training_session}/games/{game}', [TrainingGameController::class, 'destroy']);
+});
+
 
 Route::middleware('auth:api')->group(function () {
     Route::get('workspaces/{workspace}/members', [WorkspaceMemberController::class, 'index']);
@@ -45,7 +51,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('workspaces/{workspace}/training-sessions/{training_session}', [WorkspaceTrainingSessionController::class, 'show']);
     Route::delete('workspaces/{workspace}/training-sessions/{training_session}', [WorkspaceTrainingSessionController::class, 'destroy']);
     });
-    
+
 Route::middleware('auth:api')->group(function () {
     Route::post('workspaces/{workspace}/training-sessions/{training_session}/responses', [TrainingSessionResponseController::class, 'store']);
     Route::get('workspaces/{workspace}/training-sessions/{training_session}/responses', [TrainingSessionResponseController::class, 'index']);
