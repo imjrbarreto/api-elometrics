@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\TrainingSession;
 use App\Models\Workspace;
+use App\Support\PgnPdfFormatter;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Gate;
@@ -59,11 +60,20 @@ class WorkspaceTrainingSessionExportController extends Controller
 
         abort_unless($isLinked, 404);
 
+        $session = $training_session->load(['user', 'games']);
+
+        $formatter = new PgnPdfFormatter();
+
+        $games = $session->games->map(
+            fn ($game) => $formatter->format($game->pgn)
+        );
+
         return Pdf::loadView('pdf.training-session', [
             'workspace' => $workspace,
-            'session' => $training_session->load('user'),
+            'session' => $session,
+            'games' => $games,
         ])
             ->setPaper('a4')
-            ->download("training-session-{$training_session->id}.pdf");
+            ->download("training-session-{$session->id}.pdf");
     }
 }
