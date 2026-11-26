@@ -141,6 +141,97 @@
                 ]
             }
         },
+        "/training-sessions/{training_session}/games": {
+            "post": {
+                "tags": [
+                    "Training Games"
+                ],
+                "summary": "Add a game to a training session",
+                "description": "Only the creator of the session can add games. The PGN must be at most 50000 characters and contain a valid mainline.",
+                "operationId": "createTrainingGame",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/TrainingSessionId"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TrainingGameInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Game added.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TrainingGameResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationFailed"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/training-sessions/{training_session}/games/{game}": {
+            "delete": {
+                "tags": [
+                    "Training Games"
+                ],
+                "summary": "Delete a game from a training session",
+                "description": "Only the creator of the session can delete its games.",
+                "operationId": "deleteTrainingGame",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/TrainingSessionId"
+                    },
+                    {
+                        "$ref": "#/components/parameters/GameId"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Game deleted."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/training-sessions": {
             "get": {
                 "tags": [
@@ -216,7 +307,7 @@
                     "Training Sessions"
                 ],
                 "summary": "Get a training session",
-                "description": "Only the creator of the session can view it.",
+                "description": "Only the creator of the session can view it. The response includes the games of the session.",
                 "operationId": "getTrainingSession",
                 "parameters": [
                     {
@@ -225,11 +316,11 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Training session returned.",
+                        "description": "Training session returned, including its games.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/TrainingSessionResource"
+                                    "$ref": "#/components/schemas/TrainingSessionDetailResource"
                                 }
                             }
                         }
@@ -852,7 +943,7 @@
                     "Workspace Training Sessions"
                 ],
                 "summary": "Get a training session linked to a workspace",
-                "description": "Available to any member of the workspace.",
+                "description": "Available to any member of the workspace, whoever created the session. The session must be linked to the workspace.",
                 "operationId": "getWorkspaceTrainingSession",
                 "parameters": [
                     {
@@ -864,11 +955,11 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Linked training session returned.",
+                        "description": "Linked training session returned, including its games.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/TrainingSessionResource"
+                                    "$ref": "#/components/schemas/TrainingSessionDetailResource"
                                 }
                             }
                         }
@@ -1292,6 +1383,85 @@
                 },
                 "type": "object"
             },
+            "TrainingGame": {
+                "required": [
+                    "id",
+                    "training_session_id",
+                    "pgn"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "training_session_id": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "pgn": {
+                        "type": "string",
+                        "example": "1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 *"
+                    }
+                },
+                "type": "object"
+            },
+            "TrainingGameInput": {
+                "required": [
+                    "pgn"
+                ],
+                "properties": {
+                    "pgn": {
+                        "description": "Game in PGN format. It must contain a valid mainline.",
+                        "type": "string",
+                        "example": "1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 *",
+                        "maxLength": 50000
+                    }
+                },
+                "type": "object"
+            },
+            "TrainingGameResource": {
+                "required": [
+                    "data"
+                ],
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/TrainingGame"
+                    }
+                },
+                "type": "object"
+            },
+            "TrainingSessionDetail": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/TrainingSession"
+                    },
+                    {
+                        "required": [
+                            "games"
+                        ],
+                        "properties": {
+                            "games": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/TrainingGame"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "TrainingSessionDetailResource": {
+                "required": [
+                    "data"
+                ],
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/TrainingSessionDetail"
+                    }
+                },
+                "type": "object"
+            },
             "Workspace": {
                 "required": [
                     "id",
@@ -1654,6 +1824,16 @@
                     "type": "integer",
                     "example": 2
                 }
+            },
+            "GameId": {
+                "name": "game",
+                "in": "path",
+                "description": "Training game ID",
+                "required": true,
+                "schema": {
+                    "type": "integer",
+                    "example": 5
+                }
             }
         },
         "securitySchemes": {
@@ -1672,6 +1852,10 @@
         {
             "name": "Authentication",
             "description": "Endpoints for user and session management"
+        },
+        {
+            "name": "Training Games",
+            "description": "PGN games attached to training sessions"
         },
         {
             "name": "Training Sessions",

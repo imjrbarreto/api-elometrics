@@ -71,7 +71,7 @@ class TrainingSessionController extends Controller
         path: '/training-sessions/{training_session}',
         operationId: 'getTrainingSession',
         summary: 'Get a training session',
-        description: 'Only the creator of the session can view it.',
+        description: 'Only the creator of the session can view it. The response includes the games of the session.',
         tags: ['Training Sessions'],
         security: [['bearerAuth' => []]],
         parameters: [
@@ -80,8 +80,8 @@ class TrainingSessionController extends Controller
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'Training session returned.',
-                content: new OA\JsonContent(ref: '#/components/schemas/TrainingSessionResource')
+                description: 'Training session returned, including its games.',
+                content: new OA\JsonContent(ref: '#/components/schemas/TrainingSessionDetailResource')
             ),
             new OA\Response(response: 401, ref: '#/components/responses/Unauthenticated'),
             new OA\Response(response: 403, ref: '#/components/responses/Forbidden'),

@@ -116,6 +116,16 @@ final class TrainingSessionIdParameter {}
 )]
 final class UserIdParameter {}
 
+#[OA\Parameter(
+    parameter: 'GameId',
+    name: 'game',
+    in: 'path',
+    required: true,
+    description: 'Training game ID',
+    schema: new OA\Schema(type: 'integer', example: 5),
+)]
+final class GameIdParameter {}
+
 // =====================================================================
 // ENTITIES
 // `required` matters: anything NOT listed there is generated as optional
@@ -262,6 +272,67 @@ final class TrainingSessionPatchSchema {}
     ],
 )]
 final class LinkTrainingSessionInputSchema {}
+
+// A game (PGN) attached to a training session
+#[OA\Schema(
+    schema: 'TrainingGame',
+    required: ['id', 'training_session_id', 'pgn'],
+    properties: [
+        new OA\Property(property: 'id', type: 'integer', example: 5),
+        new OA\Property(property: 'training_session_id', type: 'integer', example: 3),
+        new OA\Property(property: 'pgn', type: 'string', example: '1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 *'),
+    ],
+)]
+final class TrainingGameSchema {}
+
+// Body of POST /training-sessions/{training_session}/games (mirrors StoreTrainingGameRequest)
+#[OA\Schema(
+    schema: 'TrainingGameInput',
+    required: ['pgn'],
+    properties: [
+        new OA\Property(
+            property: 'pgn',
+            type: 'string',
+            maxLength: 50000,
+            description: 'Game in PGN format. It must contain a valid mainline.',
+            example: '1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 *',
+        ),
+    ],
+)]
+final class TrainingGameInputSchema {}
+
+#[OA\Schema(
+    schema: 'TrainingGameResource',
+    required: ['data'],
+    properties: [new OA\Property(property: 'data', ref: '#/components/schemas/TrainingGame')],
+)]
+final class TrainingGameResourceSchema {}
+
+// A training session together with its games (detail endpoints only).
+#[OA\Schema(
+    schema: 'TrainingSessionDetail',
+    allOf: [
+        new OA\Schema(ref: '#/components/schemas/TrainingSession'),
+        new OA\Schema(
+            required: ['games'],
+            properties: [
+                new OA\Property(
+                    property: 'games',
+                    type: 'array',
+                    items: new OA\Items(ref: '#/components/schemas/TrainingGame'),
+                ),
+            ],
+        ),
+    ],
+)]
+final class TrainingSessionDetailSchema {}
+
+#[OA\Schema(
+    schema: 'TrainingSessionDetailResource',
+    required: ['data'],
+    properties: [new OA\Property(property: 'data', ref: '#/components/schemas/TrainingSessionDetail')],
+)]
+final class TrainingSessionDetailResourceSchema {}
 
 #[OA\Schema(
     schema: 'Workspace',
